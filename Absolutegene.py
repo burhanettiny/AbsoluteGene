@@ -608,9 +608,10 @@ SCENARIOS = {
 st.markdown(
     f"""
     <div style="background:linear-gradient(90deg,#004d40,#00796b);
-                color:white;padding:10px 18px;border-radius:8px;margin-bottom:8px;">
-        <div style="font-size:20px;font-weight:800;">{_t['title']}</div>
-        <div style="font-size:11px;opacity:0.8;margin-top:2px;">{_t['subtitle']}</div>
+                color:white;padding:14px 18px 12px 18px;border-radius:8px;margin-bottom:8px;
+                overflow:visible;">
+        <div style="font-size:20px;font-weight:800;line-height:1.4;">{_t['title']}</div>
+        <div style="font-size:11px;opacity:0.8;margin-top:4px;line-height:1.4;">{_t['subtitle']}</div>
     </div>
     """,
     unsafe_allow_html=True

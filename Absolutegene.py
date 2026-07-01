@@ -186,6 +186,10 @@ translations = {
         "sidebar_sister_tool": "🧬 qPCR için: GeneQuantify",
         "rdml_expander": "ℹ️ Veri girişi hakkında",
         "guide_btn": "📘 Kullanım Kılavuzu",
+        "sidebar_example_title": "📋 Örnek Veri Yükle",
+        "sidebar_example_select": "Senaryo seçin",
+        "sidebar_example_load_btn": "▶ Senaryoyu Yükle",
+        "sidebar_example_loaded": "✅ {s} yüklendi! Veri Girişi sekmesine geçin.",
     },
     "en": {
         "title": "🧪 AbsoluteGene: Digital PCR (dPCR/ddPCR) Gene Expression & CNV Analysis",
@@ -313,6 +317,10 @@ translations = {
         "sidebar_sister_tool": "🧬 For qPCR: GeneQuantify",
         "rdml_expander": "ℹ️ About data entry",
         "guide_btn": "📘 User Guide",
+        "sidebar_example_title": "📋 Load Example Data",
+        "sidebar_example_select": "Select scenario",
+        "sidebar_example_load_btn": "▶ Load Scenario",
+        "sidebar_example_loaded": "✅ {s} loaded! Switch to the Data Entry tab.",
     }
 }
 _t = translations[language_code]
@@ -469,6 +477,132 @@ def render_outlier_ui(data, label, key_prefix, method, alpha=0.05, k=1.5):
     return data, []
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# EXAMPLE / VALIDATION SCENARIOS (dPCR partition counts — Poisson-derived)
+# ═══════════════════════════════════════════════════════════════════════════════
+SCENARIOS = {
+    "S1 — Basic CNV gain (1 gene, n=5)": {
+        "gene_count": 1, "patient_count": 1, "num_ref_genes": 1,
+        "ploidy": 2, "partition_vol": 0.85, "qc_min": 10000,
+        "outlier_method": "Grubbs", "outlier_enabled": True,
+        "description_tr": "1 hedef gen, 1 hasta grubu, n=5. Hasta grubunda hedef lokusta ~1.5x kopya kazanımı (CN ~3).",
+        "description_en": "1 target gene, 1 patient group, n=5. Patient group shows ~1.5x copy gain at the target locus (CN ~3).",
+        "ctrl_tgt_pos_0": "1890\n1920\n1875\n1905\n1898",
+        "ctrl_tgt_tot_0": "20000\n20100\n19850\n20050\n19980",
+        "ctrl_ref_pos_0_0": "1895\n1915\n1870\n1900\n1892",
+        "ctrl_ref_tot_0_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_tgt_pos_0_0": "2780\n2820\n2755\n2800\n2790",
+        "smp_tgt_tot_0_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_0_0": "1895\n1915\n1870\n1900\n1892",
+        "smp_ref_tot_0_0_0": "20000\n20100\n19850\n20050\n19980",
+    },
+    "S2 — Multi-gene + dual reference (2 genes, 2 groups, n=5)": {
+        "gene_count": 2, "patient_count": 2, "num_ref_genes": 2,
+        "ploidy": 2, "partition_vol": 0.85, "qc_min": 10000,
+        "outlier_method": "IQR", "outlier_enabled": True,
+        "description_tr": "2 hedef gen, 2 hasta grubu, n=5. İkili referans normalizasyonu (geNorm). Gen 1: değişim yok. Gen 2: Grup 1 kayıp, Grup 2 kazanım.",
+        "description_en": "2 target genes, 2 patient groups, n=5. Dual-reference normalization (geNorm-style). Gene 1: no change. Gene 2: Group 1 = loss, Group 2 = gain.",
+        # Gene 1 — control
+        "ctrl_tgt_pos_0": "2000\n2020\n1980\n2010\n1995",
+        "ctrl_tgt_tot_0": "20000\n20100\n19850\n20050\n19980",
+        "ctrl_ref_pos_0_0": "1900\n1920\n1880\n1910\n1898",
+        "ctrl_ref_tot_0_0": "20000\n20100\n19850\n20050\n19980",
+        "ctrl_ref_pos_0_1": "2100\n2120\n2080\n2110\n2098",
+        "ctrl_ref_tot_0_1": "20000\n20100\n19850\n20050\n19980",
+        # Gene 1 — Group 1 (no change)
+        "smp_tgt_pos_0_0": "2005\n2025\n1985\n2015\n2000",
+        "smp_tgt_tot_0_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_0_0": "1900\n1920\n1880\n1910\n1898",
+        "smp_ref_tot_0_0_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_0_1": "2100\n2120\n2080\n2110\n2098",
+        "smp_ref_tot_0_0_1": "20000\n20100\n19850\n20050\n19980",
+        # Gene 1 — Group 2 (no change)
+        "smp_tgt_pos_0_1": "1995\n2015\n1975\n2005\n1990",
+        "smp_tgt_tot_0_1": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_1_0": "1900\n1920\n1880\n1910\n1898",
+        "smp_ref_tot_0_1_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_1_1": "2100\n2120\n2080\n2110\n2098",
+        "smp_ref_tot_0_1_1": "20000\n20100\n19850\n20050\n19980",
+        # Gene 2 — control
+        "ctrl_tgt_pos_1": "2000\n2020\n1980\n2010\n1995",
+        "ctrl_tgt_tot_1": "20000\n20100\n19850\n20050\n19980",
+        "ctrl_ref_pos_1_0": "1900\n1920\n1880\n1910\n1898",
+        "ctrl_ref_tot_1_0": "20000\n20100\n19850\n20050\n19980",
+        "ctrl_ref_pos_1_1": "2100\n2120\n2080\n2110\n2098",
+        "ctrl_ref_tot_1_1": "20000\n20100\n19850\n20050\n19980",
+        # Gene 2 — Group 1 (loss, ratio ~0.5)
+        "smp_tgt_pos_1_0": "1030\n1045\n1015\n1038\n1022",
+        "smp_tgt_tot_1_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_1_0_0": "1900\n1920\n1880\n1910\n1898",
+        "smp_ref_tot_1_0_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_1_0_1": "2100\n2120\n2080\n2110\n2098",
+        "smp_ref_tot_1_0_1": "20000\n20100\n19850\n20050\n19980",
+        # Gene 2 — Group 2 (gain, ratio ~2.0)
+        "smp_tgt_pos_1_1": "3790\n3830\n3760\n3810\n3795",
+        "smp_tgt_tot_1_1": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_1_1_0": "1900\n1920\n1880\n1910\n1898",
+        "smp_ref_tot_1_1_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_1_1_1": "2100\n2120\n2080\n2110\n2098",
+        "smp_ref_tot_1_1_1": "20000\n20100\n19850\n20050\n19980",
+    },
+    "S3 — Outlier detection demo (n=6)": {
+        "gene_count": 1, "patient_count": 1, "num_ref_genes": 1,
+        "ploidy": 2, "partition_vol": 0.85, "qc_min": 10000,
+        "outlier_method": "Grubbs", "outlier_enabled": True,
+        "description_tr": "1 hedef gen, n=6. Kontrol grubunda replikat 5 aykırı değer (kontaminasyon benzeri yüksek λ). Grubbs testiyle tespit edilir.",
+        "description_en": "1 target gene, n=6. Replicate 5 in the control group is an outlier (contamination-like elevated λ). Detected by Grubbs' test.",
+        "ctrl_tgt_pos_0": "1890\n1920\n1875\n1905\n5800\n1898",
+        "ctrl_tgt_tot_0": "20000\n20100\n19850\n20050\n20000\n19980",
+        "ctrl_ref_pos_0_0": "1895\n1915\n1870\n1900\n1888\n1892",
+        "ctrl_ref_tot_0_0": "20000\n20100\n19850\n20050\n19990\n19980",
+        "smp_tgt_pos_0_0": "3780\n3820\n3755\n3800\n3790",
+        "smp_tgt_tot_0_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_0_0": "1895\n1915\n1870\n1900\n1892",
+        "smp_ref_tot_0_0_0": "20000\n20100\n19850\n20050\n19980",
+    },
+    "S4 — Multi-group ANOVA (3 groups, n=5)": {
+        "gene_count": 1, "patient_count": 3, "num_ref_genes": 1,
+        "ploidy": 2, "partition_vol": 0.85, "qc_min": 10000,
+        "outlier_method": "Grubbs", "outlier_enabled": True,
+        "description_tr": "1 hedef gen, 3 hasta grubu, n=5. Grup 1: hafif kazanım, Grup 2: güçlü kazanım, Grup 3: değişim yok. Tek yönlü ANOVA + Tukey HSD.",
+        "description_en": "1 target gene, 3 patient groups, n=5. Group 1: mild gain, Group 2: strong gain, Group 3: no change. One-way ANOVA + Tukey HSD.",
+        "ctrl_tgt_pos_0": "1890\n1920\n1875\n1905\n1898",
+        "ctrl_tgt_tot_0": "20000\n20100\n19850\n20050\n19980",
+        "ctrl_ref_pos_0_0": "1895\n1915\n1870\n1900\n1892",
+        "ctrl_ref_tot_0_0": "20000\n20100\n19850\n20050\n19980",
+        # Group 1: mild gain (ratio ~1.3)
+        "smp_tgt_pos_0_0": "2440\n2470\n2415\n2455\n2445",
+        "smp_tgt_tot_0_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_0_0": "1895\n1915\n1870\n1900\n1892",
+        "smp_ref_tot_0_0_0": "20000\n20100\n19850\n20050\n19980",
+        # Group 2: strong gain (ratio ~2.5)
+        "smp_tgt_pos_0_1": "4520\n4570\n4480\n4545\n4510",
+        "smp_tgt_tot_0_1": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_1_0": "1895\n1915\n1870\n1900\n1892",
+        "smp_ref_tot_0_1_0": "20000\n20100\n19850\n20050\n19980",
+        # Group 3: no change
+        "smp_tgt_pos_0_2": "1885\n1915\n1870\n1900\n1892",
+        "smp_tgt_tot_0_2": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_2_0": "1895\n1915\n1870\n1900\n1892",
+        "smp_ref_tot_0_2_0": "20000\n20100\n19850\n20050\n19980",
+    },
+    "S5 — QC & saturation demo (n=5)": {
+        "gene_count": 1, "patient_count": 1, "num_ref_genes": 1,
+        "ploidy": 2, "partition_vol": 0.85, "qc_min": 10000,
+        "outlier_method": "Grubbs", "outlier_enabled": True,
+        "description_tr": "1 hedef gen, n=5. Kontrol grubunda 1 replikat düşük partisyon (QC hatası), 1 replikat doygun (%100 pozitif). Kalite kontrol uyarılarını gösterir.",
+        "description_en": "1 target gene, n=5. Control group has 1 low-partition replicate (QC failure) and 1 saturated replicate (100% positive). Demonstrates QC warnings.",
+        "ctrl_tgt_pos_0": "1890\n1920\n500\n20000\n1898",
+        "ctrl_tgt_tot_0": "20000\n20100\n3000\n20000\n19980",
+        "ctrl_ref_pos_0_0": "1895\n1915\n505\n1901\n1892",
+        "ctrl_ref_tot_0_0": "20000\n20100\n3000\n20050\n19980",
+        "smp_tgt_pos_0_0": "3780\n3820\n3755\n3800\n3790",
+        "smp_tgt_tot_0_0": "20000\n20100\n19850\n20050\n19980",
+        "smp_ref_pos_0_0_0": "1895\n1915\n1870\n1900\n1892",
+        "smp_ref_tot_0_0_0": "20000\n20100\n19850\n20050\n19980",
+    },
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════════════════
 st.markdown(
@@ -485,6 +619,27 @@ st.markdown(
 # ═══════════════════════════════════════════════════════════════════════════════
 # SIDEBAR — User guide, links
 # ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════════
+# SIDEBAR — Example data loader
+# ═══════════════════════════════════════════════════════════════════════════════
+st.sidebar.markdown(
+    f"<div style='font-size:12px;font-weight:600;color:#004d40;margin-bottom:2px;'>"
+    f"{_t['sidebar_example_title']}</div>", unsafe_allow_html=True
+)
+selected_scenario = st.sidebar.selectbox(
+    _t['sidebar_example_select'], options=["—"] + list(SCENARIOS.keys()),
+    key="scenario_selector", label_visibility="collapsed"
+)
+if selected_scenario != "—":
+    _sc = SCENARIOS[selected_scenario]
+    st.sidebar.caption(_sc.get(f"description_{language_code}", _sc.get("description_en", "")))
+    if st.sidebar.button(_t['sidebar_example_load_btn'], key="load_scenario_btn", use_container_width=True):
+        for _key, _val in _sc.items():
+            if _key.startswith("description"):
+                continue
+            st.session_state[_key] = _val
+        st.sidebar.success(_t['sidebar_example_loaded'].format(s=selected_scenario))
+
 guide_clicked = st.sidebar.button(_t['guide_btn'], use_container_width=True)
 if guide_clicked:
     @st.dialog("📘 AbsoluteGene — User Guide" if language_code == "en" else "📘 AbsoluteGene — Kullanım Kılavuzu", width="large")
@@ -630,28 +785,35 @@ with tab_data:
         with sd_c2:
             num_patient_groups = st.number_input(_t['num_patient_groups'], min_value=1, step=1, key="patient_count")
         with sd_c3:
-            num_ref_genes = st.number_input(_t['num_ref_genes'], min_value=1, max_value=10, value=1, step=1,
+            num_ref_genes = st.number_input(_t['num_ref_genes'], min_value=1, max_value=10, step=1,
                                              key="num_ref_genes", help=_t['ref_gene_help'])
         sd_c4, sd_c5, sd_c6 = st.columns(3)
         with sd_c4:
-            ploidy = st.number_input(_t['ploidy_label'], min_value=1, max_value=10, value=2, step=1,
-                                      key="ploidy", help=_t['ploidy_help'])
+            ploidy = st.number_input(_t['ploidy_label'], min_value=1, max_value=10,
+                                      **({} if "ploidy" in st.session_state else {"value": 2}),
+                                      step=1, key="ploidy", help=_t['ploidy_help'])
         with sd_c5:
-            partition_vol_nl = st.number_input(_t['partition_vol_label'], min_value=0.01, max_value=100.0,
-                                                value=0.85, step=0.01, format="%.2f",
-                                                key="partition_vol", help=_t['partition_vol_help'])
+            partition_vol_nl = st.number_input(
+                _t['partition_vol_label'], min_value=0.01, max_value=100.0,
+                **({} if "partition_vol" in st.session_state else {"value": 0.85}),
+                step=0.01, format="%.2f", key="partition_vol", help=_t['partition_vol_help']
+            )
         with sd_c6:
-            qc_min_partitions = st.number_input(_t['qc_min_partitions'], min_value=100, max_value=100000,
-                                                 value=10000, step=500, key="qc_min",
-                                                 help=_t['qc_min_partitions_help'])
+            qc_min_partitions = st.number_input(
+                _t['qc_min_partitions'], min_value=100, max_value=100000,
+                **({} if "qc_min" in st.session_state else {"value": 10000}),
+                step=500, key="qc_min", help=_t['qc_min_partitions_help']
+            )
 
     # ── Outlier Detection Settings ────────────────────────────────────────────
     with st.container(border=True):
         st.markdown(_t['outlier_section_title'])
         out_c1, out_c2 = st.columns([1, 2])
         with out_c1:
-            outlier_enabled = st.checkbox(_t['outlier_enable'], value=True, key="outlier_enabled",
-                                           help=_t['outlier_enable_help'])
+            outlier_enabled = st.checkbox(
+                _t['outlier_enable'], key="outlier_enabled", help=_t['outlier_enable_help'],
+                **({} if "outlier_enabled" in st.session_state else {"value": True})
+            )
             outlier_method = st.radio(_t['outlier_method_label'], options=["Grubbs", "IQR"],
                                        key="outlier_method", help=_t['outlier_method_help'])
         with out_c2:
@@ -794,6 +956,11 @@ with tab_data:
             "detail_rows": detail_rows,
         }
 
+    def _ta(label, key):
+        """text_area wrapper that avoids the Streamlit session-state/value conflict warning."""
+        kwargs = {} if key in st.session_state else {"value": ""}
+        return st.text_area(label, key=key, **kwargs)
+
     # ── Main per-gene loop ────────────────────────────────────────────────────
     for i in range(num_target_genes):
         st.markdown(
@@ -805,14 +972,12 @@ with tab_data:
         st.markdown(f"**{_t['control_group']} — {_t['target_gene']} {i+1}**")
         cc1, cc2 = st.columns(2)
         with cc1:
-            ctrl_target_pos_txt = st.text_area(
-                f"Control {i+1} — {_t['positive_partitions']} ({_t['target_gene']})",
-                value=st.session_state.get(f"ctrl_tgt_pos_{i}", ""), key=f"ctrl_tgt_pos_{i}"
+            ctrl_target_pos_txt = _ta(
+                f"Control {i+1} — {_t['positive_partitions']} ({_t['target_gene']})", f"ctrl_tgt_pos_{i}"
             )
         with cc2:
-            ctrl_target_tot_txt = st.text_area(
-                f"Control {i+1} — {_t['total_partitions']} ({_t['target_gene']})",
-                value=st.session_state.get(f"ctrl_tgt_tot_{i}", ""), key=f"ctrl_tgt_tot_{i}"
+            ctrl_target_tot_txt = _ta(
+                f"Control {i+1} — {_t['total_partitions']} ({_t['target_gene']})", f"ctrl_tgt_tot_{i}"
             )
 
         ctrl_ref_pos_txts, ctrl_ref_tot_txts = [], []
@@ -820,13 +985,9 @@ with tab_data:
             rc1, rc2 = st.columns(2)
             ref_lbl = f"{_t['reference_gene']} {r+1}" if num_ref_genes > 1 else _t['reference_gene']
             with rc1:
-                rp = st.text_area(f"Control {i+1} — {_t['positive_partitions']} ({ref_lbl})",
-                                   value=st.session_state.get(f"ctrl_ref_pos_{i}_{r}", ""),
-                                   key=f"ctrl_ref_pos_{i}_{r}")
+                rp = _ta(f"Control {i+1} — {_t['positive_partitions']} ({ref_lbl})", f"ctrl_ref_pos_{i}_{r}")
             with rc2:
-                rt = st.text_area(f"Control {i+1} — {_t['total_partitions']} ({ref_lbl})",
-                                   value=st.session_state.get(f"ctrl_ref_tot_{i}_{r}", ""),
-                                   key=f"ctrl_ref_tot_{i}_{r}")
+                rt = _ta(f"Control {i+1} — {_t['total_partitions']} ({ref_lbl})", f"ctrl_ref_tot_{i}_{r}")
             ctrl_ref_pos_txts.append(rp)
             ctrl_ref_tot_txts.append(rt)
 
@@ -876,14 +1037,12 @@ with tab_data:
             st.markdown(f"**{_t['patient_group']} {j+1} — {_t['target_gene']} {i+1}**")
             pc1, pc2 = st.columns(2)
             with pc1:
-                smp_target_pos_txt = st.text_area(
-                    f"Group {j+1} — {_t['positive_partitions']} ({_t['target_gene']} {i+1})",
-                    value=st.session_state.get(f"smp_tgt_pos_{i}_{j}", ""), key=f"smp_tgt_pos_{i}_{j}"
+                smp_target_pos_txt = _ta(
+                    f"Group {j+1} — {_t['positive_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_pos_{i}_{j}"
                 )
             with pc2:
-                smp_target_tot_txt = st.text_area(
-                    f"Group {j+1} — {_t['total_partitions']} ({_t['target_gene']} {i+1})",
-                    value=st.session_state.get(f"smp_tgt_tot_{i}_{j}", ""), key=f"smp_tgt_tot_{i}_{j}"
+                smp_target_tot_txt = _ta(
+                    f"Group {j+1} — {_t['total_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_tot_{i}_{j}"
                 )
 
             smp_ref_pos_txts, smp_ref_tot_txts = [], []
@@ -891,13 +1050,9 @@ with tab_data:
                 rc1, rc2 = st.columns(2)
                 ref_lbl = f"{_t['reference_gene']} {r+1}" if num_ref_genes > 1 else _t['reference_gene']
                 with rc1:
-                    rp = st.text_area(f"Group {j+1} — {_t['positive_partitions']} ({ref_lbl})",
-                                       value=st.session_state.get(f"smp_ref_pos_{i}_{j}_{r}", ""),
-                                       key=f"smp_ref_pos_{i}_{j}_{r}")
+                    rp = _ta(f"Group {j+1} — {_t['positive_partitions']} ({ref_lbl})", f"smp_ref_pos_{i}_{j}_{r}")
                 with rc2:
-                    rt = st.text_area(f"Group {j+1} — {_t['total_partitions']} ({ref_lbl})",
-                                       value=st.session_state.get(f"smp_ref_tot_{i}_{j}_{r}", ""),
-                                       key=f"smp_ref_tot_{i}_{j}_{r}")
+                    rt = _ta(f"Group {j+1} — {_t['total_partitions']} ({ref_lbl})", f"smp_ref_tot_{i}_{j}_{r}")
                 smp_ref_pos_txts.append(rp)
                 smp_ref_tot_txts.append(rt)
 

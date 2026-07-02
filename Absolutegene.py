@@ -13,6 +13,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 import matplotlib.pyplot as plt
 import os
+import json
 
 try:
     plt.rcParams['font.family'] = 'DejaVu Sans'
@@ -228,6 +229,44 @@ translations = {
         "csv_apply_success": "✅ {n} değer Veri Girişi sekmesine yüklendi! Kontrol edip ayarlayabilirsiniz.",
         "csv_apply_warning": "⚠️ Hiçbir değer eşleştirilemedi. Kontrol/hasta etiketlerinin örnek adlarıyla uyuştuğundan emin olun.",
         "download_example_csv": "📄 Örnek CSV Dosyasını İndir",
+        "dilution_expander": "🧪 Optimal Seyreltme / Dinamik Aralık Hesaplayıcısı",
+        "dilution_description": "Poisson tabanlı kantifikasyonun en hassas olduğu aralık partisyon başına ~1.0–2.0 kopyadır (λ). Bu hesaplayıcı, mevcut ölçümünüze göre önerilen seyreltme faktörünü bulur.",
+        "dilution_mode_label": "Giriş yöntemi",
+        "dilution_mode_counts": "Gözlenen partisyon sayılarından",
+        "dilution_mode_lambda": "Bilinen λ değerinden",
+        "dilution_positive_label": "Pozitif Partisyon Sayısı",
+        "dilution_total_label": "Toplam Partisyon Sayısı",
+        "dilution_lambda_label": "Mevcut λ (kopya/partisyon)",
+        "dilution_target_label": "Hedef λ (kopya/partisyon)",
+        "dilution_calc_btn": "📊 Seyreltme Öner",
+        "dilution_result_optimal": "✅ **Optimal aralıkta** (λ={lam:.3f}). Ek seyreltme gerekmez.",
+        "dilution_result_too_low": "⚠️ **Çok seyreltik** (λ={lam:.3f}). Bir sonraki hazırlığınızda seyreltme faktörünüzü **mevcut faktörün {factor:.3f} katı** yapın (yani daha az seyreltin).",
+        "dilution_result_too_high": "⚠️ **Optimal aralığın üzerinde** (λ={lam:.3f}). Bir sonraki hazırlığınızda seyreltme faktörünüzü **mevcut faktörün {factor:.3f} katı** yapın (yani daha fazla seyreltin).",
+        "dilution_result_saturated": "❌ **Doygunluğa yakın/riskli** (λ={lam:.3f}). Bir sonraki hazırlığınızda seyreltme faktörünüzü **mevcut faktörün {factor:.3f} katı** yapın.",
+        "dilution_factor_note": "Bu hesaplayıcı, orijinal seyreltme faktörünüzü bilmediği için mutlak bir seyreltme oranı değil, **göreli bir çarpan** önerir: bir sonraki hazırlığınızda kullandığınız seyreltme faktörünü bu çarpanla çarpın. Örnek: şu an 1:50 seyreltiyorsanız ve önerilen çarpan 2.0 ise, bir sonraki denemede 1:100 seyreltin.",
+        "qc_panel_title": "🩺 Veri Kalitesi Özeti",
+        "qc_panel_total": "Toplam Replikat",
+        "qc_panel_qc_fail": "Düşük Partisyon (QC)",
+        "qc_panel_saturated": "Doygun",
+        "qc_panel_outlier": "Aykırı Değer (Dışlanan)",
+        "qc_panel_below_lod": "LOD Altı Sonuç",
+        "qc_panel_high_cv": "Yüksek CV (>%25)",
+        "qc_panel_verdict_good": "✅ **İyi** — veri seti sağlıklı görünüyor, önemli bir kalite sorunu tespit edilmedi.",
+        "qc_panel_verdict_caution": "⚠️ **Dikkat** — bazı replikatlarda kalite bayrakları var. Sonuçları yorumlarken bu noktaları göz önünde bulundurun.",
+        "qc_panel_verdict_poor": "❌ **Gözden geçirin** — veri setinde önemli oranda kalite sorunu bayrağı var (QC hatası, doygunluk veya yüksek değişkenlik). Rapor öncesi verileri kontrol etmenizi öneririz.",
+        "qc_panel_no_data": "Henüz veri girilmedi.",
+        "project_expander": "💾 Proje Kaydet / Yükle",
+        "project_description": "Tüm veri girişinizi (çalışma tasarımı, kontrol/hasta grubu verileri, NTC) bir JSON dosyası olarak kaydedip daha sonra kaldığınız yerden devam edebilirsiniz.",
+        "project_export_btn": "📥 Projeyi Dışa Aktar (JSON)",
+        "project_import_uploader": "Proje dosyası yükleyin (.json)",
+        "project_import_success": "✅ Proje yüklendi ({n} alan geri yüklendi)! Veri Girişi sekmesine geçin.",
+        "project_import_error": "❌ Proje dosyası okunamadı: {err}",
+        "batch_pdf_btn": "📥 Tarama Raporunu PDF Olarak Hazırla",
+        "batch_pdf_report": "Toplu Numune Tarama Raporu",
+        "batch_pdf_description": "Bu rapor, her numune için Poisson istatistiğine dayalı λ, normalize oran, %95 güven aralığı ve beklenen orana göre sınıflandırmayı içerir. Sınıflandırma, örneğin oran güven aralığının beklenen (değişim-yok) değeri içerip içermediğine göre belirlenir.",
+        "vaf_pdf_btn": "📥 VAF Raporunu PDF Olarak Hazırla",
+        "vaf_pdf_report": "VAF / Mutasyon Fraksiyonu Raporu",
+        "vaf_pdf_description": "Bu rapor, her örnek için mutant ve wild-type assay λ değerlerini, Fraksiyonel Bolluk (%FA) ve delta-method %95 güven aralığını içerir.",
         "tab_batch": "Toplu Tarama",
         "batch_title": "🔬 Toplu Numune Tarama (CNV Taraması)",
         "batch_description": "Çok sayıda numuneyi (örn. bir kohort) tek bir referans/beklenen orana karşı hızlıca taramak için tasarlanmıştır. Her numune için ayrı replikat grupları oluşturmak yerine, CSV dosyanızı yükleyip her örnek için tek bir Poisson tabanlı güven aralığı hesaplanır.",
@@ -447,6 +486,44 @@ translations = {
         "csv_apply_success": "✅ {n} value(s) loaded into the Data Entry tab! Switch to review and adjust.",
         "csv_apply_warning": "⚠️ No values were mapped. Check that your control/patient labels match the sample names.",
         "download_example_csv": "📄 Download Example CSV",
+        "dilution_expander": "🧪 Optimal Dilution / Dynamic Range Calculator",
+        "dilution_description": "Poisson-based quantification is most precise in the range of ~1.0–2.0 copies per partition (λ). This calculator recommends a dilution factor based on your current measurement.",
+        "dilution_mode_label": "Input method",
+        "dilution_mode_counts": "From observed partition counts",
+        "dilution_mode_lambda": "From known λ value",
+        "dilution_positive_label": "Positive Partition Count",
+        "dilution_total_label": "Total Partition Count",
+        "dilution_lambda_label": "Current λ (copies/partition)",
+        "dilution_target_label": "Target λ (copies/partition)",
+        "dilution_calc_btn": "📊 Recommend Dilution",
+        "dilution_result_optimal": "✅ **In the optimal range** (λ={lam:.3f}). No further dilution needed.",
+        "dilution_result_too_low": "⚠️ **Too dilute** (λ={lam:.3f}). For your next prep, set your dilution factor to **{factor:.3f}× your current factor** (i.e., dilute less).",
+        "dilution_result_too_high": "⚠️ **Above the optimal range** (λ={lam:.3f}). For your next prep, set your dilution factor to **{factor:.3f}× your current factor** (i.e., dilute more).",
+        "dilution_result_saturated": "❌ **Near/at saturation risk** (λ={lam:.3f}). For your next prep, set your dilution factor to **{factor:.3f}× your current factor**.",
+        "dilution_factor_note": "Since this calculator doesn't know your original dilution factor, it recommends a **relative multiplier**: multiply the dilution factor you used by this value for your next prep. Example: if you currently dilute 1:50 and the recommended factor is 2.0, try 1:100 next time.",
+        "qc_panel_title": "🩺 Data Quality Summary",
+        "qc_panel_total": "Total Replicates",
+        "qc_panel_qc_fail": "Low Partition (QC)",
+        "qc_panel_saturated": "Saturated",
+        "qc_panel_outlier": "Outlier (Excluded)",
+        "qc_panel_below_lod": "Below-LOD Results",
+        "qc_panel_high_cv": "High CV (>25%)",
+        "qc_panel_verdict_good": "✅ **Good** — the dataset looks healthy, no significant quality issues detected.",
+        "qc_panel_verdict_caution": "⚠️ **Caution** — some replicates have quality flags. Consider these when interpreting results.",
+        "qc_panel_verdict_poor": "❌ **Review recommended** — a significant proportion of quality flags (QC failures, saturation, or high variability) were detected. We recommend reviewing the data before reporting.",
+        "qc_panel_no_data": "No data entered yet.",
+        "project_expander": "💾 Save / Load Project",
+        "project_description": "Save all your data entry (study design, control/patient group data, NTC) as a JSON file, then resume where you left off later.",
+        "project_export_btn": "📥 Export Project (JSON)",
+        "project_import_uploader": "Upload project file (.json)",
+        "project_import_success": "✅ Project loaded ({n} fields restored)! Switch to the Data Entry tab.",
+        "project_import_error": "❌ Could not read project file: {err}",
+        "batch_pdf_btn": "📥 Prepare Screening Report (PDF)",
+        "batch_pdf_report": "Batch Sample Screening Report",
+        "batch_pdf_description": "This report includes, for each sample, the Poisson-derived λ, normalized ratio, 95% confidence interval, and classification relative to the expected ratio. Classification is based on whether the sample's ratio confidence interval includes the expected (no-change) value.",
+        "vaf_pdf_btn": "📥 Prepare VAF Report (PDF)",
+        "vaf_pdf_report": "VAF / Mutation Fraction Report",
+        "vaf_pdf_description": "This report includes, for each sample, the mutant and wild-type assay λ values, Fractional Abundance (FA%), and the delta-method 95% confidence interval.",
         "tab_batch": "Batch Screening",
         "batch_title": "🔬 Batch Sample Screening (CNV Screening)",
         "batch_description": "Designed for quickly screening many samples (e.g. a cohort) against a single reference/expected ratio. Instead of building replicate groups per sample, upload a CSV and a Poisson-based confidence interval is computed for each sample individually.",
@@ -717,6 +794,74 @@ def pool_and_compute_vaf(std_df, mutant_assay, wt_assay, partition_vol_nl_local)
             "pos_mut": int(pos_m),
         })
     return results
+
+_PROJECT_SCALAR_KEYS = [
+    "gene_count", "patient_count", "num_ref_genes", "ploidy", "partition_vol",
+    "qc_min", "outlier_enabled", "outlier_method", "grubbs_alpha", "iqr_mult",
+]
+_PROJECT_TEXT_PREFIXES = (
+    "ctrl_tgt_pos_", "ctrl_tgt_tot_", "ctrl_ref_pos_", "ctrl_ref_tot_",
+    "smp_tgt_pos_", "smp_tgt_tot_", "smp_ref_pos_", "smp_ref_tot_",
+    "ntc_pos_", "ntc_tot_",
+)
+
+def export_project_state():
+    """Serializes all data-entry-relevant session_state keys into a JSON-safe dict."""
+    project = {"_absolutegene_project_version": 1}
+    for k in _PROJECT_SCALAR_KEYS:
+        if k in st.session_state:
+            v = st.session_state[k]
+            project[k] = v if isinstance(v, (int, float, str, bool)) else str(v)
+    for k in list(st.session_state.keys()):
+        if isinstance(k, str) and k.startswith(_PROJECT_TEXT_PREFIXES):
+            v = st.session_state[k]
+            if isinstance(v, str):
+                project[k] = v
+    return project
+
+def import_project_state(project_dict):
+    """Restores session_state from a previously exported project dict. Returns count of keys restored."""
+    if not isinstance(project_dict, dict):
+        return 0
+    count = 0
+    for k, v in project_dict.items():
+        if k == "_absolutegene_project_version":
+            continue
+        if k in _PROJECT_SCALAR_KEYS or (isinstance(k, str) and k.startswith(_PROJECT_TEXT_PREFIXES)):
+            st.session_state[k] = v
+            count += 1
+    return count
+
+def recommend_dilution(current_lambda, target_lambda=1.6):
+    """
+    Given the current observed lambda (copies/partition), recommends a
+    dilution adjustment factor to bring the assay into the optimal dynamic
+    range for Poisson-based quantification.
+
+    Ideal operating range: lambda ~0.05-3.0 (acceptable), ~1.0-2.0 (optimal
+    precision/dynamic-range balance; default target 1.6, near the point of
+    minimal relative CI width for Poisson-derived concentration estimates).
+
+    Returns dict: status ('too_low'/'optimal'/'too_high'/'saturated_risk'),
+    dilution_factor (multiply current dilution by this value to reach
+    target_lambda; >1 means dilute further, <1 means concentrate/dilute less),
+    message_key (translation key hint for status).
+    """
+    if current_lambda is None or np.isnan(current_lambda) or current_lambda <= 0:
+        return None
+    dilution_factor = current_lambda / target_lambda
+    if current_lambda < 0.05:
+        status = "too_low"
+    elif current_lambda > 4.0:
+        status = "saturated_risk"
+    elif current_lambda > 3.0:
+        status = "too_high"
+    else:
+        status = "optimal"
+    return {
+        "current_lambda": current_lambda, "target_lambda": target_lambda,
+        "dilution_factor": dilution_factor, "status": status,
+    }
 
 def compute_lod_loq(ntc_pos, ntc_tot, partition_vol_nl_local):
     """
@@ -1301,6 +1446,27 @@ with st.sidebar.expander(_t['csv_import_expander'], expanded=False):
                     else:
                         st.warning(_t['csv_apply_warning'])
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# SIDEBAR — Project save/load
+# ═══════════════════════════════════════════════════════════════════════════════
+with st.sidebar.expander(_t['project_expander'], expanded=False):
+    st.caption(_t['project_description'])
+    _project_data = export_project_state()
+    st.download_button(
+        _t['project_export_btn'],
+        data=json.dumps(_project_data, ensure_ascii=False, indent=2).encode("utf-8"),
+        file_name="absolutegene_project.json", mime="application/json",
+        key="project_export_btn", use_container_width=True
+    )
+    project_file = st.file_uploader(_t['project_import_uploader'], type=["json"], key="project_import_uploader")
+    if project_file is not None:
+        try:
+            _imported_project = json.loads(project_file.read().decode("utf-8"))
+            _n_restored = import_project_state(_imported_project)
+            st.success(_t['project_import_success'].format(n=_n_restored))
+        except Exception as _e:
+            st.error(_t['project_import_error'].format(err=str(_e)))
+
 guide_clicked = st.sidebar.button(_t['guide_btn'], use_container_width=True)
 if guide_clicked:
     @st.dialog("📘 AbsoluteGene — User Guide" if language_code == "en" else "📘 AbsoluteGene — Kullanım Kılavuzu", width="large")
@@ -1480,15 +1646,62 @@ with tab_data:
                                        key="outlier_method", help=_t['outlier_method_help'])
         with out_c2:
             if outlier_method == "Grubbs":
-                grubbs_alpha = st.number_input(_t['outlier_alpha_label'], min_value=0.01, max_value=0.10,
-                                                value=0.05, step=0.01, format="%.2f", key="grubbs_alpha")
+                grubbs_alpha = st.number_input(
+                    _t['outlier_alpha_label'], min_value=0.01, max_value=0.10,
+                    **({} if "grubbs_alpha" in st.session_state else {"value": 0.05}),
+                    step=0.01, format="%.2f", key="grubbs_alpha"
+                )
                 iqr_multiplier = 1.5
             else:
-                iqr_multiplier = st.number_input(_t['outlier_iqr_label'], min_value=1.0, max_value=3.0,
-                                                  value=1.5, step=0.25, format="%.2f", key="iqr_mult")
+                iqr_multiplier = st.number_input(
+                    _t['outlier_iqr_label'], min_value=1.0, max_value=3.0,
+                    **({} if "iqr_mult" in st.session_state else {"value": 1.5}),
+                    step=0.25, format="%.2f", key="iqr_mult"
+                )
                 grubbs_alpha = 0.05
 
     st.divider()
+
+    # ── Dilution / Dynamic Range Calculator ───────────────────────────────────
+    with st.expander(_t['dilution_expander'], expanded=False):
+        st.caption(_t['dilution_description'])
+        dil_mode = st.radio(
+            _t['dilution_mode_label'],
+            options=[_t['dilution_mode_counts'], _t['dilution_mode_lambda']],
+            key="dilution_mode", horizontal=True
+        )
+        dcol1, dcol2 = st.columns(2)
+        if dil_mode == _t['dilution_mode_counts']:
+            with dcol1:
+                dil_pos = st.number_input(_t['dilution_positive_label'], min_value=0, value=1000, step=10, key="dil_pos")
+            with dcol2:
+                dil_tot = st.number_input(_t['dilution_total_label'], min_value=1, value=20000, step=100, key="dil_tot")
+            _dil_lambda_input, _, _, _ = poisson_lambda(dil_pos, dil_tot)
+        else:
+            with dcol1:
+                _dil_lambda_input = st.number_input(_t['dilution_lambda_label'], min_value=0.001, value=1.6,
+                                                     step=0.01, format="%.3f", key="dil_lambda_direct")
+
+        dil_target = st.number_input(_t['dilution_target_label'], min_value=0.1, max_value=3.0,
+                                      value=1.6, step=0.1, format="%.2f", key="dil_target_lambda")
+
+        if st.button(_t['dilution_calc_btn'], key="dil_calc_btn"):
+            _dil_result = recommend_dilution(_dil_lambda_input, dil_target)
+            if _dil_result is None:
+                st.error("Invalid input.")
+            else:
+                _lam = _dil_result["current_lambda"]
+                _factor = _dil_result["dilution_factor"]
+                if _dil_result["status"] == "optimal":
+                    st.success(_t['dilution_result_optimal'].format(lam=_lam))
+                elif _dil_result["status"] == "too_low":
+                    st.warning(_t['dilution_result_too_low'].format(lam=_lam, factor=_factor))
+                elif _dil_result["status"] == "too_high":
+                    st.warning(_t['dilution_result_too_high'].format(lam=_lam, factor=_factor))
+                else:
+                    st.error(_t['dilution_result_saturated'].format(lam=_lam, factor=_factor))
+                st.caption(_t['dilution_factor_note'])
+
     st.markdown(
         f"<div style='font-size:15px;font-weight:700;color:#004d40;margin-bottom:6px;'>"
         f"{_t['patient_data_header']}</div>", unsafe_allow_html=True
@@ -2022,6 +2235,38 @@ for i in range(num_target_genes):
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab_results:
 
+    # ── QC Summary Panel ──────────────────────────────────────────────────────
+    if input_values_table:
+        _n_total_rep = len(input_values_table)
+        _n_qc_fail = sum(1 for r in input_values_table if r["Outlier Excluded"] == _t['qc_fail'])
+        _n_saturated = sum(1 for r in input_values_table if r["Outlier Excluded"] == _t['qc_saturated'])
+        _n_outlier = sum(1 for r in input_values_table if str(r["Outlier Excluded"]).startswith(_t['outlier_excluded_yes']))
+        _n_below_lod = sum(1 for r in data if r.get("__lod_loq_flag__") in (_t['below_lod_flag'], _t['between_lod_loq_flag']))
+        _n_high_cv = sum(1 for r in data if r.get("__conc_smp_cv__") is not None
+                          and not np.isnan(r["__conc_smp_cv__"]) and r["__conc_smp_cv__"] > 25)
+
+        with st.container(border=True):
+            st.markdown(f"#### {_t['qc_panel_title']}")
+            qc_c1, qc_c2, qc_c3, qc_c4, qc_c5, qc_c6 = st.columns(6)
+            qc_c1.metric(_t['qc_panel_total'], _n_total_rep)
+            qc_c2.metric(_t['qc_panel_qc_fail'], _n_qc_fail)
+            qc_c3.metric(_t['qc_panel_saturated'], _n_saturated)
+            qc_c4.metric(_t['qc_panel_outlier'], _n_outlier)
+            qc_c5.metric(_t['qc_panel_below_lod'], _n_below_lod)
+            qc_c6.metric(_t['qc_panel_high_cv'], _n_high_cv)
+
+            _n_flags_total = _n_qc_fail + _n_saturated + _n_outlier + _n_below_lod + _n_high_cv
+            _flag_ratio = _n_flags_total / max(_n_total_rep, 1)
+            if _flag_ratio == 0:
+                st.success(_t['qc_panel_verdict_good'])
+            elif _flag_ratio < 0.15:
+                st.warning(_t['qc_panel_verdict_caution'])
+            else:
+                st.error(_t['qc_panel_verdict_poor'])
+        st.markdown("---")
+    else:
+        st.info(_t['qc_panel_no_data'])
+
     # ── Multi-group display ───────────────────────────────────────────────────
     if any(r["n_groups"] >= 3 for r in multigroup_results):
         st.markdown("---")
@@ -2240,6 +2485,100 @@ with tab_results:
 # ═══════════════════════════════════════════════════════════════════════════════
 # PDF REPORT GENERATION
 # ═══════════════════════════════════════════════════════════════════════════════
+def create_simple_pdf(report_title, subtitle, description, summary_rows, table_header,
+                       table_rows, chart_png_bytes, chart_caption, footer_note, references=None):
+    """
+    Generic lightweight PDF builder shared by the Batch Screening and VAF
+    Calculator tabs. Produces: title/subtitle, description paragraph,
+    a summary key-value table, a results table, an optional chart image,
+    a footer note, and an optional references list.
+    """
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, leftMargin=50, rightMargin=50, topMargin=60, bottomMargin=50)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle('RT', parent=styles['Title'], fontName=PDF_FONT_BOLD, fontSize=18,
+                                  textColor=colors.HexColor('#004d40'), spaceAfter=6, alignment=1)
+    sub_style = ParagraphStyle('RS', parent=styles['Normal'], fontName=PDF_FONT, fontSize=10,
+                                textColor=colors.HexColor('#555555'), spaceAfter=4, alignment=1)
+    body_style = ParagraphStyle('BD', parent=styles['Normal'], fontName=PDF_FONT, fontSize=9, leading=13, spaceAfter=8)
+    small_style = ParagraphStyle('SM', parent=styles['Normal'], fontName=PDF_FONT, fontSize=8, leading=11,
+                                  textColor=colors.HexColor('#444444'))
+    caption_style = ParagraphStyle('CA', parent=styles['Normal'], fontName=PDF_FONT, fontSize=8,
+                                    textColor=colors.HexColor('#666666'), alignment=1, spaceAfter=6)
+
+    def hr():
+        return HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#cccccc'), spaceAfter=8, spaceBefore=4)
+
+    def make_table(rows, col_widths=None, header=True):
+        if not rows:
+            return Spacer(1, 1)
+        styled_rows = []
+        for ri, row in enumerate(rows):
+            styled_row = []
+            for cell in row:
+                cell_str = safe_str(cell)
+                if ri == 0 and header:
+                    p = Paragraph(cell_str, ParagraphStyle('TH', fontName=PDF_FONT_BOLD, fontSize=7,
+                                                            textColor=colors.white, alignment=1))
+                else:
+                    p = Paragraph(cell_str, ParagraphStyle('TD', fontName=PDF_FONT, fontSize=7, alignment=1))
+                styled_row.append(p)
+            styled_rows.append(styled_row)
+        tbl = Table(styled_rows, colWidths=col_widths, repeatRows=1 if header else 0)
+        tbl_style = [
+            ('FONTNAME', (0, 0), (-1, -1), PDF_FONT), ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'), ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#cccccc')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#e0f2f1')]),
+            ('TOPPADDING', (0, 0), (-1, -1), 4), ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]
+        if header:
+            tbl_style.append(('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#004d40')))
+        tbl.setStyle(TableStyle(tbl_style))
+        return tbl
+
+    import datetime
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    elements.append(Spacer(1, 30))
+    elements.append(Paragraph(safe_str(report_title), title_style))
+    elements.append(Paragraph(safe_str(subtitle), sub_style))
+    elements.append(Paragraph(safe_str(f"Generated: {now}"), sub_style))
+    elements.append(Spacer(1, 14))
+    elements.append(hr())
+    elements.append(Paragraph(safe_str(description), body_style))
+
+    if summary_rows:
+        elements.append(make_table(summary_rows, col_widths=[260, 200]))
+        elements.append(Spacer(1, 14))
+
+    if table_header and table_rows:
+        cw = (letter[0] - 100) / len(table_header)
+        elements.append(make_table([table_header] + table_rows, col_widths=[cw] * len(table_header)))
+        elements.append(Spacer(1, 10))
+
+    if chart_png_bytes:
+        elements.append(RLImage(BytesIO(chart_png_bytes), width=460, height=250))
+        if chart_caption:
+            elements.append(Paragraph(safe_str(chart_caption), caption_style))
+
+    if references:
+        elements.append(Spacer(1, 12))
+        elements.append(hr())
+        for ref in references:
+            elements.append(Paragraph(safe_str(f"• {ref}"), small_style))
+            elements.append(Spacer(1, 3))
+
+    elements.append(Spacer(1, 14))
+    elements.append(hr())
+    elements.append(Paragraph(safe_str(footer_note), small_style))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
+
 def create_pdf(results, stat_rows, input_df, lang, multigroup_results=None):
     T = translations[lang]
     buffer = BytesIO()
@@ -2662,12 +3001,14 @@ with tab_batch:
                     st.session_state["_batch_results_cache"] = _batch_results
                     st.session_state["_batch_expected_ratio_cache"] = _batch_expected_ratio
                     st.session_state["_batch_ploidy_cache"] = _batch_ploidy
+                    st.session_state["_batch_target_assay_cache"] = _batch_target_assay
 
     # ── Display cached results (persists across reruns/tab switches) ───────────
     _batch_results = st.session_state.get("_batch_results_cache")
     if _batch_results:
         _exp_ratio = st.session_state.get("_batch_expected_ratio_cache", 1.0)
         _b_ploidy = st.session_state.get("_batch_ploidy_cache", 2)
+        _b_target_assay = st.session_state.get("_batch_target_assay_cache", "—")
 
         st.markdown(f"#### {_t['batch_results_title']}")
         _batch_rows = []
@@ -2729,6 +3070,66 @@ with tab_batch:
             yaxis_title=_t['batch_col_ratio'], height=420, showlegend=False
         )
         st.plotly_chart(fig_batch, use_container_width=True, key="batch_screening_chart")
+
+        # ── PDF report ────────────────────────────────────────────────────────
+        if st.button(_t['batch_pdf_btn'], key="batch_pdf_btn"):
+            try:
+                fig_mpl, ax_mpl = plt.subplots(figsize=(7, 3.5))
+                _mpl_colors = {
+                    _t['batch_class_gain']: "#e53935", _t['batch_class_loss']: "#1e88e5",
+                    _t['batch_class_normal']: "#43a047", "—": "#9e9e9e"
+                }
+                _mpl_point_colors = [_mpl_colors.get(row[_t['batch_col_class']], "#9e9e9e") for row in _batch_rows]
+                ax_mpl.errorbar(range(len(_sample_names)), _ratios, yerr=[_err_low, _err_high],
+                                 fmt='none', ecolor='gray', capsize=3, zorder=2)
+                ax_mpl.scatter(range(len(_sample_names)), _ratios, c=_mpl_point_colors, s=50, zorder=3)
+                ax_mpl.axhline(y=_exp_ratio, color='black', linestyle='--', linewidth=1)
+                ax_mpl.set_xticks(range(len(_sample_names)))
+                ax_mpl.set_xticklabels(_sample_names, rotation=45, ha='right', fontsize=7)
+                ax_mpl.set_ylabel(_t['batch_col_ratio'], fontsize=9)
+                ax_mpl.set_title(_t['batch_chart_title'], fontsize=10, fontweight='bold')
+                ax_mpl.spines['top'].set_visible(False)
+                ax_mpl.spines['right'].set_visible(False)
+                plt.tight_layout()
+                _img_buf = BytesIO()
+                plt.savefig(_img_buf, format='png', dpi=150, bbox_inches='tight')
+                plt.close()
+                _chart_bytes = _img_buf.getvalue()
+            except Exception:
+                _chart_bytes = None
+
+            _batch_summary_rows = [
+                ["Parameter", "Value"],
+                ["Target assay", _b_target_assay],
+                ["Samples screened", str(len(_batch_results))],
+                ["Expected ratio", f"{_exp_ratio}"],
+                ["Reference ploidy", str(_b_ploidy)],
+                ["Samples flagged (significant deviation)", str(_n_flagged)],
+            ]
+            _batch_pdf_table_header = [_t['batch_col_sample'], _t['batch_col_lambda_t'], _t['batch_col_lambda_r'],
+                                        _t['batch_col_ratio'], _t['batch_col_ci'], _t['batch_col_cn'],
+                                        _t['batch_col_conc'], _t['batch_col_class']]
+            _batch_pdf_table_rows = [[str(v) for v in row.values()] for row in _batch_rows]
+
+            batch_pdf_buffer = create_simple_pdf(
+                report_title="AbsoluteGene",
+                subtitle=_t['batch_pdf_report'],
+                description=_t['batch_pdf_description'],
+                summary_rows=_batch_summary_rows,
+                table_header=_batch_pdf_table_header,
+                table_rows=_batch_pdf_table_rows,
+                chart_png_bytes=_chart_bytes,
+                chart_caption="Figure. Ratio (95% CI) per sample. Dashed line = expected (no-change) ratio.",
+                footer_note="AbsoluteGene — For research and educational use only. Not validated for clinical diagnostic purposes.",
+                references=[
+                    "Poisson-based dPCR quantification: Dube S, Qin J, Ramakrishnan R (2008). PLoS ONE, 3(8), e2876.",
+                    "digital MIQE guidelines: Huggett JF et al. (2013). Clin Chem, 59(6), 892-902.",
+                ]
+            )
+            st.download_button(
+                "⬇️ " + _t['batch_pdf_report'], data=batch_pdf_buffer,
+                file_name="batch_screening_report.pdf", mime="application/pdf", key="batch_pdf_dl"
+            )
     else:
         st.info(_t['batch_no_data'])
 
@@ -2790,6 +3191,8 @@ with tab_vaf:
                         _vaf_std_df, _vaf_mutant_assay, _vaf_wt_assay, partition_vol_nl
                     )
                     st.session_state["_vaf_results_cache"] = _vaf_results
+                    st.session_state["_vaf_mutant_assay_cache"] = _vaf_mutant_assay
+                    st.session_state["_vaf_wt_assay_cache"] = _vaf_wt_assay
 
     # ── Display cached results ──────────────────────────────────────────────────
     _vaf_results = st.session_state.get("_vaf_results_cache")
@@ -2837,6 +3240,60 @@ with tab_vaf:
             yaxis_title=_t['vaf_col_fa'], height=420, showlegend=False
         )
         st.plotly_chart(fig_vaf, use_container_width=True, key="vaf_chart")
+
+        # ── PDF report ────────────────────────────────────────────────────────
+        if st.button(_t['vaf_pdf_btn'], key="vaf_pdf_btn"):
+            try:
+                fig_mpl, ax_mpl = plt.subplots(figsize=(7, 3.5))
+                _mpl_vaf_colors = ["#e53935" if r["detected"] else "#9e9e9e" for r in _vaf_results]
+                ax_mpl.bar(range(len(_vaf_samples)), _vaf_pct, color=_mpl_vaf_colors,
+                           yerr=[_vaf_err_low, _vaf_err_high], capsize=3)
+                ax_mpl.set_xticks(range(len(_vaf_samples)))
+                ax_mpl.set_xticklabels(_vaf_samples, rotation=45, ha='right', fontsize=7)
+                ax_mpl.set_ylabel(_t['vaf_col_fa'], fontsize=9)
+                ax_mpl.set_title(_t['vaf_chart_title'], fontsize=10, fontweight='bold')
+                ax_mpl.spines['top'].set_visible(False)
+                ax_mpl.spines['right'].set_visible(False)
+                plt.tight_layout()
+                _img_buf = BytesIO()
+                plt.savefig(_img_buf, format='png', dpi=150, bbox_inches='tight')
+                plt.close()
+                _vaf_chart_bytes = _img_buf.getvalue()
+            except Exception:
+                _vaf_chart_bytes = None
+
+            _vaf_mutant_cache = st.session_state.get("_vaf_mutant_assay_cache", "—")
+            _vaf_wt_cache = st.session_state.get("_vaf_wt_assay_cache", "—")
+            _vaf_summary_rows = [
+                ["Parameter", "Value"],
+                ["Mutant assay", _vaf_mutant_cache],
+                ["Wild-type assay", _vaf_wt_cache],
+                ["Samples analyzed", str(len(_vaf_results))],
+                ["Samples with mutant detected", f"{_n_detected} / {len(_vaf_results)}"],
+            ]
+            _vaf_pdf_table_header = [_t['vaf_col_sample'], _t['vaf_col_lambda_mut'], _t['vaf_col_lambda_wt'],
+                                      _t['vaf_col_fa'], _t['vaf_col_ci'], _t['vaf_col_conc_mut'], _t['vaf_col_detected']]
+            _vaf_pdf_table_rows = [[str(v) for v in row.values()] for row in _vaf_rows]
+
+            vaf_pdf_buffer = create_simple_pdf(
+                report_title="AbsoluteGene",
+                subtitle=_t['vaf_pdf_report'],
+                description=_t['vaf_pdf_description'],
+                summary_rows=_vaf_summary_rows,
+                table_header=_vaf_pdf_table_header,
+                table_rows=_vaf_pdf_table_rows,
+                chart_png_bytes=_vaf_chart_bytes,
+                chart_caption="Figure. Fractional Abundance (FA%, 95% CI) per sample. Red = mutant detected.",
+                footer_note="AbsoluteGene — For research and educational use only. Not validated for clinical diagnostic purposes.",
+                references=[
+                    "Delta-method CI for ddPCR fractional abundance: Hindson CM et al. (2013). Nat Methods, 10(10), 1003-1005.",
+                    "digital MIQE guidelines: Huggett JF et al. (2013). Clin Chem, 59(6), 892-902.",
+                ]
+            )
+            st.download_button(
+                "⬇️ " + _t['vaf_pdf_report'], data=vaf_pdf_buffer,
+                file_name="vaf_report.pdf", mime="application/pdf", key="vaf_pdf_dl"
+            )
     else:
         st.info(_t['vaf_no_data'])
 

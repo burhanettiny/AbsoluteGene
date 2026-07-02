@@ -227,6 +227,7 @@ translations = {
         "csv_apply_btn": "✅ İçe Aktarımı Veri Girişine Uygula",
         "csv_apply_success": "✅ {n} değer Veri Girişi sekmesine yüklendi! Kontrol edip ayarlayabilirsiniz.",
         "csv_apply_warning": "⚠️ Hiçbir değer eşleştirilemedi. Kontrol/hasta etiketlerinin örnek adlarıyla uyuştuğundan emin olun.",
+        "download_example_csv": "📄 Örnek CSV Dosyasını İndir",
         "tab_batch": "Toplu Tarama",
         "batch_title": "🔬 Toplu Numune Tarama (CNV Taraması)",
         "batch_description": "Çok sayıda numuneyi (örn. bir kohort) tek bir referans/beklenen orana karşı hızlıca taramak için tasarlanmıştır. Her numune için ayrı replikat grupları oluşturmak yerine, CSV dosyanızı yükleyip her örnek için tek bir Poisson tabanlı güven aralığı hesaplanır.",
@@ -445,6 +446,7 @@ translations = {
         "csv_apply_btn": "✅ Apply Import to Data Entry",
         "csv_apply_success": "✅ {n} value(s) loaded into the Data Entry tab! Switch to review and adjust.",
         "csv_apply_warning": "⚠️ No values were mapped. Check that your control/patient labels match the sample names.",
+        "download_example_csv": "📄 Download Example CSV",
         "tab_batch": "Batch Screening",
         "batch_title": "🔬 Batch Sample Screening (CNV Screening)",
         "batch_description": "Designed for quickly screening many samples (e.g. a cohort) against a single reference/expected ratio. Instead of building replicate groups per sample, upload a CSV and a Poisson-based confidence interval is computed for each sample individually.",
@@ -927,6 +929,66 @@ def apply_csv_import_to_session(std_df, target_assays, ref_assays, ctrl_label, p
     return count
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# EXAMPLE CSV FILES (for the three upload-based workflows)
+# ═══════════════════════════════════════════════════════════════════════════════
+EXAMPLE_CSV_MAIN_IMPORT = """Sample,Target,Positives,AcceptedDroplets
+Control_1,MYCN,1890,20000
+Control_1,RPP30,1895,20000
+Control_2,MYCN,1920,20100
+Control_2,RPP30,1915,20100
+Control_3,MYCN,1875,19850
+Control_3,RPP30,1870,19850
+Control_4,MYCN,1905,20050
+Control_4,RPP30,1900,20050
+Control_5,MYCN,1898,19980
+Control_5,RPP30,1892,19980
+Patient_1,MYCN,2780,20000
+Patient_1,RPP30,1895,20000
+Patient_2,MYCN,2820,20100
+Patient_2,RPP30,1915,20100
+Patient_3,MYCN,2755,19850
+Patient_3,RPP30,1870,19850
+Patient_4,MYCN,2800,20050
+Patient_4,RPP30,1900,20050
+Patient_5,MYCN,2790,19980
+Patient_5,RPP30,1892,19980
+"""
+
+EXAMPLE_CSV_BATCH_SCREENING = """Sample,Target,Positives,AcceptedDroplets
+Sample_01,MYCN,1902,20000
+Sample_01,RPP30,1898,20000
+Sample_02,MYCN,1875,19950
+Sample_02,RPP30,1910,19950
+Sample_03,MYCN,1940,20100
+Sample_03,RPP30,1885,20100
+Sample_04,MYCN,1888,19870
+Sample_04,RPP30,1901,19870
+Sample_05,MYCN,1915,20050
+Sample_05,RPP30,1893,20050
+Sample_06,MYCN,1867,19920
+Sample_06,RPP30,1878,19920
+Sample_07,MYCN,1933,20080
+Sample_07,RPP30,1922,20080
+Sample_08,MYCN,4980,20000
+Sample_08,RPP30,1899,20000
+Sample_09,MYCN,5120,20100
+Sample_09,RPP30,1907,20100
+Sample_10,MYCN,4870,19950
+Sample_10,RPP30,1884,19950
+"""
+
+EXAMPLE_CSV_VAF = """Sample,Target,Positives,AcceptedDroplets
+Baseline,Mutant_KRASG12D,450,18000
+Baseline,WT_KRAS,1200,18000
+Post-Treatment,Mutant_KRASG12D,2,19500
+Post-Treatment,WT_KRAS,1350,19500
+Follow-up-3mo,Mutant_KRASG12D,0,19800
+Follow-up-3mo,WT_KRAS,1400,19800
+Relapse,Mutant_KRASG12D,180,18500
+Relapse,WT_KRAS,1250,18500
+"""
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # OUTLIER DETECTION (Grubbs / IQR) — identical logic to GeneQuantify
 # ═══════════════════════════════════════════════════════════════════════════════
 def detect_outliers_grubbs(data, alpha=0.05):
@@ -1164,6 +1226,11 @@ if selected_scenario != "—":
 # ═══════════════════════════════════════════════════════════════════════════════
 with st.sidebar.expander(_t['csv_import_expander'], expanded=False):
     st.caption(_t['csv_import_description'])
+    st.download_button(
+        _t['download_example_csv'], data=EXAMPLE_CSV_MAIN_IMPORT.encode("utf-8"),
+        file_name="example_import.csv", mime="text/csv", key="dl_example_main_import",
+        use_container_width=True
+    )
     csv_file = st.file_uploader(_t['csv_uploader'], type=["csv", "tsv", "txt"], key="csv_import_uploader")
     if csv_file is not None:
         _raw_bytes = csv_file.read()
@@ -2529,6 +2596,10 @@ def create_pdf(results, stat_rows, input_df, lang, multigroup_results=None):
 with tab_batch:
     st.markdown(f"### {_t['batch_title']}")
     st.caption(_t['batch_description'])
+    st.download_button(
+        _t['download_example_csv'], data=EXAMPLE_CSV_BATCH_SCREENING.encode("utf-8"),
+        file_name="example_batch_screening.csv", mime="text/csv", key="dl_example_batch"
+    )
     st.markdown("---")
 
     batch_file = st.file_uploader(_t['batch_uploader'], type=["csv", "tsv", "txt"], key="batch_uploader")
@@ -2669,6 +2740,10 @@ with tab_vaf:
     st.markdown(f"### {_t['vaf_title']}")
     st.caption(_t['vaf_description'])
     st.info(_t['vaf_method_note'])
+    st.download_button(
+        _t['download_example_csv'], data=EXAMPLE_CSV_VAF.encode("utf-8"),
+        file_name="example_vaf.csv", mime="text/csv", key="dl_example_vaf"
+    )
     st.markdown("---")
 
     vaf_file = st.file_uploader(_t['vaf_uploader'], type=["csv", "tsv", "txt"], key="vaf_uploader")

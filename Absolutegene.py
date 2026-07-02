@@ -267,6 +267,120 @@ translations = {
         "vaf_pdf_btn": "📥 VAF Raporunu PDF Olarak Hazırla",
         "vaf_pdf_report": "VAF / Mutasyon Fraksiyonu Raporu",
         "vaf_pdf_description": "Bu rapor, her örnek için mutant ve wild-type assay λ değerlerini, Fraksiyonel Bolluk (%FA) ve delta-method %95 güven aralığını içerir.",
+        "tab_clinical": "Klinik Araçlar",
+        "tab_crm": "CRM Üretimi",
+        "clinical_title": "🩺 Klinik Doğrulama Araçları",
+        "clinical_description": "Ölçüm belirsizliği, referans değişim değeri, hassasiyet çalışması ve yöntem karşılaştırması gibi klinik/tanısal doğrulama için gerekli araçlar. Bu araçlar araştırma ve yöntem doğrulama amaçlıdır; klinik tanı kararı için doğrulanmamıştır.",
+        "clinical_mode_label": "Araç seçin",
+        "clinical_mode_mu": "📐 Ölçüm Belirsizliği (MU) Bütçesi",
+        "clinical_mode_rcv": "📈 Referans Değişim Değeri (RCV)",
+        "clinical_mode_precision": "🔁 Hassasiyet Çalışması",
+        "clinical_mode_comparison": "⚖️ Yöntem Karşılaştırma",
+        # MU Budget
+        "mu_description": "GUM (Ölçüm Belirsizliği İfadesi Kılavuzu) yaklaşımıyla, bağımsız belirsizlik kaynakları karesel olarak birleştirilir ve bir kapsam faktörü (k) ile çarpılarak genişletilmiş belirsizlik elde edilir.",
+        "mu_poisson_source": "Poisson Sayım İstatistiği Belirsizliği (%)",
+        "mu_poisson_help": "Otomatik hesaplanabilir (replikat CV%'den) veya manuel girilebilir.",
+        "mu_poisson_auto": "Sonuçlardan otomatik al",
+        "mu_poisson_manual": "Manuel gir",
+        "mu_pipetting_label": "Pipetleme / Seyreltme Belirsizliği (%)",
+        "mu_pipetting_help": "Tipik olarak iyi pipetleme tekniğinde %1-2 CV. Kendi doğrulama verinize göre girin.",
+        "mu_precision_label": "Run-arası Hassasiyet Belirsizliği (%, opsiyonel)",
+        "mu_precision_help": "Ayrı bir hassasiyet çalışmasından elde edilen günler-arası CV%. Bilinmiyorsa 0 bırakın.",
+        "mu_gene_select": "Sonuç seçin (Gen / Grup)",
+        "mu_k_label": "Kapsam Faktörü (k)",
+        "mu_calc_btn": "📊 Belirsizlik Bütçesini Hesapla",
+        "mu_result_title": "Sonuç: {value} ± {U:.2f}% (k={k}, ~%95 güven düzeyi)",
+        "mu_budget_table_title": "**Belirsizlik Bütçesi Tablosu**",
+        "mu_col_source": "Kaynak",
+        "mu_col_contribution": "Katkı (%, göreli standart belirsizlik)",
+        "mu_col_combined": "Birleşik Standart Belirsizlik (u_c)",
+        "mu_col_expanded": "Genişletilmiş Belirsizlik (U)",
+        # RCV
+        "rcv_description": "İki seri sonuç arasındaki farkın, analitik ve biyolojik değişkenlikten beklenenin ötesinde istatistiksel olarak anlamlı olup olmadığını belirler (Fraser & Harris, Crit Rev Clin Lab Sci 1989).",
+        "rcv_result1_label": "Sonuç 1 (önceki, örn. %VAF veya kopya/µL)",
+        "rcv_result2_label": "Sonuç 2 (sonraki)",
+        "rcv_cv_analytical_label": "Analitik CV (%)",
+        "rcv_cv_analytical_help": "Bu ölçümün tekrarlanabilirlik CV%'si (replikat CV veya MU bütçesinden).",
+        "rcv_cv_biological_label": "Biyolojik Değişkenlik CV (%)",
+        "rcv_cv_biological_help": "Analitin bilinen birey-içi biyolojik değişkenliği (literatürden — analite özgüdür).",
+        "rcv_z_label": "z-değeri (güven düzeyi)",
+        "rcv_calc_btn": "📊 RCV Hesapla",
+        "rcv_result_significant": "🔴 **Anlamlı değişim** — %{change:+.2f} değişim, RCV eşiği olan %{rcv:.2f}'yi aşıyor. Bu değişim ölçüm gürültüsüyle açıklanamaz.",
+        "rcv_result_not_significant": "🟢 **Anlamlı değişim yok** — %{change:+.2f} değişim, RCV eşiği olan %{rcv:.2f} içinde. Analitik/biyolojik gürültü ile tutarlı.",
+        # Precision study
+        "precision_description": "Gün-içi (tekrarlanabilirlik) ve günler-arası (ara hassasiyet) varyans bileşenlerini iç içe (nested) ANOVA ile ayırır (CLSI EP05-A3 yaklaşımı).",
+        "precision_n_days": "Gün/Çalışma Sayısı",
+        "precision_day_label": "Gün {i} — Replikat Değerleri (her satıra bir değer)",
+        "precision_calc_btn": "📊 Hassasiyeti Hesapla",
+        "precision_repeatability_cv": "Tekrarlanabilirlik CV (%)",
+        "precision_between_day_cv": "Günler-arası CV (%)",
+        "precision_total_cv": "Toplam (Ara Hassasiyet) CV (%)",
+        "precision_grand_mean": "Genel Ortalama",
+        # Method comparison
+        "comparison_description": "İki ölçüm yöntemi arasındaki uyumu Bland-Altman analizi ve Deming regresyonu ile değerlendirir.",
+        "comparison_method1_label": "Yöntem 1 Değerleri (örn. dPCR — her satıra bir değer)",
+        "comparison_method2_label": "Yöntem 2 Değerleri (örn. qPCR — eşleştirilmiş, aynı sırada)",
+        "comparison_variance_ratio_label": "Varyans Oranı (λ, Deming için)",
+        "comparison_calc_btn": "📊 Karşılaştırmayı Hesapla",
+        "comparison_bias_label": "Ortalama Fark (Bias)",
+        "comparison_loa_label": "Uyum Sınırları (%95)",
+        "comparison_deming_label": "Deming Regresyonu",
+        "comparison_ba_chart_title": "Bland-Altman Grafiği",
+        "comparison_deming_chart_title": "Deming Regresyon Grafiği",
+        # CRM Production
+        "crm_title": "🏭 Sertifikalı Referans Malzeme (CRM) Üretim Araçları",
+        "crm_description": "ISO Guide 35 / ISO 17034 genel ilkelerine dayalı homojenlik testi, stabilite testi, atanmış değer & belirsizlik bütçesi ve sertifika (CoA) oluşturucu. Bu araçlar araştırma amaçlıdır; resmi bir CRM üretim/onay süreci yerine geçmez.",
+        "crm_mode_label": "Araç seçin",
+        "crm_mode_homogeneity": "🧪 Homojenlik Testi",
+        "crm_mode_stability": "⏳ Stabilite Testi",
+        "crm_mode_uncertainty": "📐 Atanmış Değer & Belirsizlik Bütçesi",
+        "crm_mode_coa": "📜 Sertifika (CoA) Oluşturucu",
+        # Homogeneity
+        "homog_description": "Bir üretim partisindeki çok sayıda ünite/viyal arasında tek yönlü ANOVA ile homojenlik testi (Linsinger ve ark. 2001). F ≤ F_kritik ise partinin homojen olduğu kabul edilir.",
+        "homog_n_units": "Ünite/Viyal Sayısı",
+        "homog_unit_label": "Ünite {i} — Replikat Değerleri (her satıra bir değer)",
+        "homog_calc_btn": "📊 Homojenliği Test Et",
+        "homog_result_homogeneous": "✅ **Homojen** (F={F:.3f} ≤ F_kritik={fcrit:.3f}, p={p:.4f}). Partide istatistiksel olarak anlamlı bir üniteler-arası fark tespit edilmedi.",
+        "homog_result_inhomogeneous": "❌ **Homojen Değil** (F={F:.3f} > F_kritik={fcrit:.3f}, p={p:.4f}). Üniteler arasında istatistiksel olarak anlamlı fark var — parti gözden geçirilmeli.",
+        "homog_ubb_label": "Homojenlik Belirsizlik Katkısı (u_bb)",
+        "homog_grand_mean_label": "Genel Ortalama",
+        # Stability
+        "stab_description": "Zaman içindeki ölçüm değerlerine doğrusal regresyon uygulayarak anlamlı bir bozunma trendi olup olmadığını test eder (ISO Guide 35 klasik stabilite yaklaşımı).",
+        "stab_time_label": "Zaman Noktaları (örn. gün/ay — her satıra bir değer)",
+        "stab_value_label": "Ölçülen Değerler (zaman noktalarıyla eşleştirilmiş, aynı sırada)",
+        "stab_duration_label": "İncelenen Süre (raf ömrü, zaman noktalarıyla aynı birimde)",
+        "stab_calc_btn": "📊 Stabiliteyi Test Et",
+        "stab_result_stable": "✅ **Kararlı** (eğim p={p:.4f} ≥ 0.05). Zaman içinde istatistiksel olarak anlamlı bir trend tespit edilmedi.",
+        "stab_result_unstable": "⚠️ **Anlamlı Trend Tespit Edildi** (eğim p={p:.4f} < 0.05). Materyal zaman içinde değişim gösteriyor olabilir — raf ömrü iddiasını gözden geçirin.",
+        "stab_ustab_label": "Stabilite Belirsizlik Katkısı (u_stab)",
+        "stab_slope_label": "Eğim (birim/zaman)",
+        "stab_chart_title": "Stabilite — Zamana Karşı Değer",
+        # Uncertainty budget
+        "unc_description": "Karakterizasyon, homojenlik ve stabilite belirsizlik bileşenlerini GUM yaklaşımıyla (karesel toplam) birleştirerek nihai genişletilmiş belirsizliği hesaplar. Homojenlik/Stabilite sekmelerinde hesaplama yaptıysanız değerler otomatik doldurulur.",
+        "unc_assigned_value_label": "Atanmış Değer",
+        "unc_u_char_label": "Karakterizasyon Belirsizliği (u_char, mutlak birim)",
+        "unc_u_char_help": "Atanmış değeri belirlemek için kullanılan ölçümlerin standart belirsizliği (örn. ortalamanın standart hatası).",
+        "unc_u_bb_label": "Homojenlik Belirsizliği (u_bb)",
+        "unc_u_stab_label": "Stabilite Belirsizliği (u_stab)",
+        "unc_k_label": "Kapsam Faktörü (k)",
+        "unc_use_cached": "Homojenlik/Stabilite sekmelerinden otomatik doldur",
+        "unc_calc_btn": "📊 Belirsizlik Bütçesini Hesapla",
+        "unc_result_title": "Atanmış Değer = {value:.5f} ± {U:.5f} (k={k}, %{urel:.2f} göreli)",
+        "unc_no_cache": "ℹ️ Önceden hesaplanmış Homojenlik/Stabilite sonucu bulunamadı — manuel giriş kullanılacak.",
+        # CoA
+        "coa_description": "Atanmış değer, genişletilmiş belirsizlik ve izlenebilirlik bilgilerini içeren resmi tarzda bir Analiz Sertifikası (CoA) PDF'i oluşturur.",
+        "coa_material_name": "Materyal Adı",
+        "coa_lot_number": "Parti/Lot Numarası",
+        "coa_producer": "Üretici/Laboratuvar",
+        "coa_assigned_value_label": "Atanmış Değer",
+        "coa_unit_label": "Birim",
+        "coa_expanded_unc_label": "Genişletilmiş Belirsizlik (U)",
+        "coa_k_label": "Kapsam Faktörü (k)",
+        "coa_traceability_label": "İzlenebilirlik İfadesi",
+        "coa_traceability_default": "Bu değerin izlenebilirliği, dijital PCR ile Poisson istatistiğine dayalı mutlak kantifikasyon yoluyla SI birimine (mol) dayanmaktadır.",
+        "coa_validity_label": "Geçerlilik Tarihi / Raf Ömrü",
+        "coa_generate_btn": "📥 Sertifikayı Oluştur (PDF)",
+        "coa_download_btn": "⬇️ Analiz Sertifikası (CoA)",
         "tab_batch": "Toplu Tarama",
         "batch_title": "🔬 Toplu Numune Tarama (CNV Taraması)",
         "batch_description": "Çok sayıda numuneyi (örn. bir kohort) tek bir referans/beklenen orana karşı hızlıca taramak için tasarlanmıştır. Her numune için ayrı replikat grupları oluşturmak yerine, CSV dosyanızı yükleyip her örnek için tek bir Poisson tabanlı güven aralığı hesaplanır.",
@@ -524,6 +638,112 @@ translations = {
         "vaf_pdf_btn": "📥 Prepare VAF Report (PDF)",
         "vaf_pdf_report": "VAF / Mutation Fraction Report",
         "vaf_pdf_description": "This report includes, for each sample, the mutant and wild-type assay λ values, Fractional Abundance (FA%), and the delta-method 95% confidence interval.",
+        "tab_clinical": "Clinical Tools",
+        "tab_crm": "CRM Production",
+        "clinical_title": "🩺 Clinical Validation Tools",
+        "clinical_description": "Tools for clinical/diagnostic validation: measurement uncertainty, reference change value, precision study, and method comparison. These tools are for research and method-validation purposes; not validated for clinical diagnostic decision-making.",
+        "clinical_mode_label": "Select tool",
+        "clinical_mode_mu": "📐 Measurement Uncertainty (MU) Budget",
+        "clinical_mode_rcv": "📈 Reference Change Value (RCV)",
+        "clinical_mode_precision": "🔁 Precision Study",
+        "clinical_mode_comparison": "⚖️ Method Comparison",
+        "mu_description": "Using the GUM (Guide to the Expression of Uncertainty in Measurement) approach, independent uncertainty sources are combined in quadrature and multiplied by a coverage factor (k) to obtain the expanded uncertainty.",
+        "mu_poisson_source": "Poisson Counting Statistics Uncertainty (%)",
+        "mu_poisson_help": "Can be auto-calculated (from replicate CV%) or entered manually.",
+        "mu_poisson_auto": "Auto-fetch from results",
+        "mu_poisson_manual": "Enter manually",
+        "mu_pipetting_label": "Pipetting / Dilution Uncertainty (%)",
+        "mu_pipetting_help": "Typically ~1-2% CV for good pipetting technique. Enter based on your own validation data.",
+        "mu_precision_label": "Inter-run Precision Uncertainty (%, optional)",
+        "mu_precision_help": "Between-day CV% from a separate precision study. Leave at 0 if unknown.",
+        "mu_gene_select": "Select result (Gene / Group)",
+        "mu_k_label": "Coverage Factor (k)",
+        "mu_calc_btn": "📊 Calculate Uncertainty Budget",
+        "mu_result_title": "Result: {value} ± {U:.2f}% (k={k}, ~95% confidence level)",
+        "mu_budget_table_title": "**Uncertainty Budget Table**",
+        "mu_col_source": "Source",
+        "mu_col_contribution": "Contribution (%, relative standard uncertainty)",
+        "mu_col_combined": "Combined Standard Uncertainty (u_c)",
+        "mu_col_expanded": "Expanded Uncertainty (U)",
+        "rcv_description": "Determines whether the difference between two serial results is statistically significant beyond what would be expected from analytical and biological variability alone (Fraser & Harris, Crit Rev Clin Lab Sci 1989).",
+        "rcv_result1_label": "Result 1 (earlier, e.g. %VAF or copies/µL)",
+        "rcv_result2_label": "Result 2 (later)",
+        "rcv_cv_analytical_label": "Analytical CV (%)",
+        "rcv_cv_analytical_help": "The repeatability CV% of this measurement (replicate CV or from the MU budget).",
+        "rcv_cv_biological_label": "Biological Variation CV (%)",
+        "rcv_cv_biological_help": "The known within-subject biological variation of the analyte (from literature — analyte-specific).",
+        "rcv_z_label": "z-value (confidence level)",
+        "rcv_calc_btn": "📊 Calculate RCV",
+        "rcv_result_significant": "🔴 **Significant change** — {change:+.2f}% change exceeds the RCV threshold of {rcv:.2f}%. This change cannot be explained by measurement noise alone.",
+        "rcv_result_not_significant": "🟢 **No significant change** — {change:+.2f}% change is within the RCV threshold of {rcv:.2f}%. Consistent with analytical/biological noise.",
+        "precision_description": "Separates within-day (repeatability) and between-day (intermediate precision) variance components using nested ANOVA (CLSI EP05-A3 approach).",
+        "precision_n_days": "Number of Days/Runs",
+        "precision_day_label": "Day {i} — Replicate Values (one per line)",
+        "precision_calc_btn": "📊 Calculate Precision",
+        "precision_repeatability_cv": "Repeatability CV (%)",
+        "precision_between_day_cv": "Between-Day CV (%)",
+        "precision_total_cv": "Total (Intermediate Precision) CV (%)",
+        "precision_grand_mean": "Grand Mean",
+        "comparison_description": "Assesses agreement between two measurement methods using Bland-Altman analysis and Deming regression.",
+        "comparison_method1_label": "Method 1 Values (e.g. dPCR — one per line)",
+        "comparison_method2_label": "Method 2 Values (e.g. qPCR — paired, same order)",
+        "comparison_variance_ratio_label": "Variance Ratio (λ, for Deming)",
+        "comparison_calc_btn": "📊 Calculate Comparison",
+        "comparison_bias_label": "Mean Difference (Bias)",
+        "comparison_loa_label": "Limits of Agreement (95%)",
+        "comparison_deming_label": "Deming Regression",
+        "comparison_ba_chart_title": "Bland-Altman Plot",
+        "comparison_deming_chart_title": "Deming Regression Plot",
+        # CRM Production
+        "crm_title": "🏭 Certified Reference Material (CRM) Production Tools",
+        "crm_description": "Homogeneity testing, stability testing, assigned value & uncertainty budget, and certificate (CoA) generation, based on the general principles of ISO Guide 35 / ISO 17034. These tools are for research purposes and do not replace a formal CRM production/certification process.",
+        "crm_mode_label": "Select tool",
+        "crm_mode_homogeneity": "🧪 Homogeneity Testing",
+        "crm_mode_stability": "⏳ Stability Testing",
+        "crm_mode_uncertainty": "📐 Assigned Value & Uncertainty Budget",
+        "crm_mode_coa": "📜 Certificate (CoA) Generator",
+        "homog_description": "Tests homogeneity across multiple units/vials from a production batch using one-way ANOVA (Linsinger et al. 2001). The batch is considered homogeneous if F ≤ F_critical.",
+        "homog_n_units": "Number of Units/Vials",
+        "homog_unit_label": "Unit {i} — Replicate Values (one per line)",
+        "homog_calc_btn": "📊 Test Homogeneity",
+        "homog_result_homogeneous": "✅ **Homogeneous** (F={F:.3f} ≤ F_critical={fcrit:.3f}, p={p:.4f}). No statistically significant between-unit difference was detected.",
+        "homog_result_inhomogeneous": "❌ **Not Homogeneous** (F={F:.3f} > F_critical={fcrit:.3f}, p={p:.4f}). A statistically significant between-unit difference was found — the batch should be reviewed.",
+        "homog_ubb_label": "Homogeneity Uncertainty Contribution (u_bb)",
+        "homog_grand_mean_label": "Grand Mean",
+        "stab_description": "Applies linear regression to measurements over time to test for a significant degradation trend (ISO Guide 35 classical stability approach).",
+        "stab_time_label": "Time Points (e.g. day/month — one per line)",
+        "stab_value_label": "Measured Values (paired with time points, same order)",
+        "stab_duration_label": "Study Duration (shelf life, same units as time points)",
+        "stab_calc_btn": "📊 Test Stability",
+        "stab_result_stable": "✅ **Stable** (slope p={p:.4f} ≥ 0.05). No statistically significant trend over time was detected.",
+        "stab_result_unstable": "⚠️ **Significant Trend Detected** (slope p={p:.4f} < 0.05). The material may be changing over time — review the shelf-life claim.",
+        "stab_ustab_label": "Stability Uncertainty Contribution (u_stab)",
+        "stab_slope_label": "Slope (unit/time)",
+        "stab_chart_title": "Stability — Value vs Time",
+        "unc_description": "Combines characterization, homogeneity, and stability uncertainty components using the GUM approach (sum of squares) to compute the final expanded uncertainty. If you've run the Homogeneity/Stability tools, values are auto-filled.",
+        "unc_assigned_value_label": "Assigned Value",
+        "unc_u_char_label": "Characterization Uncertainty (u_char, absolute units)",
+        "unc_u_char_help": "Standard uncertainty of the measurements used to determine the assigned value (e.g. standard error of the mean).",
+        "unc_u_bb_label": "Homogeneity Uncertainty (u_bb)",
+        "unc_u_stab_label": "Stability Uncertainty (u_stab)",
+        "unc_k_label": "Coverage Factor (k)",
+        "unc_use_cached": "Auto-fill from Homogeneity/Stability tabs",
+        "unc_calc_btn": "📊 Calculate Uncertainty Budget",
+        "unc_result_title": "Assigned Value = {value:.5f} ± {U:.5f} (k={k}, {urel:.2f}% relative)",
+        "unc_no_cache": "ℹ️ No previously calculated Homogeneity/Stability result found — manual input will be used.",
+        "coa_description": "Generates a formal-style Certificate of Analysis (CoA) PDF containing the assigned value, expanded uncertainty, and traceability information.",
+        "coa_material_name": "Material Name",
+        "coa_lot_number": "Batch/Lot Number",
+        "coa_producer": "Producer/Laboratory",
+        "coa_assigned_value_label": "Assigned Value",
+        "coa_unit_label": "Unit",
+        "coa_expanded_unc_label": "Expanded Uncertainty (U)",
+        "coa_k_label": "Coverage Factor (k)",
+        "coa_traceability_label": "Traceability Statement",
+        "coa_traceability_default": "Traceability of this value is based on absolute quantification via digital PCR using Poisson statistics, traceable to the SI unit (mole).",
+        "coa_validity_label": "Expiry Date / Shelf Life",
+        "coa_generate_btn": "📥 Generate Certificate (PDF)",
+        "coa_download_btn": "⬇️ Certificate of Analysis (CoA)",
         "tab_batch": "Batch Screening",
         "batch_title": "🔬 Batch Sample Screening (CNV Screening)",
         "batch_description": "Designed for quickly screening many samples (e.g. a cohort) against a single reference/expected ratio. Instead of building replicate groups per sample, upload a CSV and a Poisson-based confidence interval is computed for each sample individually.",
@@ -862,6 +1082,278 @@ def recommend_dilution(current_lambda, target_lambda=1.6):
         "current_lambda": current_lambda, "target_lambda": target_lambda,
         "dilution_factor": dilution_factor, "status": status,
     }
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLINICAL TOOLS — Measurement Uncertainty, RCV, Precision Study, Method Comparison
+# ═══════════════════════════════════════════════════════════════════════════════
+def compute_mu_budget(u_poisson_pct, u_pipetting_pct, u_precision_pct, k=2.0):
+    """
+    Combined and expanded measurement uncertainty following the GUM
+    (Guide to the Expression of Uncertainty in Measurement) approach:
+    relative standard uncertainties from independent sources are combined
+    in quadrature, then multiplied by a coverage factor k (k=2 for an
+    approximate 95% confidence level, assuming a normal distribution).
+        u_c(%) = sqrt(u_poisson^2 + u_pipetting^2 + u_precision^2)
+        U(%) = k * u_c
+    Returns dict with u_c_pct, U_pct, and the individual contributions
+    (useful for a budget table showing each source's relative share).
+    """
+    components = {
+        "Poisson counting statistics": u_poisson_pct or 0.0,
+        "Pipetting / dilution": u_pipetting_pct or 0.0,
+        "Inter-run precision": u_precision_pct or 0.0,
+    }
+    u_c_pct = np.sqrt(sum(v ** 2 for v in components.values()))
+    U_pct = k * u_c_pct
+    return {"components": components, "u_c_pct": u_c_pct, "U_pct": U_pct, "k": k}
+
+def compute_rcv(result1, result2, cv_analytical_pct, cv_biological_pct, z=1.96):
+    """
+    Reference Change Value (RCV) — determines whether the difference between
+    two serial results exceeds what would be expected from analytical and
+    within-subject biological variation alone (Fraser CG, Harris EK.
+    Generation and application of data on biological variation in clinical
+    chemistry. Crit Rev Clin Lab Sci 1989).
+        RCV(%) = sqrt(2) * z * sqrt(CV_analytical^2 + CV_biological^2)
+    A percent change between result1 and result2 exceeding RCV% is
+    considered a statistically significant change beyond combined
+    analytical + biological noise.
+    Returns dict with rcv_pct, percent_change, significant (bool).
+    """
+    if result1 is None or result2 is None or result1 == 0:
+        return None
+    rcv_pct = np.sqrt(2) * z * np.sqrt(cv_analytical_pct ** 2 + cv_biological_pct ** 2)
+    percent_change = (result2 - result1) / abs(result1) * 100.0
+    significant = abs(percent_change) > rcv_pct
+    return {"rcv_pct": rcv_pct, "percent_change": percent_change, "significant": significant}
+
+def compute_precision_study(day_groups):
+    """
+    Nested one-way ANOVA (day/run as the grouping factor) for a basic
+    precision (repeatability / intermediate precision) study, following
+    the general approach of CLSI EP05-A3. Assumes equal replicates per day
+    for simplicity (unbalanced designs are common in practice but require
+    more elaborate variance-component estimation).
+
+    day_groups: list of arrays, one array of replicate values per day/run.
+
+    Returns dict with repeatability_cv, between_day_cv, total_cv (all %),
+    grand_mean, and the underlying ANOVA mean squares.
+    """
+    day_groups = [np.array(g, dtype=float) for g in day_groups if len(g) > 0]
+    k = len(day_groups)
+    if k < 2:
+        return None
+    n_per_day = [len(g) for g in day_groups]
+    if len(set(n_per_day)) != 1:
+        n = min(n_per_day)
+        day_groups = [g[:n] for g in day_groups]
+    else:
+        n = n_per_day[0]
+    if n < 2:
+        return None
+
+    all_values = np.concatenate(day_groups)
+    grand_mean = np.mean(all_values)
+    day_means = np.array([np.mean(g) for g in day_groups])
+
+    ss_within = sum(np.sum((g - np.mean(g)) ** 2) for g in day_groups)
+    df_within = k * (n - 1)
+    ms_within = ss_within / df_within if df_within > 0 else np.nan
+
+    ss_between = n * np.sum((day_means - grand_mean) ** 2)
+    df_between = k - 1
+    ms_between = ss_between / df_between if df_between > 0 else np.nan
+
+    s_between_day_sq = max((ms_between - ms_within) / n, 0.0) if not np.isnan(ms_between) else 0.0
+    s_repeatability = np.sqrt(ms_within) if ms_within >= 0 else np.nan
+    s_total = np.sqrt(ms_within + s_between_day_sq)
+
+    return {
+        "grand_mean": grand_mean, "k_days": k, "n_per_day": n,
+        "ms_within": ms_within, "ms_between": ms_between,
+        "repeatability_cv": (s_repeatability / grand_mean * 100) if grand_mean != 0 else np.nan,
+        "between_day_cv": (np.sqrt(s_between_day_sq) / grand_mean * 100) if grand_mean != 0 else np.nan,
+        "total_cv": (s_total / grand_mean * 100) if grand_mean != 0 else np.nan,
+    }
+
+def compute_bland_altman(method1_vals, method2_vals):
+    """
+    Bland-Altman agreement analysis for paired measurements from two
+    methods (Bland JM, Altman DG. Statistical methods for assessing
+    agreement between two methods of clinical measurement. Lancet 1986).
+    Returns dict with mean_diff (bias), sd_diff, loa_low, loa_high,
+    means (array of per-pair means), diffs (array of per-pair differences).
+    """
+    m1 = np.array(method1_vals, dtype=float)
+    m2 = np.array(method2_vals, dtype=float)
+    n = min(len(m1), len(m2))
+    m1, m2 = m1[:n], m2[:n]
+    if n < 2:
+        return None
+    diffs = m2 - m1
+    means = (m1 + m2) / 2
+    mean_diff = float(np.mean(diffs))
+    sd_diff = float(np.std(diffs, ddof=1))
+    return {
+        "means": means, "diffs": diffs, "mean_diff": mean_diff, "sd_diff": sd_diff,
+        "loa_low": mean_diff - 1.96 * sd_diff, "loa_high": mean_diff + 1.96 * sd_diff,
+        "n": n,
+    }
+
+def compute_deming_regression(method1_vals, method2_vals, variance_ratio=1.0):
+    """
+    Deming regression: linear regression accounting for measurement error
+    in both variables (unlike ordinary least squares, which assumes the
+    x-variable is error-free). variance_ratio (lambda) = Var(error_y)/Var(error_x);
+    lambda=1 assumes equal error variance in both methods (a common default
+    when no independent estimate of the error ratio is available).
+    Returns dict with slope, intercept.
+    Reference: Linnet K. Estimation of the linear relationship between the
+    measurements of two methods with proportional errors. Stat Med 1990.
+    """
+    x = np.array(method1_vals, dtype=float)
+    y = np.array(method2_vals, dtype=float)
+    n = min(len(x), len(y))
+    x, y = x[:n], y[:n]
+    if n < 3:
+        return None
+    mx, my = np.mean(x), np.mean(y)
+    sxx = np.sum((x - mx) ** 2) / (n - 1)
+    syy = np.sum((y - my) ** 2) / (n - 1)
+    sxy = np.sum((x - mx) * (y - my)) / (n - 1)
+    lam = variance_ratio
+    slope = (syy - lam * sxx + np.sqrt((syy - lam * sxx) ** 2 + 4 * lam * sxy ** 2)) / (2 * sxy) if sxy != 0 else np.nan
+    intercept = my - slope * mx
+    return {"slope": slope, "intercept": intercept, "n": n}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CRM PRODUCTION — Homogeneity, Stability, Assigned Value/Uncertainty Budget (per
+# ISO Guide 35 / ISO 17034 general principles), and Certificate generation.
+# ═══════════════════════════════════════════════════════════════════════════════
+def compute_homogeneity(unit_groups):
+    """
+    One-way ANOVA-based between-unit homogeneity test, following the general
+    approach described in ISO Guide 35 and Linsinger TP, Pauwels J, van der
+    Veen AMH, Schimmel H, Lamberty A. "Homogeneity and stability of reference
+    materials." Accred Qual Assur 2001;6:20-25.
+
+    unit_groups: list of arrays, one array of replicate measurements per
+    CRM unit/vial (equal replicate count per unit assumed for simplicity).
+
+    Returns dict with ms_within, ms_between, F, F_crit, p_value,
+    is_homogeneous (bool, F <= F_crit at alpha=0.05), s_bb (between-unit
+    standard deviation estimate), u_bb (standard uncertainty contribution
+    from potential inhomogeneity), grand_mean.
+    """
+    unit_groups = [np.array(g, dtype=float) for g in unit_groups if len(g) > 0]
+    p = len(unit_groups)
+    if p < 2:
+        return None
+    n_per_unit = [len(g) for g in unit_groups]
+    if len(set(n_per_unit)) != 1:
+        n = min(n_per_unit)
+        unit_groups = [g[:n] for g in unit_groups]
+    else:
+        n = n_per_unit[0]
+    if n < 2:
+        return None
+
+    all_values = np.concatenate(unit_groups)
+    grand_mean = float(np.mean(all_values))
+    unit_means = np.array([np.mean(g) for g in unit_groups])
+
+    ss_within = sum(np.sum((g - np.mean(g)) ** 2) for g in unit_groups)
+    df_within = p * (n - 1)
+    ms_within = ss_within / df_within if df_within > 0 else np.nan
+
+    ss_between = n * np.sum((unit_means - grand_mean) ** 2)
+    df_between = p - 1
+    ms_between = ss_between / df_between if df_between > 0 else np.nan
+
+    F = ms_between / ms_within if (ms_within and ms_within > 0) else np.nan
+    F_crit = stats.f.ppf(0.95, df_between, df_within) if df_within > 0 else np.nan
+    p_value = stats.f.sf(F, df_between, df_within) if not np.isnan(F) else np.nan
+    is_homogeneous = (F <= F_crit) if not np.isnan(F) else True
+
+    if ms_between > ms_within:
+        s_bb_sq = (ms_between - ms_within) / n
+        u_bb = np.sqrt(s_bb_sq)
+    else:
+        # Conservative minimum-uncertainty estimate when between-unit
+        # variance is not resolvable from within-unit noise (Linsinger et al. 2001)
+        u_bb = np.sqrt(ms_within / n) * (2.0 / df_between) ** 0.25 if df_between > 0 else np.nan
+        s_bb_sq = 0.0
+
+    return {
+        "grand_mean": grand_mean, "p_units": p, "n_per_unit": n,
+        "ms_within": ms_within, "ms_between": ms_between, "F": F, "F_crit": F_crit,
+        "p_value": p_value, "is_homogeneous": is_homogeneous,
+        "s_bb": np.sqrt(s_bb_sq), "u_bb": u_bb,
+        "df_within": df_within, "df_between": df_between,
+    }
+
+def compute_stability(time_points, values, study_duration=None):
+    """
+    Linear-regression-based stability assessment: tests whether the analyte
+    concentration/ratio shows a statistically significant trend over time
+    (ISO Guide 35 classical stability study approach). If a significant
+    trend is found, this may indicate degradation and should inform the
+    material's shelf-life claim.
+
+    time_points, values: paired arrays (e.g. storage duration in days/months
+    and the corresponding measured value).
+    study_duration: the shelf-life/study period of interest, used to compute
+    the uncertainty contribution from potential instability
+    (u_stab = SE(slope) * study_duration). If None, uses max(time_points).
+
+    Returns dict with slope, intercept, se_slope, t_stat, p_value,
+    is_stable (bool, p >= 0.05), u_stab.
+    """
+    x = np.array(time_points, dtype=float)
+    y = np.array(values, dtype=float)
+    n = min(len(x), len(y))
+    x, y = x[:n], y[:n]
+    if n < 3:
+        return None
+
+    slope, intercept, r_value, p_value, se_slope = stats.linregress(x, y)
+    t_stat = slope / se_slope if se_slope > 0 else np.nan
+    is_stable = p_value >= 0.05
+
+    duration = study_duration if study_duration is not None else float(np.max(x))
+    u_stab = abs(se_slope) * duration
+
+    return {
+        "slope": slope, "intercept": intercept, "se_slope": se_slope,
+        "t_stat": t_stat, "p_value": p_value, "r_value": r_value,
+        "is_stable": is_stable, "u_stab": u_stab, "study_duration": duration, "n": n,
+    }
+
+def compute_assigned_value_uncertainty(assigned_value, u_char, u_bb, u_stab,
+                                        extra_components=None, k=2.0):
+    """
+    Combines characterization uncertainty (u_char), between-unit
+    inhomogeneity uncertainty (u_bb), stability uncertainty (u_stab), and
+    any additional user-specified components into a combined standard
+    uncertainty and expanded uncertainty, following the GUM approach
+    (components combined in quadrature, assuming independence):
+        u_c = sqrt(u_char^2 + u_bb^2 + u_stab^2 + sum(extra_i^2))
+        U = k * u_c
+    All uncertainty inputs are absolute (same units as assigned_value), not
+    relative percentages, consistent with ISO Guide 35 uncertainty budgets
+    for certified reference materials.
+    Returns dict with components, u_c, U, U_rel_pct.
+    """
+    components = {"Characterization": u_char or 0.0, "Homogeneity (u_bb)": u_bb or 0.0,
+                  "Stability (u_stab)": u_stab or 0.0}
+    if extra_components:
+        components.update(extra_components)
+    u_c = np.sqrt(sum(v ** 2 for v in components.values()))
+    U = k * u_c
+    U_rel_pct = (U / assigned_value * 100) if assigned_value else np.nan
+    return {"components": components, "u_c": u_c, "U": U, "U_rel_pct": U_rel_pct, "k": k,
+            "assigned_value": assigned_value}
 
 def compute_lod_loq(ntc_pos, ntc_tot, partition_vol_nl_local):
     """
@@ -1591,9 +2083,9 @@ st.sidebar.link_button(
 )
 st.sidebar.caption("AbsoluteGene — GPL-3.0 | mailtoburhanettin@gmail.com")
 
-tab_data, tab_results, tab_batch, tab_vaf, tab_report = st.tabs([
+tab_data, tab_results, tab_batch, tab_vaf, tab_clinical, tab_crm, tab_report = st.tabs([
     f"📥 {_t['tab_data']}", f"📊 {_t['tab_results']}", f"🔬 {_t['tab_batch']}",
-    f"🧬 {_t['tab_vaf']}", f"📄 {_t['tab_report']}"
+    f"🧬 {_t['tab_vaf']}", f"🩺 {_t['tab_clinical']}", f"🏭 {_t['tab_crm']}", f"📄 {_t['tab_report']}"
 ])
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3296,6 +3788,370 @@ with tab_vaf:
             )
     else:
         st.info(_t['vaf_no_data'])
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLINICAL TOOLS TAB
+# ═══════════════════════════════════════════════════════════════════════════════
+with tab_clinical:
+    st.markdown(f"### {_t['clinical_title']}")
+    st.caption(_t['clinical_description'])
+    st.markdown("---")
+
+    clinical_mode = st.radio(
+        _t['clinical_mode_label'],
+        options=[_t['clinical_mode_mu'], _t['clinical_mode_rcv'],
+                 _t['clinical_mode_precision'], _t['clinical_mode_comparison']],
+        key="clinical_mode", horizontal=True
+    )
+    st.markdown("---")
+
+    # ── MU Budget ──────────────────────────────────────────────────────────────
+    if clinical_mode == _t['clinical_mode_mu']:
+        st.caption(_t['mu_description'])
+
+        _mu_gene_options = [f"{r['__gene__']} / {r['__group__']}" for r in data] if data else []
+        mu_c1, mu_c2 = st.columns(2)
+        with mu_c1:
+            _mu_source_mode = st.radio(_t['mu_poisson_source'],
+                                        options=[_t['mu_poisson_auto'], _t['mu_poisson_manual']],
+                                        key="mu_source_mode")
+        with mu_c2:
+            if _mu_source_mode == _t['mu_poisson_auto'] and _mu_gene_options:
+                _mu_selected = st.selectbox(_t['mu_gene_select'], options=_mu_gene_options, key="mu_gene_select")
+                _mu_match = data[_mu_gene_options.index(_mu_selected)]
+                _u_poisson_val = _mu_match.get("__conc_smp_cv__", 0.0)
+                _u_poisson_val = 0.0 if (_u_poisson_val is None or np.isnan(_u_poisson_val)) else _u_poisson_val
+                st.metric(_t['mu_poisson_source'], f"{_u_poisson_val:.2f}%")
+            else:
+                _u_poisson_val = st.number_input(_t['mu_poisson_source'], min_value=0.0, max_value=100.0,
+                                                  value=5.0, step=0.1, key="mu_poisson_manual_val",
+                                                  help=_t['mu_poisson_help'])
+
+        mu_c3, mu_c4, mu_c5 = st.columns(3)
+        with mu_c3:
+            _u_pipetting_val = st.number_input(_t['mu_pipetting_label'], min_value=0.0, max_value=50.0,
+                                                value=1.5, step=0.1, key="mu_pipetting_val",
+                                                help=_t['mu_pipetting_help'])
+        with mu_c4:
+            _u_precision_val = st.number_input(_t['mu_precision_label'], min_value=0.0, max_value=50.0,
+                                                value=0.0, step=0.1, key="mu_precision_val",
+                                                help=_t['mu_precision_help'])
+        with mu_c5:
+            _mu_k = st.number_input(_t['mu_k_label'], min_value=1.0, max_value=3.0, value=2.0,
+                                     step=0.5, key="mu_k_val")
+
+        if st.button(_t['mu_calc_btn'], key="mu_calc_btn"):
+            _mu_result = compute_mu_budget(_u_poisson_val, _u_pipetting_val, _u_precision_val, _mu_k)
+            _val_label = _mu_selected if (_mu_source_mode == _t['mu_poisson_auto'] and _mu_gene_options) else "—"
+            st.success(_t['mu_result_title'].format(value=_val_label, U=_mu_result["U_pct"], k=_mu_k))
+
+            st.markdown(_t['mu_budget_table_title'])
+            _mu_table_rows = [{_t['mu_col_source']: k, _t['mu_col_contribution']: f"{v:.3f}%"}
+                               for k, v in _mu_result["components"].items()]
+            _mu_table_rows.append({_t['mu_col_source']: _t['mu_col_combined'], _t['mu_col_contribution']: f"{_mu_result['u_c_pct']:.3f}%"})
+            _mu_table_rows.append({_t['mu_col_source']: f"{_t['mu_col_expanded']} (k={_mu_k})", _t['mu_col_contribution']: f"{_mu_result['U_pct']:.3f}%"})
+            st.dataframe(pd.DataFrame(_mu_table_rows), use_container_width=True)
+
+            fig_mu = go.Figure(go.Bar(
+                x=list(_mu_result["components"].keys()), y=list(_mu_result["components"].values()),
+                marker_color="#00796b"
+            ))
+            fig_mu.update_layout(title="Uncertainty Component Contributions", yaxis_title="Relative uncertainty (%)", height=350)
+            st.plotly_chart(fig_mu, use_container_width=True, key="mu_chart")
+
+    # ── RCV ────────────────────────────────────────────────────────────────────
+    elif clinical_mode == _t['clinical_mode_rcv']:
+        st.caption(_t['rcv_description'])
+        rcv_c1, rcv_c2 = st.columns(2)
+        with rcv_c1:
+            _rcv_result1 = st.number_input(_t['rcv_result1_label'], value=10.0, step=0.1, key="rcv_result1")
+        with rcv_c2:
+            _rcv_result2 = st.number_input(_t['rcv_result2_label'], value=12.0, step=0.1, key="rcv_result2")
+        rcv_c3, rcv_c4, rcv_c5 = st.columns(3)
+        with rcv_c3:
+            _rcv_cv_a = st.number_input(_t['rcv_cv_analytical_label'], min_value=0.0, max_value=100.0,
+                                         value=5.0, step=0.1, key="rcv_cv_a", help=_t['rcv_cv_analytical_help'])
+        with rcv_c4:
+            _rcv_cv_b = st.number_input(_t['rcv_cv_biological_label'], min_value=0.0, max_value=200.0,
+                                         value=15.0, step=0.5, key="rcv_cv_b", help=_t['rcv_cv_biological_help'])
+        with rcv_c5:
+            _rcv_z = st.number_input(_t['rcv_z_label'], min_value=1.0, max_value=3.0, value=1.96,
+                                      step=0.01, key="rcv_z")
+
+        if st.button(_t['rcv_calc_btn'], key="rcv_calc_btn"):
+            _rcv_res = compute_rcv(_rcv_result1, _rcv_result2, _rcv_cv_a, _rcv_cv_b, _rcv_z)
+            if _rcv_res is None:
+                st.error("Invalid input.")
+            else:
+                if _rcv_res["significant"]:
+                    st.error(_t['rcv_result_significant'].format(change=_rcv_res["percent_change"], rcv=_rcv_res["rcv_pct"]))
+                else:
+                    st.success(_t['rcv_result_not_significant'].format(change=_rcv_res["percent_change"], rcv=_rcv_res["rcv_pct"]))
+                rc1, rc2 = st.columns(2)
+                rc1.metric("RCV (%)", f"±{_rcv_res['rcv_pct']:.2f}%")
+                rc2.metric("Observed Change (%)", f"{_rcv_res['percent_change']:+.2f}%")
+
+    # ── Precision Study ───────────────────────────────────────────────────────
+    elif clinical_mode == _t['clinical_mode_precision']:
+        st.caption(_t['precision_description'])
+        _prec_n_days = st.number_input(_t['precision_n_days'], min_value=2, max_value=20, value=3, step=1, key="prec_n_days")
+        _prec_day_arrays = []
+        _prec_cols = st.columns(min(int(_prec_n_days), 4))
+        for _d in range(int(_prec_n_days)):
+            with _prec_cols[_d % len(_prec_cols)]:
+                _txt = st.text_area(_t['precision_day_label'].format(i=_d + 1), key=f"prec_day_{_d}", height=120)
+                _prec_day_arrays.append(parse_input_data(_txt))
+
+        if st.button(_t['precision_calc_btn'], key="prec_calc_btn"):
+            _prec_result = compute_precision_study(_prec_day_arrays)
+            if _prec_result is None:
+                st.error("Insufficient data — need at least 2 days with ≥2 replicates each.")
+            else:
+                pc1, pc2, pc3, pc4 = st.columns(4)
+                pc1.metric(_t['precision_grand_mean'], f"{_prec_result['grand_mean']:.4f}")
+                pc2.metric(_t['precision_repeatability_cv'], f"{_prec_result['repeatability_cv']:.2f}%")
+                pc3.metric(_t['precision_between_day_cv'], f"{_prec_result['between_day_cv']:.2f}%")
+                pc4.metric(_t['precision_total_cv'], f"{_prec_result['total_cv']:.2f}%")
+
+                fig_prec = go.Figure()
+                for _d, arr in enumerate(_prec_day_arrays):
+                    if len(arr) > 0:
+                        fig_prec.add_trace(go.Box(y=arr, name=f"Day {_d+1}", boxpoints="all"))
+                fig_prec.update_layout(title="Precision Study — Per-Day Distribution", height=380)
+                st.plotly_chart(fig_prec, use_container_width=True, key="prec_chart")
+
+    # ── Method Comparison ─────────────────────────────────────────────────────
+    else:
+        st.caption(_t['comparison_description'])
+        comp_c1, comp_c2 = st.columns(2)
+        with comp_c1:
+            _comp_m1_txt = st.text_area(_t['comparison_method1_label'], key="comp_m1", height=150)
+        with comp_c2:
+            _comp_m2_txt = st.text_area(_t['comparison_method2_label'], key="comp_m2", height=150)
+        _comp_variance_ratio = st.number_input(_t['comparison_variance_ratio_label'], min_value=0.01, max_value=100.0,
+                                                value=1.0, step=0.1, key="comp_var_ratio")
+
+        if st.button(_t['comparison_calc_btn'], key="comp_calc_btn"):
+            _m1_arr = parse_input_data(_comp_m1_txt)
+            _m2_arr = parse_input_data(_comp_m2_txt)
+            _ba_result = compute_bland_altman(_m1_arr, _m2_arr)
+            _deming_result = compute_deming_regression(_m1_arr, _m2_arr, _comp_variance_ratio)
+
+            if _ba_result is None:
+                st.error("Need at least 2 paired values.")
+            else:
+                bc1, bc2, bc3 = st.columns(3)
+                bc1.metric(_t['comparison_bias_label'], f"{_ba_result['mean_diff']:.4f}")
+                bc2.metric(_t['comparison_loa_label'], f"{_ba_result['loa_low']:.3f} to {_ba_result['loa_high']:.3f}")
+                if _deming_result:
+                    bc3.metric(_t['comparison_deming_label'], f"y={_deming_result['slope']:.3f}x+{_deming_result['intercept']:.3f}")
+
+                fig_ba = go.Figure()
+                fig_ba.add_trace(go.Scatter(x=_ba_result["means"], y=_ba_result["diffs"], mode="markers",
+                                             marker=dict(color="#00796b")))
+                fig_ba.add_hline(y=_ba_result["mean_diff"], line_color="black", line_dash="solid")
+                fig_ba.add_hline(y=_ba_result["loa_low"], line_color="red", line_dash="dash")
+                fig_ba.add_hline(y=_ba_result["loa_high"], line_color="red", line_dash="dash")
+                fig_ba.update_layout(title=_t['comparison_ba_chart_title'], xaxis_title="Mean of methods",
+                                      yaxis_title="Difference (M2-M1)", height=380)
+                st.plotly_chart(fig_ba, use_container_width=True, key="ba_chart")
+
+                if _deming_result:
+                    fig_dem = go.Figure()
+                    fig_dem.add_trace(go.Scatter(x=_m1_arr, y=_m2_arr, mode="markers", marker=dict(color="#00796b"), name="Data"))
+                    _x_line = np.array([min(_m1_arr), max(_m1_arr)])
+                    _y_line = _deming_result["slope"] * _x_line + _deming_result["intercept"]
+                    fig_dem.add_trace(go.Scatter(x=_x_line, y=_y_line, mode="lines", line=dict(color="red"), name="Deming fit"))
+                    fig_dem.update_layout(title=_t['comparison_deming_chart_title'], xaxis_title="Method 1",
+                                           yaxis_title="Method 2", height=380)
+                    st.plotly_chart(fig_dem, use_container_width=True, key="deming_chart")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CRM PRODUCTION TAB
+# ═══════════════════════════════════════════════════════════════════════════════
+with tab_crm:
+    st.markdown(f"### {_t['crm_title']}")
+    st.caption(_t['crm_description'])
+    st.markdown("---")
+
+    crm_mode = st.radio(
+        _t['crm_mode_label'],
+        options=[_t['crm_mode_homogeneity'], _t['crm_mode_stability'],
+                 _t['crm_mode_uncertainty'], _t['crm_mode_coa']],
+        key="crm_mode", horizontal=True
+    )
+    st.markdown("---")
+
+    # ── Homogeneity Testing ───────────────────────────────────────────────────
+    if crm_mode == _t['crm_mode_homogeneity']:
+        st.caption(_t['homog_description'])
+        _homog_n_units = st.number_input(_t['homog_n_units'], min_value=2, max_value=30, value=10, step=1, key="homog_n_units")
+        _homog_unit_arrays = []
+        _homog_cols = st.columns(min(int(_homog_n_units), 5))
+        for _u in range(int(_homog_n_units)):
+            with _homog_cols[_u % len(_homog_cols)]:
+                _txt = st.text_area(_t['homog_unit_label'].format(i=_u + 1), key=f"homog_unit_{_u}", height=100)
+                _homog_unit_arrays.append(parse_input_data(_txt))
+
+        if st.button(_t['homog_calc_btn'], key="homog_calc_btn"):
+            _homog_result = compute_homogeneity(_homog_unit_arrays)
+            if _homog_result is None:
+                st.error("Insufficient data — need at least 2 units with ≥2 replicates each.")
+            else:
+                st.session_state["_homog_result_cache"] = _homog_result
+                if _homog_result["is_homogeneous"]:
+                    st.success(_t['homog_result_homogeneous'].format(
+                        F=_homog_result["F"], fcrit=_homog_result["F_crit"], p=_homog_result["p_value"]))
+                else:
+                    st.error(_t['homog_result_inhomogeneous'].format(
+                        F=_homog_result["F"], fcrit=_homog_result["F_crit"], p=_homog_result["p_value"]))
+
+                hc1, hc2, hc3 = st.columns(3)
+                hc1.metric(_t['homog_grand_mean_label'], f"{_homog_result['grand_mean']:.5f}")
+                hc2.metric(_t['homog_ubb_label'], f"{_homog_result['u_bb']:.5f}")
+                hc3.metric("F / F_crit", f"{_homog_result['F']:.3f} / {_homog_result['F_crit']:.3f}")
+
+                fig_homog = go.Figure()
+                for _u, arr in enumerate(_homog_unit_arrays):
+                    if len(arr) > 0:
+                        fig_homog.add_trace(go.Box(y=arr, name=f"Unit {_u+1}", boxpoints="all"))
+                fig_homog.add_hline(y=_homog_result["grand_mean"], line_dash="dash", line_color="black")
+                fig_homog.update_layout(title="Homogeneity — Per-Unit Distribution", height=400)
+                st.plotly_chart(fig_homog, use_container_width=True, key="homog_chart")
+
+    # ── Stability Testing ─────────────────────────────────────────────────────
+    elif crm_mode == _t['crm_mode_stability']:
+        st.caption(_t['stab_description'])
+        stab_c1, stab_c2 = st.columns(2)
+        with stab_c1:
+            _stab_time_txt = st.text_area(_t['stab_time_label'], key="stab_time", height=150)
+        with stab_c2:
+            _stab_value_txt = st.text_area(_t['stab_value_label'], key="stab_value", height=150)
+        _stab_duration = st.number_input(_t['stab_duration_label'], min_value=0.1, value=365.0, step=1.0, key="stab_duration")
+
+        if st.button(_t['stab_calc_btn'], key="stab_calc_btn"):
+            _stab_time_arr = parse_input_data(_stab_time_txt)
+            _stab_value_arr = parse_input_data(_stab_value_txt)
+            _stab_result = compute_stability(_stab_time_arr, _stab_value_arr, _stab_duration)
+            if _stab_result is None:
+                st.error("Need at least 3 paired time/value points.")
+            else:
+                st.session_state["_stab_result_cache"] = _stab_result
+                if _stab_result["is_stable"]:
+                    st.success(_t['stab_result_stable'].format(p=_stab_result["p_value"]))
+                else:
+                    st.warning(_t['stab_result_unstable'].format(p=_stab_result["p_value"]))
+
+                sc1, sc2, sc3 = st.columns(3)
+                sc1.metric(_t['stab_slope_label'], f"{_stab_result['slope']:.6f}")
+                sc2.metric(_t['stab_ustab_label'], f"{_stab_result['u_stab']:.6f}")
+                sc3.metric("R²", f"{_stab_result['r_value']**2:.4f}")
+
+                fig_stab = go.Figure()
+                fig_stab.add_trace(go.Scatter(x=_stab_time_arr, y=_stab_value_arr, mode="markers",
+                                               marker=dict(color="#00796b", size=9), name="Data"))
+                _x_line = np.array([min(_stab_time_arr), max(_stab_time_arr)])
+                _y_line = _stab_result["slope"] * _x_line + _stab_result["intercept"]
+                fig_stab.add_trace(go.Scatter(x=_x_line, y=_y_line, mode="lines", line=dict(color="red"), name="Trend"))
+                fig_stab.update_layout(title=_t['stab_chart_title'], xaxis_title="Time", yaxis_title="Value", height=400)
+                st.plotly_chart(fig_stab, use_container_width=True, key="stab_chart")
+
+    # ── Assigned Value & Uncertainty Budget ───────────────────────────────────
+    elif crm_mode == _t['crm_mode_uncertainty']:
+        st.caption(_t['unc_description'])
+
+        _cached_homog = st.session_state.get("_homog_result_cache")
+        _cached_stab = st.session_state.get("_stab_result_cache")
+        _use_cached = st.checkbox(_t['unc_use_cached'], value=True, key="unc_use_cached")
+        if _use_cached and not (_cached_homog or _cached_stab):
+            st.info(_t['unc_no_cache'])
+
+        unc_c1, unc_c2 = st.columns(2)
+        with unc_c1:
+            _unc_assigned_value = st.number_input(_t['unc_assigned_value_label'], value=100.0, step=0.1, key="unc_assigned_value")
+            _unc_u_char = st.number_input(_t['unc_u_char_label'], min_value=0.0, value=1.0, step=0.1,
+                                           key="unc_u_char", help=_t['unc_u_char_help'])
+        with unc_c2:
+            _default_u_bb = _cached_homog["u_bb"] if (_use_cached and _cached_homog) else 0.0
+            _unc_u_bb = st.number_input(_t['unc_u_bb_label'], min_value=0.0, value=float(_default_u_bb), step=0.01, key="unc_u_bb")
+            _default_u_stab = _cached_stab["u_stab"] if (_use_cached and _cached_stab) else 0.0
+            _unc_u_stab = st.number_input(_t['unc_u_stab_label'], min_value=0.0, value=float(_default_u_stab), step=0.01, key="unc_u_stab")
+
+        _unc_k = st.number_input(_t['unc_k_label'], min_value=1.0, max_value=3.0, value=2.0, step=0.5, key="unc_k")
+
+        if st.button(_t['unc_calc_btn'], key="unc_calc_btn"):
+            _unc_result = compute_assigned_value_uncertainty(_unc_assigned_value, _unc_u_char, _unc_u_bb, _unc_u_stab, k=_unc_k)
+            st.session_state["_unc_result_cache"] = _unc_result
+            st.success(_t['unc_result_title'].format(
+                value=_unc_result["assigned_value"], U=_unc_result["U"], k=_unc_k, urel=_unc_result["U_rel_pct"]))
+
+            _unc_table_rows = [{_t['mu_col_source']: k, _t['mu_col_contribution']: f"{v:.5f}"}
+                                for k, v in _unc_result["components"].items()]
+            _unc_table_rows.append({_t['mu_col_source']: _t['mu_col_combined'], _t['mu_col_contribution']: f"{_unc_result['u_c']:.5f}"})
+            _unc_table_rows.append({_t['mu_col_source']: f"{_t['mu_col_expanded']} (k={_unc_k})", _t['mu_col_contribution']: f"{_unc_result['U']:.5f}"})
+            st.dataframe(pd.DataFrame(_unc_table_rows), use_container_width=True)
+
+            fig_unc = go.Figure(go.Bar(
+                x=list(_unc_result["components"].keys()), y=list(_unc_result["components"].values()),
+                marker_color="#00695c"
+            ))
+            fig_unc.update_layout(title="Uncertainty Component Contributions (absolute units)", height=350)
+            st.plotly_chart(fig_unc, use_container_width=True, key="unc_chart")
+
+    # ── CoA Generator ──────────────────────────────────────────────────────────
+    else:
+        st.caption(_t['coa_description'])
+        _cached_unc = st.session_state.get("_unc_result_cache")
+
+        coa_c1, coa_c2 = st.columns(2)
+        with coa_c1:
+            _coa_material = st.text_input(_t['coa_material_name'], value="", key="coa_material")
+            _coa_lot = st.text_input(_t['coa_lot_number'], value="", key="coa_lot")
+            _coa_producer = st.text_input(_t['coa_producer'], value="", key="coa_producer")
+        with coa_c2:
+            _default_val = _cached_unc["assigned_value"] if _cached_unc else 100.0
+            _default_U = _cached_unc["U"] if _cached_unc else 2.0
+            _default_k = _cached_unc["k"] if _cached_unc else 2.0
+            _coa_value = st.number_input(_t['coa_assigned_value_label'], value=float(_default_val), step=0.01, key="coa_value")
+            _coa_unit = st.text_input(_t['coa_unit_label'], value="copies/µL", key="coa_unit")
+            _coa_U = st.number_input(_t['coa_expanded_unc_label'], value=float(_default_U), step=0.01, key="coa_U")
+            _coa_k = st.number_input(_t['coa_k_label'], value=float(_default_k), step=0.5, key="coa_k")
+
+        _coa_traceability = st.text_area(_t['coa_traceability_label'], value=_t['coa_traceability_default'], key="coa_traceability")
+        _coa_validity = st.text_input(_t['coa_validity_label'], value="", key="coa_validity")
+
+        if st.button(_t['coa_generate_btn'], key="coa_generate_btn"):
+            _coa_summary_rows = [
+                ["Parameter", "Value"],
+                ["Material", _coa_material or "—"],
+                ["Batch/Lot", _coa_lot or "—"],
+                ["Producer/Laboratory", _coa_producer or "—"],
+                ["Assigned Value", f"{_coa_value} {_coa_unit}"],
+                ["Expanded Uncertainty (U)", f"± {_coa_U} {_coa_unit} (k={_coa_k})"],
+                ["Validity / Shelf Life", _coa_validity or "—"],
+            ]
+            coa_pdf_buffer = create_simple_pdf(
+                report_title="Certificate of Analysis",
+                subtitle=_coa_material or "AbsoluteGene CRM Certificate",
+                description=_coa_traceability,
+                summary_rows=_coa_summary_rows,
+                table_header=None, table_rows=None, chart_png_bytes=None, chart_caption=None,
+                footer_note=("This certificate was generated by AbsoluteGene for research and internal "
+                              "documentation purposes. It does not constitute a formally accredited "
+                              "Certificate of Analysis under ISO 17034 unless issued by an accredited "
+                              "reference material producer following full validation."),
+                references=[
+                    "ISO Guide 35:2017. Reference materials — Guidance for characterization and assessment of homogeneity and stability.",
+                    "ISO 17034:2016. General requirements for the competence of reference material producers.",
+                    "Linsinger TP et al. (2001). Homogeneity and stability of reference materials. Accred Qual Assur, 6, 20-25.",
+                ]
+            )
+            st.download_button(
+                _t['coa_download_btn'], data=coa_pdf_buffer,
+                file_name="certificate_of_analysis.pdf", mime="application/pdf", key="coa_pdf_dl"
+            )
 
 
 with tab_report:

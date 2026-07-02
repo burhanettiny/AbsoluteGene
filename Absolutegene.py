@@ -190,6 +190,93 @@ translations = {
         "sidebar_example_select": "Senaryo seçin",
         "sidebar_example_load_btn": "▶ Senaryoyu Yükle",
         "sidebar_example_loaded": "✅ {s} yüklendi! Veri Girişi sekmesine geçin.",
+        "ntc_expander": "🧫 NTC (Negatif Kontrol) / LOD-LOQ — opsiyonel",
+        "ntc_description": "Tespit sınırını (LOD) ve ölçüm sınırını (LOQ) hesaplamak için No-Template Control (şablon içermeyen kontrol) replikatlarınızı girin. Boş bırakılırsa bu adım atlanır.",
+        "ntc_positive_label": "NTC Pozitif Partisyon Sayısı",
+        "ntc_total_label": "NTC Toplam Kabul Edilen Partisyon Sayısı",
+        "ntc_calc_btn": "📊 LOD/LOQ Hesapla",
+        "lod_result_title": "Tespit Sınırı (LOD) ve Ölçüm Sınırı (LOQ) — {gene}",
+        "lod_label": "LOD (kopya/µL)",
+        "loq_label": "LOQ (kopya/µL)",
+        "ntc_zero_note": "ℹ️ NTC replikatlarında hiç pozitif partisyon tespit edilmedi (n={n} partisyon havuzlandı). LOD, 'üçler kuralı' (rule of three) ile üst güven sınırından hesaplandı: 3/n.",
+        "ntc_contamination_warning": "⚠️ NTC replikatlarında arka plan sinyali tespit edildi (λ={lam:.5f}, {pos}/{tot} pozitif partisyon). Bu, reaktif kontaminasyonu veya çapraz kontaminasyon olabilir — LOD, bu arka plan seviyesi + güvenlik payı olarak hesaplandı.",
+        "below_lod_flag": "❌ LOD altı",
+        "between_lod_loq_flag": "⚠️ LOD-LOQ arası",
+        "above_loq_flag": "✅ LOQ üstü",
+        "lod_qc_col": "LOD/LOQ Durumu",
+        "loq_heuristic_note": "Not: LOQ, yaygın kullanılan bir kural olarak LOD'un 3 katı şeklinde hesaplanmıştır. Daha kesin bir LOQ için tekrarlanabilirlik (CV%) temelli deneysel doğrulama önerilir.",
+        "csv_import_expander": "📂 Cihaz CSV Dosyası İçe Aktar (QuantaSoft / QX Manager / QIAcuity)",
+        "csv_import_description": "Bio-Rad QuantaSoft/QX Manager veya QIAGEN QIAcuity yazılımından dışa aktardığınız CSV dosyasını yükleyin. Sütunlar otomatik tanınmaya çalışılır; gerekirse manuel eşleştirme yapabilirsiniz.",
+        "csv_uploader": "CSV dosyası seçin",
+        "csv_parse_error": "❌ Dosya ayrıştırma hatası: {err}",
+        "csv_col_mapping_title": "**Sütun Eşleştirme**",
+        "csv_col_sample": "Örnek Adı Sütunu",
+        "csv_col_target": "Hedef/Assay Adı Sütunu",
+        "csv_col_positives": "Pozitif Partisyon Sütunu",
+        "csv_col_total": "Toplam Partisyon Sütunu",
+        "csv_col_auto_detected": "✅ Otomatik tespit edildi",
+        "csv_col_manual_needed": "⚠️ Otomatik tespit edilemedi — lütfen manuel seçin",
+        "csv_preview_title": "Ayrıştırılan verileri önizle",
+        "csv_assay_assignment_title": "**Assay (Hedef/Referans Gen) Ataması**",
+        "csv_target_assays_label": "Hedef gen assay(ler)i",
+        "csv_ref_assays_label": "Referans gen assay(ler)i",
+        "csv_group_assignment_title": "**Grup Ataması**",
+        "csv_ctrl_label": "Kontrol örnek adı (virgülle ayrılmış alt dizeler)",
+        "csv_n_patient_groups": "Hasta grubu sayısı",
+        "csv_patient_label": "Hasta grubu {i} örnek adı (adları)",
+        "csv_apply_btn": "✅ İçe Aktarımı Veri Girişine Uygula",
+        "csv_apply_success": "✅ {n} değer Veri Girişi sekmesine yüklendi! Kontrol edip ayarlayabilirsiniz.",
+        "csv_apply_warning": "⚠️ Hiçbir değer eşleştirilemedi. Kontrol/hasta etiketlerinin örnek adlarıyla uyuştuğundan emin olun.",
+        "tab_batch": "Toplu Tarama",
+        "batch_title": "🔬 Toplu Numune Tarama (CNV Taraması)",
+        "batch_description": "Çok sayıda numuneyi (örn. bir kohort) tek bir referans/beklenen orana karşı hızlıca taramak için tasarlanmıştır. Her numune için ayrı replikat grupları oluşturmak yerine, CSV dosyanızı yükleyip her örnek için tek bir Poisson tabanlı güven aralığı hesaplanır.",
+        "batch_uploader": "Toplu tarama CSV dosyası yükleyin",
+        "batch_assay_title": "**Assay Ataması**",
+        "batch_target_label": "Hedef gen assay'i",
+        "batch_ref_label": "Referans gen assay(ler)i (birden fazla seçilirse partisyonlar havuzlanır)",
+        "batch_settings_title": "**Tarama Ayarları**",
+        "batch_expected_ratio": "Beklenen Oran (değişim yok referansı)",
+        "batch_ploidy": "Referans Ploidi",
+        "batch_run_btn": "▶ Taramayı Çalıştır",
+        "batch_results_title": "📋 Tarama Sonuçları",
+        "batch_col_sample": "Örnek",
+        "batch_col_lambda_t": "λ Hedef",
+        "batch_col_lambda_r": "λ Referans",
+        "batch_col_ratio": "Oran",
+        "batch_col_ci": "%95 GA (Oran)",
+        "batch_col_cn": "Kopya Sayısı (CN)",
+        "batch_col_conc": "Konsantrasyon (kopya/µL)",
+        "batch_col_class": "Sınıflandırma",
+        "batch_class_gain": "📈 Kazanım",
+        "batch_class_loss": "📉 Kayıp",
+        "batch_class_normal": "➖ Normal",
+        "batch_chart_title": "Numuneler Arası Kopya Sayısı Taraması",
+        "batch_download_btn": "📥 Tarama Sonuçlarını İndir (CSV)",
+        "batch_no_data": "Sonuç yok — önce dosya yükleyip taramayı çalıştırın.",
+        "batch_n_flagged": "{n} / {total} numune beklenen orandan istatistiksel olarak anlamlı şekilde farklı (%95 GA değişim-yok değerini içermiyor).",
+        "tab_vaf": "VAF Hesaplayıcı",
+        "vaf_title": "🧬 VAF / Mutasyon Fraksiyonu Hesaplayıcı",
+        "vaf_description": "Likit biyopsi / ctDNA izleme için tasarlanmıştır. Mutant ve Wild-type (yabanıl tip) assay'lerini içeren bir CSV yükleyin; her örnek için Fraksiyonel Bolluk (FA%, varyant allel fraksiyonu) ve %95 güven aralığı hesaplanır.",
+        "vaf_uploader": "VAF CSV dosyası yükleyin",
+        "vaf_assay_title": "**Assay Ataması**",
+        "vaf_mutant_label": "Mutant assay",
+        "vaf_wt_label": "Wild-type (yabanıl tip) assay",
+        "vaf_run_btn": "▶ VAF Hesapla",
+        "vaf_results_title": "📋 VAF Sonuçları",
+        "vaf_col_sample": "Örnek",
+        "vaf_col_lambda_mut": "λ Mutant",
+        "vaf_col_lambda_wt": "λ Wild-type",
+        "vaf_col_fa": "FA (%)",
+        "vaf_col_ci": "%95 GA (FA%)",
+        "vaf_col_conc_mut": "Mutant Konsantrasyonu (kopya/µL)",
+        "vaf_col_detected": "Tespit Durumu",
+        "vaf_detected_yes": "✅ Tespit Edildi",
+        "vaf_detected_no": "❌ Tespit Edilemedi",
+        "vaf_chart_title": "Örnekler Arası Fraksiyonel Bolluk (VAF%)",
+        "vaf_download_btn": "📥 VAF Sonuçlarını İndir (CSV)",
+        "vaf_no_data": "Sonuç yok — önce dosya yükleyip hesaplamayı çalıştırın.",
+        "vaf_method_note": "ℹ️ FA = λ(mutant) / (λ(mutant) + λ(wild-type)). %95 GA delta-method ile hesaplanmıştır (Hindson et al. 2013, Anal Chem). Bu hesaplama, mutant ve wild-type assay'lerinin aynı partisyon setinde (multipleks) veya eşdeğer koşullarda ölçüldüğünü varsayar.",
+        "vaf_n_detected": "{n} / {total} örnekte mutant alel tespit edildi (≥1 pozitif partisyon).",
     },
     "en": {
         "title": "🧪 AbsoluteGene: Digital PCR (dPCR/ddPCR) Gene Expression & CNV Analysis",
@@ -321,6 +408,93 @@ translations = {
         "sidebar_example_select": "Select scenario",
         "sidebar_example_load_btn": "▶ Load Scenario",
         "sidebar_example_loaded": "✅ {s} loaded! Switch to the Data Entry tab.",
+        "ntc_expander": "🧫 NTC (No-Template Control) / LOD-LOQ — optional",
+        "ntc_description": "Enter your No-Template Control replicates to calculate the limit of detection (LOD) and limit of quantification (LOQ). Leave blank to skip this step.",
+        "ntc_positive_label": "NTC Positive Partition Count",
+        "ntc_total_label": "NTC Total Accepted Partition Count",
+        "ntc_calc_btn": "📊 Calculate LOD/LOQ",
+        "lod_result_title": "Limit of Detection (LOD) and Limit of Quantification (LOQ) — {gene}",
+        "lod_label": "LOD (copies/µL)",
+        "loq_label": "LOQ (copies/µL)",
+        "ntc_zero_note": "ℹ️ No positive partitions detected across NTC replicates (n={n} partitions pooled). LOD was calculated using the rule-of-three upper confidence bound: 3/n.",
+        "ntc_contamination_warning": "⚠️ Background signal detected in NTC replicates (λ={lam:.5f}, {pos}/{tot} positive partitions). This may indicate reagent or cross-contamination — LOD was calculated as this background level plus a safety margin.",
+        "below_lod_flag": "❌ Below LOD",
+        "between_lod_loq_flag": "⚠️ Between LOD-LOQ",
+        "above_loq_flag": "✅ Above LOQ",
+        "lod_qc_col": "LOD/LOQ Status",
+        "loq_heuristic_note": "Note: LOQ is calculated as 3× LOD, a commonly used heuristic. For a more rigorous LOQ, empirical validation based on reproducibility (CV%) is recommended.",
+        "csv_import_expander": "📂 Import Instrument CSV (QuantaSoft / QX Manager / QIAcuity)",
+        "csv_import_description": "Upload a CSV export from Bio-Rad QuantaSoft/QX Manager or QIAGEN QIAcuity software. Columns are auto-detected where possible; you can manually map any that aren't recognized.",
+        "csv_uploader": "Choose CSV file",
+        "csv_parse_error": "❌ File parse error: {err}",
+        "csv_col_mapping_title": "**Column Mapping**",
+        "csv_col_sample": "Sample Name Column",
+        "csv_col_target": "Target/Assay Name Column",
+        "csv_col_positives": "Positive Partitions Column",
+        "csv_col_total": "Total Partitions Column",
+        "csv_col_auto_detected": "✅ Auto-detected",
+        "csv_col_manual_needed": "⚠️ Not auto-detected — please select manually",
+        "csv_preview_title": "Preview parsed data",
+        "csv_assay_assignment_title": "**Assay (Target/Reference Gene) Assignment**",
+        "csv_target_assays_label": "Target gene assay(s)",
+        "csv_ref_assays_label": "Reference gene assay(s)",
+        "csv_group_assignment_title": "**Group Assignment**",
+        "csv_ctrl_label": "Control sample name(s) (comma-separated substrings)",
+        "csv_n_patient_groups": "Number of patient groups",
+        "csv_patient_label": "Patient group {i} sample name(s)",
+        "csv_apply_btn": "✅ Apply Import to Data Entry",
+        "csv_apply_success": "✅ {n} value(s) loaded into the Data Entry tab! Switch to review and adjust.",
+        "csv_apply_warning": "⚠️ No values were mapped. Check that your control/patient labels match the sample names.",
+        "tab_batch": "Batch Screening",
+        "batch_title": "🔬 Batch Sample Screening (CNV Screening)",
+        "batch_description": "Designed for quickly screening many samples (e.g. a cohort) against a single reference/expected ratio. Instead of building replicate groups per sample, upload a CSV and a Poisson-based confidence interval is computed for each sample individually.",
+        "batch_uploader": "Upload batch screening CSV file",
+        "batch_assay_title": "**Assay Assignment**",
+        "batch_target_label": "Target gene assay",
+        "batch_ref_label": "Reference gene assay(s) (partitions pooled if multiple selected)",
+        "batch_settings_title": "**Screening Settings**",
+        "batch_expected_ratio": "Expected Ratio (no-change reference)",
+        "batch_ploidy": "Reference Ploidy",
+        "batch_run_btn": "▶ Run Screening",
+        "batch_results_title": "📋 Screening Results",
+        "batch_col_sample": "Sample",
+        "batch_col_lambda_t": "λ Target",
+        "batch_col_lambda_r": "λ Reference",
+        "batch_col_ratio": "Ratio",
+        "batch_col_ci": "95% CI (Ratio)",
+        "batch_col_cn": "Copy Number (CN)",
+        "batch_col_conc": "Concentration (copies/µL)",
+        "batch_col_class": "Classification",
+        "batch_class_gain": "📈 Gain",
+        "batch_class_loss": "📉 Loss",
+        "batch_class_normal": "➖ Normal",
+        "batch_chart_title": "Copy Number Screening Across Samples",
+        "batch_download_btn": "📥 Download Screening Results (CSV)",
+        "batch_no_data": "No results yet — upload a file and run the screening first.",
+        "batch_n_flagged": "{n} / {total} samples are statistically significantly different from the expected ratio (95% CI does not include the no-change value).",
+        "tab_vaf": "VAF Calculator",
+        "vaf_title": "🧬 VAF / Mutation Fraction Calculator",
+        "vaf_description": "Designed for liquid biopsy / ctDNA monitoring. Upload a CSV containing Mutant and Wild-type assays; the Fractional Abundance (FA%, variant allele fraction) with 95% CI is calculated for each sample.",
+        "vaf_uploader": "Upload VAF CSV file",
+        "vaf_assay_title": "**Assay Assignment**",
+        "vaf_mutant_label": "Mutant assay",
+        "vaf_wt_label": "Wild-type assay",
+        "vaf_run_btn": "▶ Calculate VAF",
+        "vaf_results_title": "📋 VAF Results",
+        "vaf_col_sample": "Sample",
+        "vaf_col_lambda_mut": "λ Mutant",
+        "vaf_col_lambda_wt": "λ Wild-type",
+        "vaf_col_fa": "FA (%)",
+        "vaf_col_ci": "95% CI (FA%)",
+        "vaf_col_conc_mut": "Mutant Concentration (copies/µL)",
+        "vaf_col_detected": "Detection Status",
+        "vaf_detected_yes": "✅ Detected",
+        "vaf_detected_no": "❌ Not Detected",
+        "vaf_chart_title": "Fractional Abundance (VAF%) Across Samples",
+        "vaf_download_btn": "📥 Download VAF Results (CSV)",
+        "vaf_no_data": "No results yet — upload a file and run the calculation first.",
+        "vaf_method_note": "ℹ️ FA = λ(mutant) / (λ(mutant) + λ(wild-type)). 95% CI calculated via the delta method (Hindson et al. 2013, Anal Chem). This assumes mutant and wild-type assays were measured on the same partition set (multiplex) or under equivalent conditions.",
+        "vaf_n_detected": "{n} / {total} samples had the mutant allele detected (≥1 positive partition).",
     }
 }
 _t = translations[language_code]
@@ -388,6 +562,211 @@ def geometric_mean(values):
         return np.nan
     return np.exp(np.mean(np.log(values)))
 
+def mean_ci(values):
+    """
+    Mean, 95% CI (t-distribution, based on replicate-to-replicate variability),
+    and CV% for a set of replicate values (e.g. concentration or ratio).
+    Returns (mean, ci_low, ci_high, cv_pct, n).
+    """
+    values = np.array(values, dtype=float)
+    values = values[~np.isnan(values)]
+    n = len(values)
+    if n == 0:
+        return np.nan, np.nan, np.nan, np.nan, 0
+    m = float(np.mean(values))
+    if n < 2:
+        return m, np.nan, np.nan, np.nan, n
+    sd = float(np.std(values, ddof=1))
+    sem = sd / np.sqrt(n)
+    t_crit = stats.t.ppf(0.975, df=n - 1)
+    ci_low, ci_high = m - t_crit * sem, m + t_crit * sem
+    cv_pct = (sd / m * 100) if m != 0 else np.nan
+    return m, ci_low, ci_high, cv_pct, n
+
+def lambda_to_conc(lam_array, partition_vol_nl_local):
+    """Convert lambda (copies/partition) to concentration in copies/µL."""
+    lam_array = np.array(lam_array, dtype=float)
+    return lam_array / partition_vol_nl_local * 1000.0
+
+def poisson_ratio_ci(lam_t, se_t, lam_r, se_r):
+    """
+    95% CI for the ratio R = lambda_t / lambda_r of two independent
+    Poisson-derived rates, using the log-scale delta method:
+        Var(ln R) ~= (SE_t/lambda_t)^2 + (SE_r/lambda_r)^2
+    This avoids negative CI bounds (unlike a linear delta method) and is the
+    standard approach for ratios of counting-statistics-derived quantities.
+    Returns (ratio, ci_low, ci_high).
+    """
+    if lam_t is None or lam_r is None or lam_r == 0 or np.isnan(lam_t) or np.isnan(lam_r):
+        return np.nan, np.nan, np.nan
+    ratio = lam_t / lam_r
+    if se_t is None or se_r is None or np.isnan(se_t) or np.isnan(se_r) or lam_t == 0:
+        return ratio, np.nan, np.nan
+    var_ln_r = (se_t / lam_t) ** 2 + (se_r / lam_r) ** 2
+    se_ln_r = np.sqrt(var_ln_r)
+    ci_low = ratio * np.exp(-1.96 * se_ln_r)
+    ci_high = ratio * np.exp(1.96 * se_ln_r)
+    return ratio, ci_low, ci_high
+
+def pool_and_compute_batch(std_df, target_assay, ref_assays, partition_vol_nl_local):
+    """
+    For each unique Sample in std_df, pools (sums) positive/total partition
+    counts across replicate rows for the target assay and for the combined
+    set of reference assays, then computes lambda/SE for each and the
+    Ratio with its 95% CI via poisson_ratio_ci.
+    Returns a list of per-sample result dicts.
+    """
+    results = []
+    samples = sorted(std_df["Sample"].unique())
+    for sample in samples:
+        tgt_rows = std_df[(std_df["Sample"] == sample) & (std_df["Target"] == target_assay)]
+        ref_rows = std_df[(std_df["Sample"] == sample) & (std_df["Target"].isin(ref_assays))]
+        if tgt_rows.empty or ref_rows.empty:
+            continue
+
+        pos_t, tot_t = float(tgt_rows["Positives"].sum()), float(tgt_rows["Total"].sum())
+        pos_r, tot_r = float(ref_rows["Positives"].sum()), float(ref_rows["Total"].sum())
+
+        lam_t, _, _, status_t = poisson_lambda(pos_t, tot_t)
+        lam_r, _, _, status_r = poisson_lambda(pos_r, tot_r)
+        if status_t != "ok" or status_r != "ok":
+            continue
+
+        p_t, p_r = pos_t / tot_t, pos_r / tot_r
+        se_t = np.sqrt(p_t / (tot_t * (1 - p_t))) if (1 - p_t) > 0 else np.nan
+        se_r = np.sqrt(p_r / (tot_r * (1 - p_r))) if (1 - p_r) > 0 else np.nan
+
+        ratio, ci_low, ci_high = poisson_ratio_ci(lam_t, se_t, lam_r, se_r)
+        conc = lam_t / partition_vol_nl_local * 1000.0
+
+        results.append({
+            "Sample": sample, "lambda_t": lam_t, "lambda_r": lam_r,
+            "ratio": ratio, "ci_low": ci_low, "ci_high": ci_high, "conc": conc,
+            "n_partitions_t": int(tot_t), "n_partitions_r": int(tot_r),
+        })
+    return results
+
+def compute_vaf(lam_mut, se_mut, lam_wt, se_wt):
+    """
+    Fractional Abundance (FA, i.e. variant allele fraction) for a mutant vs
+    wild-type ddPCR assay pair: FA = lambda_mut / (lambda_mut + lambda_wt).
+    95% CI via the linear delta method on the ratio-to-sum form, which is
+    the standard approach used in ddPCR liquid-biopsy literature
+    (e.g. Hindson et al. 2013 Anal Chem):
+        Var(FA) ~= [y/(x+y)^2]^2 * Var(x) + [x/(x+y)^2]^2 * Var(y)
+    Returns (FA, ci_low, ci_high) as fractions in [0, 1].
+    """
+    x, y = lam_mut, lam_wt
+    if x is None or y is None or np.isnan(x) or np.isnan(y) or (x + y) <= 0:
+        return np.nan, np.nan, np.nan
+    fa = x / (x + y)
+    if se_mut is None or se_wt is None or np.isnan(se_mut) or np.isnan(se_wt):
+        return fa, np.nan, np.nan
+    denom_sq = (x + y) ** 4
+    var_fa = ((y ** 2) * (se_mut ** 2) + (x ** 2) * (se_wt ** 2)) / denom_sq
+    se_fa = np.sqrt(var_fa)
+    ci_low = max(fa - 1.96 * se_fa, 0.0)
+    ci_high = min(fa + 1.96 * se_fa, 1.0)
+    return fa, ci_low, ci_high
+
+def pool_and_compute_vaf(std_df, mutant_assay, wt_assay, partition_vol_nl_local):
+    """
+    For each unique Sample in std_df, pools positive/total partition counts
+    for the mutant assay and the wild-type assay, computes lambda/SE for
+    each, and the Fractional Abundance (FA%) with 95% CI via compute_vaf.
+    Returns a list of per-sample result dicts.
+    """
+    results = []
+    samples = sorted(std_df["Sample"].unique())
+    for sample in samples:
+        mut_rows = std_df[(std_df["Sample"] == sample) & (std_df["Target"] == mutant_assay)]
+        wt_rows = std_df[(std_df["Sample"] == sample) & (std_df["Target"] == wt_assay)]
+        if mut_rows.empty or wt_rows.empty:
+            continue
+
+        pos_m, tot_m = float(mut_rows["Positives"].sum()), float(mut_rows["Total"].sum())
+        pos_w, tot_w = float(wt_rows["Positives"].sum()), float(wt_rows["Total"].sum())
+
+        lam_m, _, _, status_m = poisson_lambda(pos_m, tot_m)
+        lam_w, _, _, status_w = poisson_lambda(pos_w, tot_w)
+        if status_m not in ("ok", "saturated") or status_w not in ("ok", "saturated"):
+            continue
+        if status_m == "saturated":
+            lam_m = -np.log(1.0 / tot_m)  # fallback, extreme edge case
+        if status_w == "saturated":
+            lam_w = -np.log(1.0 / tot_w)
+        lam_m = 0.0 if pos_m == 0 else lam_m
+        lam_w = 0.0 if pos_w == 0 else lam_w
+
+        p_m = pos_m / tot_m if tot_m > 0 else np.nan
+        p_w = pos_w / tot_w if tot_w > 0 else np.nan
+        se_m = np.sqrt(p_m / (tot_m * (1 - p_m))) if (1 - p_m) > 0 else np.nan
+        se_w = np.sqrt(p_w / (tot_w * (1 - p_w))) if (1 - p_w) > 0 else np.nan
+
+        fa, ci_low, ci_high = compute_vaf(lam_m, se_m, lam_w, se_w)
+        conc_mut = lam_m / partition_vol_nl_local * 1000.0
+        detected = pos_m >= 1
+
+        results.append({
+            "Sample": sample, "lambda_mut": lam_m, "lambda_wt": lam_w,
+            "fa": fa, "ci_low": ci_low, "ci_high": ci_high,
+            "conc_mut": conc_mut, "detected": detected,
+            "n_partitions_mut": int(tot_m), "n_partitions_wt": int(tot_w),
+            "pos_mut": int(pos_m),
+        })
+    return results
+
+def compute_lod_loq(ntc_pos, ntc_tot, partition_vol_nl_local):
+    """
+    Estimate LOD (limit of detection) and LOQ (limit of quantification) from
+    pooled No-Template Control (NTC) replicate partition counts.
+
+    If zero positives are observed across all pooled NTC partitions, LOD is
+    derived from the "rule of three" upper 95% confidence bound on the true
+    positive rate: p_upper ≈ 3/n_total. If NTC shows background positives
+    (possible contamination), LOD is set to the NTC's own λ plus a one-sided
+    95% margin (background + 1.645×SEM).
+
+    LOQ is reported as 3×LOD, a commonly used simplified heuristic; true LOQ
+    should ideally be validated empirically via replicate reproducibility (CV%).
+
+    Returns dict with keys: lod_lambda, loq_lambda, lod_conc, loq_conc,
+    ntc_lambda, ntc_pos_total, ntc_tot_total, contamination (bool).
+    """
+    ntc_pos = np.array(ntc_pos, dtype=float)
+    ntc_tot = np.array(ntc_tot, dtype=float)
+    n = min(len(ntc_pos), len(ntc_tot))
+    if n == 0:
+        return None
+    ntc_pos, ntc_tot = ntc_pos[:n], ntc_tot[:n]
+
+    pos_total = float(np.sum(ntc_pos))
+    tot_total = float(np.sum(ntc_tot))
+    if tot_total <= 0:
+        return None
+
+    if pos_total == 0:
+        # Rule-of-three upper bound on the true positive rate
+        p_upper = 3.0 / tot_total
+        lod_lambda = -np.log(1 - p_upper) if p_upper < 1 else np.nan
+        ntc_lambda = 0.0
+        contamination = False
+    else:
+        p = pos_total / tot_total
+        ntc_lambda, _, _, _ = poisson_lambda(pos_total, tot_total)
+        se = np.sqrt(p / (tot_total * (1 - p))) if (1 - p) > 0 else np.nan
+        lod_lambda = ntc_lambda + 1.645 * se if not np.isnan(se) else ntc_lambda
+        contamination = True
+
+    loq_lambda = lod_lambda * 3.0
+    return {
+        "lod_lambda": lod_lambda, "loq_lambda": loq_lambda,
+        "lod_conc": lod_lambda / partition_vol_nl_local * 1000.0,
+        "loq_conc": loq_lambda / partition_vol_nl_local * 1000.0,
+        "ntc_lambda": ntc_lambda, "ntc_pos_total": pos_total, "ntc_tot_total": tot_total,
+        "contamination": contamination,
+    }
+
 def compute_stability_m(ref_lambda_matrix):
     """geNorm-style stability M-value, computed in log-space on lambda values."""
     n_refs, n_samples = ref_lambda_matrix.shape
@@ -414,6 +793,138 @@ def parse_input_data(input_data):
         except ValueError:
             continue
     return np.array(out)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# INSTRUMENT CSV IMPORT (QuantaSoft / QX Manager / QIAcuity / generic)
+# ═══════════════════════════════════════════════════════════════════════════════
+_COLUMN_ALIASES = {
+    "sample": ["sample", "samplename", "sample name", "well name", "wellname",
+               "sample description 1", "sample_id", "sampleid"],
+    "target": ["target", "target name", "targettype", "target type", "assay",
+               "biomarker", "assay name", "gene", "channel"],
+    "positives": ["positives", "positive droplets", "positives (rain excluded)",
+                  "ch1 positives", "ch1+", "positivecount", "positive count",
+                  "positive partitions", "positive reactions"],
+    "total": ["accepteddroplets", "accepted droplets", "total droplets",
+              "total accepted droplets", "valid partitions", "partitions (valid)",
+              "total", "total partitions", "total reactions", "total conf. droplets",
+              "droplet count", "well droplet count"],
+}
+
+def _norm_col(col):
+    return str(col).strip().lower()
+
+def _auto_detect_column(df_columns, field):
+    normed = {_norm_col(c): c for c in df_columns}
+    for alias in _COLUMN_ALIASES[field]:
+        if alias in normed:
+            return normed[alias]
+    # partial/substring match fallback
+    for norm_c, orig_c in normed.items():
+        for alias in _COLUMN_ALIASES[field]:
+            if alias in norm_c or norm_c in alias:
+                return orig_c
+    return None
+
+def parse_instrument_csv(file_bytes):
+    """
+    Parses a generic dPCR/ddPCR instrument export (QuantaSoft, QX Manager,
+    QIAcuity, or similar CSV/TSV exports). Auto-detects Sample, Target,
+    Positives, and Total (accepted partitions) columns using common column
+    name aliases across instruments. Returns (df, detected_cols, error) where
+    df has standardized columns: Sample, Target, Positives, Total.
+    detected_cols is a dict {field: column_name_or_None} for any fields that
+    need manual mapping.
+    """
+    import io as _io
+    try:
+        content = file_bytes.decode("utf-8-sig", errors="replace")
+    except Exception as e:
+        return None, None, f"File decoding error: {e}"
+
+    sep = "\t" if content.count("\t") > content.count(",") else ","
+    try:
+        df = pd.read_csv(_io.StringIO(content), sep=sep)
+    except Exception as e:
+        return None, None, f"CSV parse error: {e}"
+
+    if df.empty or len(df.columns) < 2:
+        return None, None, "No usable columns found in file."
+
+    detected = {field: _auto_detect_column(df.columns, field) for field in _COLUMN_ALIASES}
+    return df, detected, None
+
+def build_standard_import_df(raw_df, col_map):
+    """
+    col_map: {"sample": colname, "target": colname, "positives": colname, "total": colname}
+    Returns a cleaned DataFrame with columns Sample, Target, Positives, Total (numeric).
+    """
+    out = pd.DataFrame()
+    out["Sample"] = raw_df[col_map["sample"]].astype(str).str.strip()
+    out["Target"] = raw_df[col_map["target"]].astype(str).str.strip()
+    out["Positives"] = pd.to_numeric(raw_df[col_map["positives"]], errors="coerce")
+    out["Total"] = pd.to_numeric(raw_df[col_map["total"]], errors="coerce")
+    out = out.dropna(subset=["Positives", "Total"])
+    out = out[out["Total"] > 0]
+    return out.reset_index(drop=True)
+
+def apply_csv_import_to_session(std_df, target_assays, ref_assays, ctrl_label, patient_labels):
+    """
+    Given the standardized import DataFrame (Sample, Target, Positives, Total)
+    and the user's assay/group assignments, fills st.session_state text_area
+    values for each target gene / reference gene / control / patient group
+    combination. Returns the number of individual partition-count values filled.
+    """
+    if std_df is None or std_df.empty:
+        return 0
+
+    ctrl_keywords = [s.strip() for s in ctrl_label.split(",") if s.strip()]
+
+    def is_ctrl(name):
+        return any(kw.lower() in name.lower() for kw in ctrl_keywords)
+
+    count = 0
+    for gi, target_name in enumerate(target_assays):
+        tgt_df = std_df[std_df["Target"] == target_name]
+
+        ctrl_rows = tgt_df[tgt_df["Sample"].apply(is_ctrl)]
+        if len(ctrl_rows) > 0:
+            st.session_state[f"ctrl_tgt_pos_{gi}"] = "\n".join(str(int(v)) for v in ctrl_rows["Positives"])
+            st.session_state[f"ctrl_tgt_tot_{gi}"] = "\n".join(str(int(v)) for v in ctrl_rows["Total"])
+            count += len(ctrl_rows) * 2
+
+        for ri, ref_name in enumerate(ref_assays):
+            ref_df = std_df[std_df["Target"] == ref_name]
+            ref_ctrl_rows = ref_df[ref_df["Sample"].apply(is_ctrl)]
+            if len(ref_ctrl_rows) > 0:
+                st.session_state[f"ctrl_ref_pos_{gi}_{ri}"] = "\n".join(str(int(v)) for v in ref_ctrl_rows["Positives"])
+                st.session_state[f"ctrl_ref_tot_{gi}_{ri}"] = "\n".join(str(int(v)) for v in ref_ctrl_rows["Total"])
+                count += len(ref_ctrl_rows) * 2
+
+        for pj, pat_label in enumerate(patient_labels):
+            pat_keywords = [s.strip() for s in pat_label.split(",") if s.strip()]
+
+            def is_pat(name, kws=pat_keywords):
+                return any(kw.lower() in name.lower() for kw in kws)
+
+            pat_rows = tgt_df[tgt_df["Sample"].apply(is_pat)]
+            if len(pat_rows) > 0:
+                st.session_state[f"smp_tgt_pos_{gi}_{pj}"] = "\n".join(str(int(v)) for v in pat_rows["Positives"])
+                st.session_state[f"smp_tgt_tot_{gi}_{pj}"] = "\n".join(str(int(v)) for v in pat_rows["Total"])
+                count += len(pat_rows) * 2
+
+            for ri, ref_name in enumerate(ref_assays):
+                ref_df = std_df[std_df["Target"] == ref_name]
+                ref_pat_rows = ref_df[ref_df["Sample"].apply(is_pat)]
+                if len(ref_pat_rows) > 0:
+                    st.session_state[f"smp_ref_pos_{gi}_{pj}_{ri}"] = "\n".join(str(int(v)) for v in ref_pat_rows["Positives"])
+                    st.session_state[f"smp_ref_tot_{gi}_{pj}_{ri}"] = "\n".join(str(int(v)) for v in ref_pat_rows["Total"])
+                    count += len(ref_pat_rows) * 2
+
+    st.session_state["gene_count"] = max(1, len(target_assays))
+    st.session_state["num_ref_genes"] = max(1, len(ref_assays))
+    st.session_state["patient_count"] = max(1, len(patient_labels))
+    return count
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # OUTLIER DETECTION (Grubbs / IQR) — identical logic to GeneQuantify
@@ -648,6 +1159,81 @@ if selected_scenario != "—":
             st.session_state[_key] = _val
         st.sidebar.success(_t['sidebar_example_loaded'].format(s=selected_scenario))
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# SIDEBAR — Instrument CSV import
+# ═══════════════════════════════════════════════════════════════════════════════
+with st.sidebar.expander(_t['csv_import_expander'], expanded=False):
+    st.caption(_t['csv_import_description'])
+    csv_file = st.file_uploader(_t['csv_uploader'], type=["csv", "tsv", "txt"], key="csv_import_uploader")
+    if csv_file is not None:
+        _raw_bytes = csv_file.read()
+        _raw_df, _detected_cols, _parse_err = parse_instrument_csv(_raw_bytes)
+        if _parse_err:
+            st.error(_t['csv_parse_error'].format(err=_parse_err))
+        else:
+            st.markdown(_t['csv_col_mapping_title'])
+            _col_options = list(_raw_df.columns)
+            _col_map = {}
+            for _field, _label_key in [("sample", "csv_col_sample"), ("target", "csv_col_target"),
+                                        ("positives", "csv_col_positives"), ("total", "csv_col_total")]:
+                _detected = _detected_cols.get(_field)
+                _status = _t['csv_col_auto_detected'] if _detected else _t['csv_col_manual_needed']
+                _default_idx = _col_options.index(_detected) if _detected in _col_options else 0
+                _col_map[_field] = st.selectbox(
+                    f"{_t[_label_key]} — {_status}", options=_col_options,
+                    index=_default_idx, key=f"csv_colmap_{_field}"
+                )
+
+            _std_df = build_standard_import_df(_raw_df, _col_map)
+            if not _std_df.empty:
+                with st.expander(_t['csv_preview_title'], expanded=False):
+                    st.dataframe(_std_df, use_container_width=True)
+
+                st.markdown(_t['csv_assay_assignment_title'])
+                _unique_targets = sorted(_std_df["Target"].unique())
+                _sel_target_assays = st.multiselect(
+                    _t['csv_target_assays_label'], options=_unique_targets,
+                    default=_unique_targets[:1] if _unique_targets else [],
+                    key="csv_target_assays"
+                )
+                _remaining_targets = [t for t in _unique_targets if t not in _sel_target_assays]
+                _sel_ref_assays = st.multiselect(
+                    _t['csv_ref_assays_label'], options=_remaining_targets,
+                    default=_remaining_targets[:1] if _remaining_targets else [],
+                    key="csv_ref_assays"
+                )
+
+                st.markdown(_t['csv_group_assignment_title'])
+                _unique_samples = sorted(_std_df["Sample"].unique())
+                _ctrl_label_csv = st.text_input(
+                    _t['csv_ctrl_label'],
+                    value=_unique_samples[0] if _unique_samples else "",
+                    key="csv_ctrl_label_input"
+                )
+                _n_pat_csv = st.number_input(
+                    _t['csv_n_patient_groups'], min_value=1, max_value=10, value=1, step=1, key="csv_n_pat"
+                )
+                _patient_labels_csv = []
+                for _pg in range(int(_n_pat_csv)):
+                    _default_pat = _unique_samples[_pg + 1] if _pg + 1 < len(_unique_samples) else ""
+                    _pat_lbl = st.text_input(
+                        _t['csv_patient_label'].format(i=_pg + 1),
+                        value=_default_pat, key=f"csv_pat_label_{_pg}"
+                    )
+                    _patient_labels_csv.append(_pat_lbl)
+
+                if st.button(_t['csv_apply_btn'], key="csv_apply_btn", use_container_width=True):
+                    if _sel_target_assays and _sel_ref_assays:
+                        _n_filled = apply_csv_import_to_session(
+                            _std_df, _sel_target_assays, _sel_ref_assays, _ctrl_label_csv, _patient_labels_csv
+                        )
+                        if _n_filled > 0:
+                            st.success(_t['csv_apply_success'].format(n=_n_filled))
+                        else:
+                            st.warning(_t['csv_apply_warning'])
+                    else:
+                        st.warning(_t['csv_apply_warning'])
+
 guide_clicked = st.sidebar.button(_t['guide_btn'], use_container_width=True)
 if guide_clicked:
     @st.dialog("📘 AbsoluteGene — User Guide" if language_code == "en" else "📘 AbsoluteGene — Kullanım Kılavuzu", width="large")
@@ -772,8 +1358,9 @@ st.sidebar.link_button(
 )
 st.sidebar.caption("AbsoluteGene — GPL-3.0 | mailtoburhanettin@gmail.com")
 
-tab_data, tab_results, tab_report = st.tabs([
-    f"📥 {_t['tab_data']}", f"📊 {_t['tab_results']}", f"📄 {_t['tab_report']}"
+tab_data, tab_results, tab_batch, tab_vaf, tab_report = st.tabs([
+    f"📥 {_t['tab_data']}", f"📊 {_t['tab_results']}", f"🔬 {_t['tab_batch']}",
+    f"🧬 {_t['tab_vaf']}", f"📄 {_t['tab_report']}"
 ])
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1034,11 +1621,41 @@ with tab_data:
                 "__replicate__": row["replicate"],
                 "__positive__": row["target_pos"], "__total__": row["target_tot"],
                 "__lambda__": round(row["target_lambda"], 5) if not np.isnan(row["target_lambda"]) else None,
+                "__conc__": round(row["target_lambda"] / partition_vol_nl * 1000.0, 2) if not np.isnan(row["target_lambda"]) else None,
                 "Outlier Excluded": status_label,
                 "__used__": row["used"],
             })
 
         avg_ctrl_ratio = float(np.mean(ctrl_result["ratio_kept"])) if len(ctrl_result["ratio_kept"]) > 0 else None
+
+        # ── NTC / LOD-LOQ (optional) ──────────────────────────────────────────
+        lod_loq_result = None
+        with st.expander(_t['ntc_expander'], expanded=False):
+            st.caption(_t['ntc_description'])
+            ntc_c1, ntc_c2 = st.columns(2)
+            with ntc_c1:
+                ntc_pos_txt = _ta(f"{_t['ntc_positive_label']} — {_t['target_gene']} {i+1}", f"ntc_pos_{i}")
+            with ntc_c2:
+                ntc_tot_txt = _ta(f"{_t['ntc_total_label']} — {_t['target_gene']} {i+1}", f"ntc_tot_{i}")
+
+            ntc_pos_arr = parse_input_data(ntc_pos_txt)
+            ntc_tot_arr = parse_input_data(ntc_tot_txt)
+            if len(ntc_pos_arr) > 0 and len(ntc_tot_arr) > 0:
+                lod_loq_result = compute_lod_loq(ntc_pos_arr, ntc_tot_arr, partition_vol_nl)
+                if lod_loq_result is not None:
+                    _gene_label_lod = f"{_t['target_gene']} {i+1}"
+                    st.markdown(f"**{_t['lod_result_title'].format(gene=_gene_label_lod)}**")
+                    lod_c1, lod_c2 = st.columns(2)
+                    lod_c1.metric(_t['lod_label'], f"{lod_loq_result['lod_conc']:.2f}")
+                    lod_c2.metric(_t['loq_label'], f"{lod_loq_result['loq_conc']:.2f}")
+                    if lod_loq_result["contamination"]:
+                        st.warning(_t['ntc_contamination_warning'].format(
+                            lam=lod_loq_result["ntc_lambda"],
+                            pos=int(lod_loq_result["ntc_pos_total"]), tot=int(lod_loq_result["ntc_tot_total"])
+                        ))
+                    else:
+                        st.info(_t['ntc_zero_note'].format(n=int(lod_loq_result["ntc_tot_total"])))
+                    st.caption(_t['loq_heuristic_note'])
 
         # ── Patient groups ────────────────────────────────────────────────────
         for j in range(num_patient_groups):
@@ -1097,6 +1714,7 @@ with tab_data:
                     "__replicate__": row["replicate"],
                     "__positive__": row["target_pos"], "__total__": row["target_tot"],
                     "__lambda__": round(row["target_lambda"], 5) if not np.isnan(row["target_lambda"]) else None,
+                    "__conc__": round(row["target_lambda"] / partition_vol_nl * 1000.0, 2) if not np.isnan(row["target_lambda"]) else None,
                     "Outlier Excluded": status_label,
                     "__used__": row["used"],
                 })
@@ -1106,6 +1724,22 @@ with tab_data:
             cn_ctrl = ploidy * avg_ctrl_ratio if avg_ctrl_ratio else float("nan")
             cn_smp = ploidy * avg_smp_ratio
 
+            # ── Concentration (copies/µL) with 95% CI (replicate-based) ─────────
+            conc_ctrl_arr = lambda_to_conc(ctrl_result["lam_target_kept"], partition_vol_nl)
+            conc_smp_arr = lambda_to_conc(smp_result["lam_target_kept"], partition_vol_nl)
+            conc_ctrl_mean, conc_ctrl_lo, conc_ctrl_hi, conc_ctrl_cv, _ = mean_ci(conc_ctrl_arr)
+            conc_smp_mean, conc_smp_lo, conc_smp_hi, conc_smp_cv, _ = mean_ci(conc_smp_arr)
+
+            # ── LOD/LOQ QC flag (if NTC data provided for this gene) ─────────────
+            lod_loq_flag = "—"
+            if lod_loq_result is not None:
+                if conc_smp_mean < lod_loq_result["lod_conc"]:
+                    lod_loq_flag = _t['below_lod_flag']
+                elif conc_smp_mean < lod_loq_result["loq_conc"]:
+                    lod_loq_flag = _t['between_lod_loq_flag']
+                else:
+                    lod_loq_flag = _t['above_loq_flag']
+
             if fold_change >= 1.5:
                 regulation = _t['upregulated']
             elif fold_change <= 0.67:
@@ -1114,10 +1748,15 @@ with tab_data:
                 regulation = _t['no_change']
 
             st.markdown(f"#### {_t['method_comparison']} — {_t['target_gene']} {i+1} / {_t['patient_group']} {j+1}")
-            rcol1, rcol2, rcol3 = st.columns(3)
+            rcol1, rcol2, rcol3, rcol4 = st.columns(4)
             rcol1.metric(_t['ratio_col'], f"{avg_smp_ratio:.4f}")
             rcol2.metric(_t['cn_col'], f"{cn_smp:.3f}")
             rcol3.metric(_t['fc_col'], f"{fold_change:.4f}", delta=regulation)
+            _conc_ci_txt = (f"95% CI: {conc_smp_lo:.1f}–{conc_smp_hi:.1f}"
+                             if not np.isnan(conc_smp_lo) else "n<2, no CI")
+            rcol4.metric(_t['conc_col'], f"{conc_smp_mean:.1f}", delta=_conc_ci_txt, delta_color="off")
+            if lod_loq_result is not None:
+                st.caption(f"{_t['lod_qc_col']}: {lod_loq_flag}")
 
             # ── Statistics (Control vs this patient group), directly on Ratio ──
             control_ratios = ctrl_result["ratio_kept"]
@@ -1221,6 +1860,9 @@ with tab_data:
                 "__cn_ctrl__": cn_ctrl, "__cn_smp__": cn_smp,
                 "__fc__": fold_change, "__regulation__": regulation,
                 "__n_ctrl__": n_ctrl, "__n_smp__": n_smp,
+                "__conc_ctrl__": conc_ctrl_mean, "__conc_ctrl_lo__": conc_ctrl_lo, "__conc_ctrl_hi__": conc_ctrl_hi,
+                "__conc_smp__": conc_smp_mean, "__conc_smp_lo__": conc_smp_lo, "__conc_smp_hi__": conc_smp_hi,
+                "__conc_smp_cv__": conc_smp_cv, "__lod_loq_flag__": lod_loq_flag,
             })
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1362,7 +2004,7 @@ with tab_results:
         _rename = {
             "__gene__": _t['target_gene'], "Grup": "Group", "__replicate__": _t['sample_number'],
             "__positive__": _t['positive_partitions'], "__total__": _t['total_partitions'],
-            "__lambda__": _t['lambda_col'], "Outlier Excluded": "Status",
+            "__lambda__": _t['lambda_col'], "__conc__": _t['conc_col'], "Outlier Excluded": "Status",
         }
         display_df = pd.DataFrame(input_values_table).drop(columns=["__used__"]).rename(columns=_rename)
         st.dataframe(display_df, use_container_width=True)
@@ -1372,14 +2014,24 @@ with tab_results:
     # ── Results summary table ─────────────────────────────────────────────────
     if data:
         st.subheader(_t['nil_mine'])
-        _rename2 = {
-            "__gene__": _t['target_gene'], "__group__": "Group",
-            "__ratio_ctrl__": f"{_t['ratio_col']} (Control)", "__ratio_smp__": f"{_t['ratio_col']} (Sample)",
-            "__cn_ctrl__": f"{_t['cn_col']} (Control)", "__cn_smp__": f"{_t['cn_col']} (Sample)",
-            "__fc__": _t['fc_col'], "__regulation__": _t['regulation_status'],
-            "__n_ctrl__": "n (Control)", "__n_smp__": "n (Sample)",
-        }
-        res_df = pd.DataFrame(data).rename(columns=_rename2)
+        _res_display_rows = []
+        for r in data:
+            _res_display_rows.append({
+                _t['target_gene']: r["__gene__"], "Group": r["__group__"],
+                f"{_t['ratio_col']} (Control)": r["__ratio_ctrl__"], f"{_t['ratio_col']} (Sample)": r["__ratio_smp__"],
+                f"{_t['cn_col']} (Control)": r["__cn_ctrl__"], f"{_t['cn_col']} (Sample)": r["__cn_smp__"],
+                f"{_t['conc_col']} (Control)": (f"{r['__conc_ctrl__']:.1f}" if not np.isnan(r['__conc_ctrl__']) else "—"),
+                f"{_t['conc_col']} (Sample)": (f"{r['__conc_smp__']:.1f}" if not np.isnan(r['__conc_smp__']) else "—"),
+                "95% CI (Sample, copies/µL)": (
+                    f"{r['__conc_smp_lo__']:.1f}–{r['__conc_smp_hi__']:.1f}"
+                    if not np.isnan(r['__conc_smp_lo__']) else "n<2"
+                ),
+                "CV% (Sample)": (f"{r['__conc_smp_cv__']:.1f}" if not np.isnan(r['__conc_smp_cv__']) else "—"),
+                _t['lod_qc_col']: r.get("__lod_loq_flag__", "—"),
+                _t['fc_col']: r["__fc__"], _t['regulation_status']: r["__regulation__"],
+                "n (Control)": r["__n_ctrl__"], "n (Sample)": r["__n_smp__"],
+            })
+        res_df = pd.DataFrame(_res_display_rows)
         st.dataframe(res_df, use_container_width=True)
         csv2 = res_df.to_csv(index=False).encode("utf-8")
         st.download_button(_t['download_csv'], data=csv2, file_name="dpcr_results.csv", mime="text/csv", key="dl_res_csv")
@@ -1690,19 +2342,25 @@ def create_pdf(results, stat_rows, input_df, lang, multigroup_results=None):
     # ── SECTION 3: RESULTS ────────────────────────────────────────────────────
     elements.append(Paragraph(safe_str("3. Results"), h1_style))
     elements.append(hr())
-    res_cols = ["Gene", "Group", "Ratio (Ctrl)", "Ratio (Sample)", "CN (Ctrl)", "CN (Sample)", "Fold Change", "Regulation"]
+    res_cols = ["Gene", "Group", "Ratio (Ctrl)", "Ratio (Sample)", "CN (Ctrl)", "CN (Sample)",
+                "Conc. Sample (copies/µL)", "95% CI (copies/µL)", "Fold Change", "Regulation", "LOD/LOQ Status"]
     res_rows = [res_cols]
     for r in results:
+        conc_ci = (f"{r['__conc_smp_lo__']:.1f}\u2013{r['__conc_smp_hi__']:.1f}"
+                   if r.get('__conc_smp_lo__') is not None and not np.isnan(r['__conc_smp_lo__']) else "n<2")
         res_rows.append([
             r["__gene__"], r["__group__"],
             f"{r['__ratio_ctrl__']:.4f}" if r['__ratio_ctrl__'] is not None else "—",
             f"{r['__ratio_smp__']:.4f}",
             f"{r['__cn_ctrl__']:.3f}" if r['__cn_ctrl__'] is not None else "—",
             f"{r['__cn_smp__']:.3f}",
+            f"{r.get('__conc_smp__', float('nan')):.1f}" if r.get('__conc_smp__') is not None and not np.isnan(r.get('__conc_smp__', np.nan)) else "—",
+            conc_ci,
             f"{r['__fc__']:.4f}", r["__regulation__"],
+            r.get("__lod_loq_flag__", "—"),
         ])
-    cw8 = (letter[0] - 100) / 8
-    elements.append(make_table(res_rows, col_widths=[cw8] * 8))
+    cw11r = (letter[0] - 100) / 11
+    elements.append(make_table(res_rows, col_widths=[cw11r] * 11))
     elements.append(Spacer(1, 8))
 
     if results:
@@ -1865,6 +2523,249 @@ def create_pdf(results, stat_rows, input_df, lang, multigroup_results=None):
     return buffer
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# BATCH SCREENING TAB
+# ═══════════════════════════════════════════════════════════════════════════════
+with tab_batch:
+    st.markdown(f"### {_t['batch_title']}")
+    st.caption(_t['batch_description'])
+    st.markdown("---")
+
+    batch_file = st.file_uploader(_t['batch_uploader'], type=["csv", "tsv", "txt"], key="batch_uploader")
+
+    if batch_file is not None:
+        _batch_raw_bytes = batch_file.read()
+        _batch_raw_df, _batch_detected, _batch_err = parse_instrument_csv(_batch_raw_bytes)
+        if _batch_err:
+            st.error(_t['csv_parse_error'].format(err=_batch_err))
+        else:
+            _batch_col_options = list(_batch_raw_df.columns)
+            _batch_col_map = {}
+            bcol1, bcol2, bcol3, bcol4 = st.columns(4)
+            for _field, _label_key, _col_widget in [
+                ("sample", "csv_col_sample", bcol1), ("target", "csv_col_target", bcol2),
+                ("positives", "csv_col_positives", bcol3), ("total", "csv_col_total", bcol4)
+            ]:
+                _detected = _batch_detected.get(_field)
+                _default_idx = _batch_col_options.index(_detected) if _detected in _batch_col_options else 0
+                with _col_widget:
+                    _batch_col_map[_field] = st.selectbox(
+                        _t[_label_key], options=_batch_col_options,
+                        index=_default_idx, key=f"batch_colmap_{_field}"
+                    )
+
+            _batch_std_df = build_standard_import_df(_batch_raw_df, _batch_col_map)
+
+            if not _batch_std_df.empty:
+                st.markdown(_t['batch_assay_title'])
+                _batch_unique_targets = sorted(_batch_std_df["Target"].unique())
+                bacol1, bacol2 = st.columns(2)
+                with bacol1:
+                    _batch_target_assay = st.selectbox(
+                        _t['batch_target_label'], options=_batch_unique_targets, key="batch_target_assay"
+                    )
+                with bacol2:
+                    _batch_ref_options = [t for t in _batch_unique_targets if t != _batch_target_assay]
+                    _batch_ref_assays = st.multiselect(
+                        _t['batch_ref_label'], options=_batch_ref_options,
+                        default=_batch_ref_options[:1] if _batch_ref_options else [],
+                        key="batch_ref_assays"
+                    )
+
+                st.markdown(_t['batch_settings_title'])
+                bscol1, bscol2 = st.columns(2)
+                with bscol1:
+                    _batch_expected_ratio = st.number_input(
+                        _t['batch_expected_ratio'], min_value=0.01, max_value=100.0,
+                        value=1.0, step=0.1, key="batch_expected_ratio"
+                    )
+                with bscol2:
+                    _batch_ploidy = st.number_input(
+                        _t['batch_ploidy'], min_value=1, max_value=10, value=2, step=1, key="batch_ploidy"
+                    )
+
+                if st.button(_t['batch_run_btn'], key="batch_run_btn", use_container_width=True) and _batch_ref_assays:
+                    _batch_results = pool_and_compute_batch(
+                        _batch_std_df, _batch_target_assay, _batch_ref_assays, partition_vol_nl
+                    )
+                    st.session_state["_batch_results_cache"] = _batch_results
+                    st.session_state["_batch_expected_ratio_cache"] = _batch_expected_ratio
+                    st.session_state["_batch_ploidy_cache"] = _batch_ploidy
+
+    # ── Display cached results (persists across reruns/tab switches) ───────────
+    _batch_results = st.session_state.get("_batch_results_cache")
+    if _batch_results:
+        _exp_ratio = st.session_state.get("_batch_expected_ratio_cache", 1.0)
+        _b_ploidy = st.session_state.get("_batch_ploidy_cache", 2)
+
+        st.markdown(f"#### {_t['batch_results_title']}")
+        _batch_rows = []
+        _n_flagged = 0
+        for r in _batch_results:
+            if np.isnan(r["ci_low"]) or np.isnan(r["ci_high"]):
+                classification = "—"
+            elif _exp_ratio < r["ci_low"]:
+                classification = _t['batch_class_gain']
+                _n_flagged += 1
+            elif _exp_ratio > r["ci_high"]:
+                classification = _t['batch_class_loss']
+                _n_flagged += 1
+            else:
+                classification = _t['batch_class_normal']
+
+            _batch_rows.append({
+                _t['batch_col_sample']: r["Sample"],
+                _t['batch_col_lambda_t']: round(r["lambda_t"], 5),
+                _t['batch_col_lambda_r']: round(r["lambda_r"], 5),
+                _t['batch_col_ratio']: round(r["ratio"], 4),
+                _t['batch_col_ci']: (f"{r['ci_low']:.4f}\u2013{r['ci_high']:.4f}"
+                                       if not np.isnan(r["ci_low"]) else "—"),
+                _t['batch_col_cn']: round(_b_ploidy * r["ratio"], 3),
+                _t['batch_col_conc']: round(r["conc"], 1),
+                _t['batch_col_class']: classification,
+            })
+
+        st.info(_t['batch_n_flagged'].format(n=_n_flagged, total=len(_batch_results)))
+        batch_df = pd.DataFrame(_batch_rows)
+        st.dataframe(batch_df, use_container_width=True)
+
+        batch_csv = batch_df.to_csv(index=False).encode("utf-8")
+        st.download_button(_t['batch_download_btn'], data=batch_csv,
+                            file_name="batch_screening_results.csv", mime="text/csv", key="batch_dl_csv")
+
+        # ── Screening plot ────────────────────────────────────────────────────
+        fig_batch = go.Figure()
+        _colors_map = {
+            _t['batch_class_gain']: "#e53935", _t['batch_class_loss']: "#1e88e5",
+            _t['batch_class_normal']: "#43a047", "—": "#9e9e9e"
+        }
+        _sample_names = [r["Sample"] for r in _batch_results]
+        _ratios = [r["ratio"] for r in _batch_results]
+        _err_low = [max(r["ratio"] - r["ci_low"], 0) if not np.isnan(r["ci_low"]) else 0 for r in _batch_results]
+        _err_high = [r["ci_high"] - r["ratio"] if not np.isnan(r["ci_high"]) else 0 for r in _batch_results]
+        _point_colors = [_colors_map.get(row[_t['batch_col_class']], "#9e9e9e") for row in _batch_rows]
+
+        fig_batch.add_trace(go.Scatter(
+            x=_sample_names, y=_ratios, mode="markers",
+            marker=dict(color=_point_colors, size=9),
+            error_y=dict(type="data", symmetric=False, array=_err_high, arrayminus=_err_low),
+            name="Ratio (95% CI)"
+        ))
+        fig_batch.add_hline(y=_exp_ratio, line_dash="dash", line_color="black",
+                            annotation_text=f"Expected = {_exp_ratio}")
+        fig_batch.update_layout(
+            title=_t['batch_chart_title'], xaxis_title=_t['batch_col_sample'],
+            yaxis_title=_t['batch_col_ratio'], height=420, showlegend=False
+        )
+        st.plotly_chart(fig_batch, use_container_width=True, key="batch_screening_chart")
+    else:
+        st.info(_t['batch_no_data'])
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# VAF / MUTATION FRACTION CALCULATOR TAB
+# ═══════════════════════════════════════════════════════════════════════════════
+with tab_vaf:
+    st.markdown(f"### {_t['vaf_title']}")
+    st.caption(_t['vaf_description'])
+    st.info(_t['vaf_method_note'])
+    st.markdown("---")
+
+    vaf_file = st.file_uploader(_t['vaf_uploader'], type=["csv", "tsv", "txt"], key="vaf_uploader")
+
+    if vaf_file is not None:
+        _vaf_raw_bytes = vaf_file.read()
+        _vaf_raw_df, _vaf_detected, _vaf_err = parse_instrument_csv(_vaf_raw_bytes)
+        if _vaf_err:
+            st.error(_t['csv_parse_error'].format(err=_vaf_err))
+        else:
+            _vaf_col_options = list(_vaf_raw_df.columns)
+            _vaf_col_map = {}
+            vcol1, vcol2, vcol3, vcol4 = st.columns(4)
+            for _field, _label_key, _col_widget in [
+                ("sample", "csv_col_sample", vcol1), ("target", "csv_col_target", vcol2),
+                ("positives", "csv_col_positives", vcol3), ("total", "csv_col_total", vcol4)
+            ]:
+                _detected = _vaf_detected.get(_field)
+                _default_idx = _vaf_col_options.index(_detected) if _detected in _vaf_col_options else 0
+                with _col_widget:
+                    _vaf_col_map[_field] = st.selectbox(
+                        _t[_label_key], options=_vaf_col_options,
+                        index=_default_idx, key=f"vaf_colmap_{_field}"
+                    )
+
+            _vaf_std_df = build_standard_import_df(_vaf_raw_df, _vaf_col_map)
+
+            if not _vaf_std_df.empty:
+                st.markdown(_t['vaf_assay_title'])
+                _vaf_unique_targets = sorted(_vaf_std_df["Target"].unique())
+                vacol1, vacol2 = st.columns(2)
+                with vacol1:
+                    _vaf_mutant_assay = st.selectbox(
+                        _t['vaf_mutant_label'], options=_vaf_unique_targets, key="vaf_mutant_assay"
+                    )
+                with vacol2:
+                    _vaf_wt_options = [t for t in _vaf_unique_targets if t != _vaf_mutant_assay]
+                    _vaf_wt_assay = st.selectbox(
+                        _t['vaf_wt_label'], options=_vaf_wt_options, key="vaf_wt_assay"
+                    ) if _vaf_wt_options else None
+
+                if st.button(_t['vaf_run_btn'], key="vaf_run_btn", use_container_width=True) and _vaf_wt_assay:
+                    _vaf_results = pool_and_compute_vaf(
+                        _vaf_std_df, _vaf_mutant_assay, _vaf_wt_assay, partition_vol_nl
+                    )
+                    st.session_state["_vaf_results_cache"] = _vaf_results
+
+    # ── Display cached results ──────────────────────────────────────────────────
+    _vaf_results = st.session_state.get("_vaf_results_cache")
+    if _vaf_results:
+        st.markdown(f"#### {_t['vaf_results_title']}")
+        _vaf_rows = []
+        _n_detected = 0
+        for r in _vaf_results:
+            if r["detected"]:
+                _n_detected += 1
+            _vaf_rows.append({
+                _t['vaf_col_sample']: r["Sample"],
+                _t['vaf_col_lambda_mut']: round(r["lambda_mut"], 5),
+                _t['vaf_col_lambda_wt']: round(r["lambda_wt"], 5),
+                _t['vaf_col_fa']: round(r["fa"] * 100, 3),
+                _t['vaf_col_ci']: (f"{r['ci_low']*100:.3f}\u2013{r['ci_high']*100:.3f}"
+                                     if not np.isnan(r["ci_low"]) else "—"),
+                _t['vaf_col_conc_mut']: round(r["conc_mut"], 2),
+                _t['vaf_col_detected']: _t['vaf_detected_yes'] if r["detected"] else _t['vaf_detected_no'],
+            })
+
+        st.info(_t['vaf_n_detected'].format(n=_n_detected, total=len(_vaf_results)))
+        vaf_df = pd.DataFrame(_vaf_rows)
+        st.dataframe(vaf_df, use_container_width=True)
+
+        vaf_csv = vaf_df.to_csv(index=False).encode("utf-8")
+        st.download_button(_t['vaf_download_btn'], data=vaf_csv,
+                            file_name="vaf_results.csv", mime="text/csv", key="vaf_dl_csv")
+
+        # ── VAF plot ───────────────────────────────────────────────────────────
+        fig_vaf = go.Figure()
+        _vaf_samples = [r["Sample"] for r in _vaf_results]
+        _vaf_pct = [r["fa"] * 100 for r in _vaf_results]
+        _vaf_err_low = [max((r["fa"] - r["ci_low"]) * 100, 0) if not np.isnan(r["ci_low"]) else 0 for r in _vaf_results]
+        _vaf_err_high = [(r["ci_high"] - r["fa"]) * 100 if not np.isnan(r["ci_high"]) else 0 for r in _vaf_results]
+        _vaf_colors = ["#e53935" if r["detected"] else "#9e9e9e" for r in _vaf_results]
+
+        fig_vaf.add_trace(go.Bar(
+            x=_vaf_samples, y=_vaf_pct, marker_color=_vaf_colors,
+            error_y=dict(type="data", symmetric=False, array=_vaf_err_high, arrayminus=_vaf_err_low),
+            name="FA%"
+        ))
+        fig_vaf.update_layout(
+            title=_t['vaf_chart_title'], xaxis_title=_t['vaf_col_sample'],
+            yaxis_title=_t['vaf_col_fa'], height=420, showlegend=False
+        )
+        st.plotly_chart(fig_vaf, use_container_width=True, key="vaf_chart")
+    else:
+        st.info(_t['vaf_no_data'])
+
+
 with tab_report:
     st.markdown(f"### 📄 {_t['pdf_report']}")
     st.markdown("---")
@@ -1879,9 +2780,3 @@ with tab_report:
                 label=f"⬇️ {_t['pdf_report']}", data=pdf_buffer,
                 file_name="absolutegene_report.pdf", mime="application/pdf", key="pdf_dl"
             )
-
-st.markdown(
-    f"<h4 style='font-size: 12px; font-family: Arial, sans-serif; color: #555;'>"
-    f"<a href='mailto:mailtoburhanettin@gmail.com' style='color: #555; text-decoration: none;'>"
-    f"{_t['subtitle']}</a></h4>", unsafe_allow_html=True
-)

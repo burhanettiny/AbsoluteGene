@@ -605,13 +605,20 @@ SCENARIOS = {
 # ═══════════════════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════════════════
+_title_parts = _t['title'].split(' ', 1)
+_header_emoji = _title_parts[0]
+_header_title_text = _title_parts[1] if len(_title_parts) > 1 else _t['title']
+
 st.markdown(
     f"""
     <div style="background:linear-gradient(90deg,#004d40,#00796b);
-                color:white;padding:14px 18px 12px 18px;border-radius:8px;margin-bottom:8px;
-                overflow:visible;">
-        <div style="font-size:20px;font-weight:800;line-height:1.4;">{_t['title']}</div>
-        <div style="font-size:11px;opacity:0.8;margin-top:4px;line-height:1.4;">{_t['subtitle']}</div>
+                color:white;padding:16px 18px;border-radius:8px;margin-bottom:8px;
+                display:flex;align-items:center;gap:12px;">
+        <span style="font-size:28px;line-height:1;flex-shrink:0;">{_header_emoji}</span>
+        <div style="display:flex;flex-direction:column;justify-content:center;">
+            <span style="font-size:20px;font-weight:800;line-height:1.3;">{_header_title_text}</span>
+            <span style="font-size:11px;opacity:0.8;margin-top:3px;line-height:1.3;">{_t['subtitle']}</span>
+        </div>
     </div>
     """,
     unsafe_allow_html=True

@@ -31,7 +31,7 @@ st.set_page_config(
 # ═══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-.block-container { padding-top: 1.2rem !important; padding-bottom: 1rem !important; }
+.block-container { padding-top: 3rem !important; padding-bottom: 1rem !important; }
 div[data-testid="stAlert"] { padding: 5px 10px !important; font-size: 12px !important; }
 div[data-testid="stNumberInput"] { margin-bottom: 0 !important; }
 div[data-testid="stRadio"]       { margin-bottom: 0 !important; }

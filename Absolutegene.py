@@ -244,6 +244,20 @@ translations = {
         "dilution_result_too_high": "⚠️ **Optimal aralığın üzerinde** (λ={lam:.3f}). Bir sonraki hazırlığınızda seyreltme faktörünüzü **mevcut faktörün {factor:.3f} katı** yapın (yani daha fazla seyreltin).",
         "dilution_result_saturated": "❌ **Doygunluğa yakın/riskli** (λ={lam:.3f}). Bir sonraki hazırlığınızda seyreltme faktörünüzü **mevcut faktörün {factor:.3f} katı** yapın.",
         "dilution_factor_note": "Bu hesaplayıcı, orijinal seyreltme faktörünüzü bilmediği için mutlak bir seyreltme oranı değil, **göreli bir çarpan** önerir: bir sonraki hazırlığınızda kullandığınız seyreltme faktörünü bu çarpanla çarpın. Örnek: şu an 1:50 seyreltiyorsanız ve önerilen çarpan 2.0 ise, bir sonraki denemede 1:100 seyreltin.",
+        "multiplex_expander": "🔀 Multipleks Küme Dönüştürücü (2 Renk)",
+        "multiplex_description": "İki hedefin (örn. hedef gen + referans gen) **aynı partisyonlarda** çift renkli (multipleks) ölçüldüğü ddPCR verileri için. 2×2 küme sayılarını girin — bu araç, aralarındaki korelasyonu doğru şekilde hesaba katarak (bağımsızlık varsayımı YAPMADAN) marjinal pozitif/toplam sayılarını ve oranı hesaplar.",
+        "multiplex_n11_label": "Çift Pozitif (Hedef+ Ref+)",
+        "multiplex_n10_label": "Yalnızca Hedef Pozitif (Hedef+ Ref-)",
+        "multiplex_n01_label": "Yalnızca Referans Pozitif (Hedef- Ref+)",
+        "multiplex_n00_label": "Çift Negatif (Hedef- Ref-)",
+        "multiplex_calc_btn": "📊 Dönüştür ve Hesapla",
+        "multiplex_result_title": "**Sonuç:**",
+        "multiplex_pos_target_label": "Hedef Pozitif Partisyon (marjinal)",
+        "multiplex_pos_ref_label": "Referans Pozitif Partisyon (marjinal)",
+        "multiplex_total_label": "Toplam Partisyon",
+        "multiplex_ratio_covaware": "Oran (kovaryans-farkında) %95 GA",
+        "multiplex_ratio_indep": "Oran (bağımsızlık varsayımıyla) %95 GA — karşılaştırma amaçlı",
+        "multiplex_paste_hint": "💡 Yukarıdaki marjinal pozitif/toplam değerlerini ana Veri Girişi alanlarına kopyalayabilirsiniz. Kovaryans-farkında güven aralığı, aynı partisyonlardan gelen verinin korelasyonunu doğru yansıtır ve genellikle bağımsızlık varsayımından daha dar/isabetlidir.",
         "qc_panel_title": "🩺 Veri Kalitesi Özeti",
         "qc_panel_total": "Toplam Replikat",
         "qc_panel_qc_fail": "Düşük Partisyon (QC)",
@@ -381,6 +395,43 @@ translations = {
         "coa_validity_label": "Geçerlilik Tarihi / Raf Ömrü",
         "coa_generate_btn": "📥 Sertifikayı Oluştur (PDF)",
         "coa_download_btn": "⬇️ Analiz Sertifikası (CoA)",
+        "dilution_factor_field_label": "Seyreltme Faktörü",
+        "dilution_factor_field_help": "Bu örnek, dPCR reaksiyonuna eklenmeden önce seyreltildiyse buraya seyreltme faktörünü girin (örn. 1:100 seyreltme için 100). Varsayılan 1 = seyreltme yok. Not: Oran/CN/Kat Değişimi seyreltmeden etkilenmez (hedef ve referans eşit seyrelir); yalnızca mutlak konsantrasyon (kopya/µL) düzeltilir.",
+        "stock_conc_col": "Stok Konsantrasyonu (kopya/µL)",
+        "dynamic_range_warning_label": "Dinamik Aralık Durumu",
+        "dynamic_range_ok": "✅ Optimal aralıkta",
+        "dynamic_range_low": "⚠️ Seyreltik (λ<0.05)",
+        "dynamic_range_high": "⚠️ Yüksek (λ>3)",
+        "dynamic_range_saturated": "❌ Doygunluk riski (λ>4)",
+        "dynamic_range_qc_panel_label": "Dinamik Aralık Uyarısı",
+        "lims_export_title": "🗂️ LIMS Uyumlu Dışa Aktarım",
+        "lims_export_description": "Sonuçları yaygın LIMS içe aktarma şablonlarıyla uyumlu düz (flat) bir CSV formatında dışa aktarır. Her satır bir test sonucunu temsil eder.",
+        "lims_operator_label": "Operatör",
+        "lims_instrument_label": "Cihaz",
+        "lims_run_date_label": "Çalışma Tarihi",
+        "lims_export_btn": "📥 LIMS Formatında Dışa Aktar (CSV)",
+        "lims_col_sample_id": "Sample_ID",
+        "lims_col_test_code": "Test_Code",
+        "lims_col_analyte": "Analyte",
+        "lims_col_result_value": "Result_Value",
+        "lims_col_result_unit": "Result_Unit",
+        "lims_col_reference": "Reference_Value",
+        "lims_col_flag": "Flag",
+        "lims_col_result_date": "Result_Date",
+        "lims_col_instrument": "Instrument",
+        "lims_col_operator": "Operator",
+        "lims_col_comments": "Comments",
+        "crm_mode_equivalence": "⚖️ Parti-Parti Karşılaştırma (Lot Eşdeğerliği)",
+        "equiv_description": "İki Tek Yönlü Test (TOST) prosedürüyle iki parti/lot arasındaki eşdeğerliği değerlendirir (Schuirmann 1987). Ortalama farkın %90 güven aralığı, tanımlanan eşdeğerlik marjı içinde kalırsa partiler eşdeğer kabul edilir.",
+        "equiv_lot1_label": "Parti 1 (Referans) Değerleri (her satıra bir değer)",
+        "equiv_lot2_label": "Parti 2 (Yeni/Test) Değerleri (her satıra bir değer)",
+        "equiv_margin_label": "Eşdeğerlik Marjı (%, ± )",
+        "equiv_calc_btn": "📊 Eşdeğerliği Test Et",
+        "equiv_result_equivalent": "✅ **Eşdeğer** — fark %{diff:+.2f} (90% GA: %{lo:.2f} ile %{hi:.2f}), ±%{margin:.1f} marjı içinde.",
+        "equiv_result_not_equivalent": "❌ **Eşdeğer Değil** — fark %{diff:+.2f} (90% GA: %{lo:.2f} ile %{hi:.2f}), ±%{margin:.1f} marjını aşıyor.",
+        "equiv_mean1_label": "Parti 1 Ortalama",
+        "equiv_mean2_label": "Parti 2 Ortalama",
+        "equiv_chart_title": "Parti Karşılaştırması",
         "tab_batch": "Toplu Tarama",
         "batch_title": "🔬 Toplu Numune Tarama (CNV Taraması)",
         "batch_description": "Çok sayıda numuneyi (örn. bir kohort) tek bir referans/beklenen orana karşı hızlıca taramak için tasarlanmıştır. Her numune için ayrı replikat grupları oluşturmak yerine, CSV dosyanızı yükleyip her örnek için tek bir Poisson tabanlı güven aralığı hesaplanır.",
@@ -615,6 +666,20 @@ translations = {
         "dilution_result_too_high": "⚠️ **Above the optimal range** (λ={lam:.3f}). For your next prep, set your dilution factor to **{factor:.3f}× your current factor** (i.e., dilute more).",
         "dilution_result_saturated": "❌ **Near/at saturation risk** (λ={lam:.3f}). For your next prep, set your dilution factor to **{factor:.3f}× your current factor**.",
         "dilution_factor_note": "Since this calculator doesn't know your original dilution factor, it recommends a **relative multiplier**: multiply the dilution factor you used by this value for your next prep. Example: if you currently dilute 1:50 and the recommended factor is 2.0, try 1:100 next time.",
+        "multiplex_expander": "🔀 2-Color Multiplex Cluster Converter",
+        "multiplex_description": "For ddPCR data where two targets (e.g. target gene + reference gene) are measured in **multiplex on the same partitions**. Enter the 2×2 cluster counts — this tool computes the marginal positive/total counts and the ratio while correctly accounting for the correlation between channels (WITHOUT assuming independence).",
+        "multiplex_n11_label": "Double Positive (Target+ Ref+)",
+        "multiplex_n10_label": "Target-Positive Only (Target+ Ref-)",
+        "multiplex_n01_label": "Reference-Positive Only (Target- Ref+)",
+        "multiplex_n00_label": "Double Negative (Target- Ref-)",
+        "multiplex_calc_btn": "📊 Convert and Calculate",
+        "multiplex_result_title": "**Result:**",
+        "multiplex_pos_target_label": "Target Positive Partitions (marginal)",
+        "multiplex_pos_ref_label": "Reference Positive Partitions (marginal)",
+        "multiplex_total_label": "Total Partitions",
+        "multiplex_ratio_covaware": "Ratio (covariance-aware) 95% CI",
+        "multiplex_ratio_indep": "Ratio (independence assumption) 95% CI — for comparison",
+        "multiplex_paste_hint": "💡 You can copy the marginal positive/total values above into the main Data Entry fields. The covariance-aware confidence interval correctly reflects the correlation from shared partitions and is typically narrower/more accurate than the independence assumption.",
         "qc_panel_title": "🩺 Data Quality Summary",
         "qc_panel_total": "Total Replicates",
         "qc_panel_qc_fail": "Low Partition (QC)",
@@ -744,6 +809,43 @@ translations = {
         "coa_validity_label": "Expiry Date / Shelf Life",
         "coa_generate_btn": "📥 Generate Certificate (PDF)",
         "coa_download_btn": "⬇️ Certificate of Analysis (CoA)",
+        "dilution_factor_field_label": "Dilution Factor",
+        "dilution_factor_field_help": "If this sample was diluted before being added to the dPCR reaction, enter the dilution factor here (e.g. 100 for a 1:100 dilution). Default 1 = no dilution. Note: Ratio/CN/Fold Change are unaffected by dilution (target and reference are diluted equally); only the absolute concentration (copies/µL) is corrected.",
+        "stock_conc_col": "Stock Concentration (copies/µL)",
+        "dynamic_range_warning_label": "Dynamic Range Status",
+        "dynamic_range_ok": "✅ Optimal range",
+        "dynamic_range_low": "⚠️ Too dilute (λ<0.05)",
+        "dynamic_range_high": "⚠️ High (λ>3)",
+        "dynamic_range_saturated": "❌ Saturation risk (λ>4)",
+        "dynamic_range_qc_panel_label": "Dynamic Range Warning",
+        "lims_export_title": "🗂️ LIMS-Compatible Export",
+        "lims_export_description": "Exports results as a flat CSV compatible with common LIMS import templates. Each row represents one test result.",
+        "lims_operator_label": "Operator",
+        "lims_instrument_label": "Instrument",
+        "lims_run_date_label": "Run Date",
+        "lims_export_btn": "📥 Export in LIMS Format (CSV)",
+        "lims_col_sample_id": "Sample_ID",
+        "lims_col_test_code": "Test_Code",
+        "lims_col_analyte": "Analyte",
+        "lims_col_result_value": "Result_Value",
+        "lims_col_result_unit": "Result_Unit",
+        "lims_col_reference": "Reference_Value",
+        "lims_col_flag": "Flag",
+        "lims_col_result_date": "Result_Date",
+        "lims_col_instrument": "Instrument",
+        "lims_col_operator": "Operator",
+        "lims_col_comments": "Comments",
+        "crm_mode_equivalence": "⚖️ Batch-to-Batch Comparison (Lot Equivalence)",
+        "equiv_description": "Assesses equivalence between two lots/batches using the Two One-Sided Tests (TOST) procedure (Schuirmann 1987). Lots are considered equivalent if the 90% confidence interval of the mean difference falls within the defined equivalence margin.",
+        "equiv_lot1_label": "Lot 1 (Reference) Values (one per line)",
+        "equiv_lot2_label": "Lot 2 (New/Test) Values (one per line)",
+        "equiv_margin_label": "Equivalence Margin (%, ±)",
+        "equiv_calc_btn": "📊 Test Equivalence",
+        "equiv_result_equivalent": "✅ **Equivalent** — difference {diff:+.2f}% (90% CI: {lo:.2f}% to {hi:.2f}%), within the ±{margin:.1f}% margin.",
+        "equiv_result_not_equivalent": "❌ **Not Equivalent** — difference {diff:+.2f}% (90% CI: {lo:.2f}% to {hi:.2f}%), exceeds the ±{margin:.1f}% margin.",
+        "equiv_mean1_label": "Lot 1 Mean",
+        "equiv_mean2_label": "Lot 2 Mean",
+        "equiv_chart_title": "Batch Comparison",
         "tab_batch": "Batch Screening",
         "batch_title": "🔬 Batch Sample Screening (CNV Screening)",
         "batch_description": "Designed for quickly screening many samples (e.g. a cohort) against a single reference/expected ratio. Instead of building replicate groups per sample, upload a CSV and a Poisson-based confidence interval is computed for each sample individually.",
@@ -1354,6 +1456,119 @@ def compute_assigned_value_uncertainty(assigned_value, u_char, u_bb, u_stab,
     U_rel_pct = (U / assigned_value * 100) if assigned_value else np.nan
     return {"components": components, "u_c": u_c, "U": U, "U_rel_pct": U_rel_pct, "k": k,
             "assigned_value": assigned_value}
+
+def compute_lot_equivalence(lot1_values, lot2_values, equivalence_margin_pct, alpha=0.05):
+    """
+    Two One-Sided Tests (TOST) equivalence procedure, commonly used for
+    batch/lot-to-lot equivalence assessment of reference materials and in
+    bioequivalence studies (Schuirmann DJ. A comparison of the two
+    one-sided tests procedure and the power approach for assessing the
+    equivalence of average bioavailability. J Pharmacokinet Biopharm 1987).
+
+    Two lots are declared equivalent if the (1-2*alpha)*100% confidence
+    interval (typically 90% for alpha=0.05) of the mean difference lies
+    entirely within +/- equivalence_margin_pct (relative to the mean of
+    lot1, taken as the reference).
+
+    Returns dict with mean1, mean2, percent_diff, ci_low_pct, ci_high_pct,
+    margin_pct, is_equivalent.
+    """
+    l1 = np.array(lot1_values, dtype=float)
+    l2 = np.array(lot2_values, dtype=float)
+    n1, n2 = len(l1), len(l2)
+    if n1 < 2 or n2 < 2:
+        return None
+
+    m1, m2 = np.mean(l1), np.mean(l2)
+    s1, s2 = np.std(l1, ddof=1), np.std(l2, ddof=1)
+    se_diff = np.sqrt(s1 ** 2 / n1 + s2 ** 2 / n2)
+    df = (s1 ** 2 / n1 + s2 ** 2 / n2) ** 2 / (
+        (s1 ** 2 / n1) ** 2 / (n1 - 1) + (s2 ** 2 / n2) ** 2 / (n2 - 1)
+    )
+    t_crit = stats.t.ppf(1 - alpha, df)
+
+    mean_diff = m2 - m1
+    ci_low = mean_diff - t_crit * se_diff
+    ci_high = mean_diff + t_crit * se_diff
+
+    # Express in percent relative to lot 1 (reference)
+    pct_diff = mean_diff / m1 * 100 if m1 != 0 else np.nan
+    ci_low_pct = ci_low / m1 * 100 if m1 != 0 else np.nan
+    ci_high_pct = ci_high / m1 * 100 if m1 != 0 else np.nan
+
+    is_equivalent = (ci_low_pct >= -equivalence_margin_pct) and (ci_high_pct <= equivalence_margin_pct)
+
+    return {
+        "mean1": m1, "mean2": m2, "percent_diff": pct_diff,
+        "ci_low_pct": ci_low_pct, "ci_high_pct": ci_high_pct,
+        "margin_pct": equivalence_margin_pct, "is_equivalent": is_equivalent,
+        "confidence_pct": (1 - 2 * alpha) * 100,
+    }
+
+def compute_multiplex_cluster(n11, n10, n01, n00):
+    """
+    Converts 2-color ddPCR multiplex cluster counts (e.g. FAM=target,
+    HEX=reference, both measured on the SAME physical partitions) into
+    marginal positive/total counts for target and reference, and computes
+    the target/reference ratio using a covariance-aware delta method that
+    properly accounts for the correlation induced by sharing the same
+    partition set (rather than assuming independence, which would be
+    incorrect for same-well multiplex data).
+
+    n11 = double-positive (target+, ref+) partition count
+    n10 = target-positive only
+    n01 = reference-positive only
+    n00 = double-negative
+
+    Multinomial covariance derivation:
+        Cov(p_target, p_ref) = (p11*p00 - p10*p01) / N
+    propagated to lambda via the delta method (dlambda/dp = 1/(1-p)),
+    then to the log-ratio via the standard multivariate delta method.
+
+    Returns dict with marginal positive/total counts, lambda_target,
+    lambda_ref, ratio, ci_low, ci_high (95%), and the covariance term.
+    """
+    N = n11 + n10 + n01 + n00
+    if N <= 0:
+        return None
+    pos_target = n11 + n10
+    pos_ref = n11 + n01
+
+    lam_t, _, _, status_t = poisson_lambda(pos_target, N)
+    lam_r, _, _, status_r = poisson_lambda(pos_ref, N)
+    if status_t != "ok" or status_r != "ok":
+        return None
+
+    p_t, p_r = pos_target / N, pos_ref / N
+    p11_hat, p00_hat, p10_hat, p01_hat = n11 / N, n00 / N, n10 / N, n01 / N
+
+    var_p_t = p_t * (1 - p_t) / N
+    var_p_r = p_r * (1 - p_r) / N
+    cov_p = (p11_hat * p00_hat - p10_hat * p01_hat) / N
+
+    var_lam_t = var_p_t / (1 - p_t) ** 2
+    var_lam_r = var_p_r / (1 - p_r) ** 2
+    cov_lam = cov_p / ((1 - p_t) * (1 - p_r))
+
+    ratio = lam_t / lam_r
+    var_ln_r = var_lam_t / lam_t ** 2 + var_lam_r / lam_r ** 2 - 2 * cov_lam / (lam_t * lam_r)
+    var_ln_r = max(var_ln_r, 0.0)
+    se_ln_r = np.sqrt(var_ln_r)
+    ci_low = ratio * np.exp(-1.96 * se_ln_r)
+    ci_high = ratio * np.exp(1.96 * se_ln_r)
+
+    # For comparison: what the (incorrect) independence assumption would give
+    se_t_indep = np.sqrt(var_p_t) / (1 - p_t)
+    se_r_indep = np.sqrt(var_p_r) / (1 - p_r)
+    _, ci_low_indep, ci_high_indep = poisson_ratio_ci(lam_t, se_t_indep, lam_r, se_r_indep)
+
+    return {
+        "n11": n11, "n10": n10, "n01": n01, "n00": n00, "N": N,
+        "pos_target": pos_target, "pos_ref": pos_ref,
+        "lambda_target": lam_t, "lambda_ref": lam_r,
+        "ratio": ratio, "ci_low": ci_low, "ci_high": ci_high,
+        "cov_lam": cov_lam, "ci_low_indep": ci_low_indep, "ci_high_indep": ci_high_indep,
+    }
 
 def compute_lod_loq(ntc_pos, ntc_tot, partition_vol_nl_local):
     """
@@ -2194,6 +2409,45 @@ with tab_data:
                     st.error(_t['dilution_result_saturated'].format(lam=_lam, factor=_factor))
                 st.caption(_t['dilution_factor_note'])
 
+    # ── 2-Color Multiplex Cluster Converter ───────────────────────────────────
+    with st.expander(_t['multiplex_expander'], expanded=False):
+        st.caption(_t['multiplex_description'])
+        mx_c1, mx_c2, mx_c3, mx_c4 = st.columns(4)
+        with mx_c1:
+            _mx_n11 = st.number_input(_t['multiplex_n11_label'], min_value=0, value=1500, step=10, key="mx_n11")
+        with mx_c2:
+            _mx_n10 = st.number_input(_t['multiplex_n10_label'], min_value=0, value=400, step=10, key="mx_n10")
+        with mx_c3:
+            _mx_n01 = st.number_input(_t['multiplex_n01_label'], min_value=0, value=300, step=10, key="mx_n01")
+        with mx_c4:
+            _mx_n00 = st.number_input(_t['multiplex_n00_label'], min_value=0, value=17800, step=10, key="mx_n00")
+
+        if st.button(_t['multiplex_calc_btn'], key="mx_calc_btn"):
+            _mx_result = compute_multiplex_cluster(_mx_n11, _mx_n10, _mx_n01, _mx_n00)
+            if _mx_result is None:
+                st.error("Invalid input — check that counts are non-negative and total > 0.")
+            else:
+                st.markdown(_t['multiplex_result_title'])
+                mxc1, mxc2, mxc3 = st.columns(3)
+                mxc1.metric(_t['multiplex_pos_target_label'], _mx_result["pos_target"])
+                mxc2.metric(_t['multiplex_pos_ref_label'], _mx_result["pos_ref"])
+                mxc3.metric(_t['multiplex_total_label'], _mx_result["N"])
+
+                mxr1, mxr2 = st.columns(2)
+                mxr1.metric(
+                    _t['multiplex_ratio_covaware'],
+                    f"{_mx_result['ratio']:.4f}",
+                    delta=f"{_mx_result['ci_low']:.4f}–{_mx_result['ci_high']:.4f}",
+                    delta_color="off"
+                )
+                mxr2.metric(
+                    _t['multiplex_ratio_indep'],
+                    f"{_mx_result['ratio']:.4f}",
+                    delta=f"{_mx_result['ci_low_indep']:.4f}–{_mx_result['ci_high_indep']:.4f}",
+                    delta_color="off"
+                )
+                st.info(_t['multiplex_paste_hint'])
+
     st.markdown(
         f"<div style='font-size:15px;font-weight:700;color:#004d40;margin-bottom:6px;'>"
         f"{_t['patient_data_header']}</div>", unsafe_allow_html=True
@@ -2337,7 +2591,7 @@ with tab_data:
 
         # ── Control group input ──────────────────────────────────────────────
         st.markdown(f"**{_t['control_group']} — {_t['target_gene']} {i+1}**")
-        cc1, cc2 = st.columns(2)
+        cc1, cc2, cc_dil = st.columns([1, 1, 0.6])
         with cc1:
             ctrl_target_pos_txt = _ta(
                 f"Control {i+1} — {_t['positive_partitions']} ({_t['target_gene']})", f"ctrl_tgt_pos_{i}"
@@ -2345,6 +2599,11 @@ with tab_data:
         with cc2:
             ctrl_target_tot_txt = _ta(
                 f"Control {i+1} — {_t['total_partitions']} ({_t['target_gene']})", f"ctrl_tgt_tot_{i}"
+            )
+        with cc_dil:
+            ctrl_dilution_factor = st.number_input(
+                _t['dilution_factor_field_label'], min_value=1.0, value=1.0, step=1.0,
+                key=f"ctrl_dilution_{i}", help=_t['dilution_factor_field_help']
             )
 
         ctrl_ref_pos_txts, ctrl_ref_tot_txts = [], []
@@ -2432,7 +2691,7 @@ with tab_data:
         # ── Patient groups ────────────────────────────────────────────────────
         for j in range(num_patient_groups):
             st.markdown(f"**{_t['patient_group']} {j+1} — {_t['target_gene']} {i+1}**")
-            pc1, pc2 = st.columns(2)
+            pc1, pc2, pc_dil = st.columns([1, 1, 0.6])
             with pc1:
                 smp_target_pos_txt = _ta(
                     f"Group {j+1} — {_t['positive_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_pos_{i}_{j}"
@@ -2440,6 +2699,11 @@ with tab_data:
             with pc2:
                 smp_target_tot_txt = _ta(
                     f"Group {j+1} — {_t['total_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_tot_{i}_{j}"
+                )
+            with pc_dil:
+                smp_dilution_factor = st.number_input(
+                    _t['dilution_factor_field_label'], min_value=1.0, value=1.0, step=1.0,
+                    key=f"smp_dilution_{i}_{j}", help=_t['dilution_factor_field_help']
                 )
 
             smp_ref_pos_txts, smp_ref_tot_txts = [], []
@@ -2502,6 +2766,23 @@ with tab_data:
             conc_ctrl_mean, conc_ctrl_lo, conc_ctrl_hi, conc_ctrl_cv, _ = mean_ci(conc_ctrl_arr)
             conc_smp_mean, conc_smp_lo, conc_smp_hi, conc_smp_cv, _ = mean_ci(conc_smp_arr)
 
+            # ── Stock/original concentration (back-calculated using dilution factor) ──
+            stock_conc_ctrl_arr = conc_ctrl_arr * ctrl_dilution_factor
+            stock_conc_smp_arr = conc_smp_arr * smp_dilution_factor
+            stock_conc_ctrl_mean, stock_conc_ctrl_lo, stock_conc_ctrl_hi, _, _ = mean_ci(stock_conc_ctrl_arr)
+            stock_conc_smp_mean, stock_conc_smp_lo, stock_conc_smp_hi, _, _ = mean_ci(stock_conc_smp_arr)
+
+            # ── Dynamic range QC (based on mean target lambda, independent of dilution) ──
+            _mean_lam_smp = float(np.mean(smp_result["lam_target_kept"]))
+            if _mean_lam_smp < 0.05:
+                dynamic_range_flag = _t['dynamic_range_low']
+            elif _mean_lam_smp > 4.0:
+                dynamic_range_flag = _t['dynamic_range_saturated']
+            elif _mean_lam_smp > 3.0:
+                dynamic_range_flag = _t['dynamic_range_high']
+            else:
+                dynamic_range_flag = _t['dynamic_range_ok']
+
             # ── LOD/LOQ QC flag (if NTC data provided for this gene) ─────────────
             lod_loq_flag = "—"
             if lod_loq_result is not None:
@@ -2527,8 +2808,13 @@ with tab_data:
             _conc_ci_txt = (f"95% CI: {conc_smp_lo:.1f}–{conc_smp_hi:.1f}"
                              if not np.isnan(conc_smp_lo) else "n<2, no CI")
             rcol4.metric(_t['conc_col'], f"{conc_smp_mean:.1f}", delta=_conc_ci_txt, delta_color="off")
+            if smp_dilution_factor != 1.0:
+                st.caption(f"{_t['stock_conc_col']}: {stock_conc_smp_mean:.1f} "
+                           f"(95% CI: {stock_conc_smp_lo:.1f}–{stock_conc_smp_hi:.1f}, "
+                           f"×{smp_dilution_factor:.0f} {_t['dilution_factor_field_label']})")
             if lod_loq_result is not None:
                 st.caption(f"{_t['lod_qc_col']}: {lod_loq_flag}")
+            st.caption(f"{_t['dynamic_range_warning_label']}: {dynamic_range_flag}")
 
             # ── Statistics (Control vs this patient group), directly on Ratio ──
             control_ratios = ctrl_result["ratio_kept"]
@@ -2635,6 +2921,9 @@ with tab_data:
                 "__conc_ctrl__": conc_ctrl_mean, "__conc_ctrl_lo__": conc_ctrl_lo, "__conc_ctrl_hi__": conc_ctrl_hi,
                 "__conc_smp__": conc_smp_mean, "__conc_smp_lo__": conc_smp_lo, "__conc_smp_hi__": conc_smp_hi,
                 "__conc_smp_cv__": conc_smp_cv, "__lod_loq_flag__": lod_loq_flag,
+                "__dilution_factor__": smp_dilution_factor,
+                "__stock_conc_smp__": stock_conc_smp_mean, "__stock_conc_smp_lo__": stock_conc_smp_lo,
+                "__stock_conc_smp_hi__": stock_conc_smp_hi, "__dynamic_range_flag__": dynamic_range_flag,
             })
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -2736,18 +3025,20 @@ with tab_results:
         _n_below_lod = sum(1 for r in data if r.get("__lod_loq_flag__") in (_t['below_lod_flag'], _t['between_lod_loq_flag']))
         _n_high_cv = sum(1 for r in data if r.get("__conc_smp_cv__") is not None
                           and not np.isnan(r["__conc_smp_cv__"]) and r["__conc_smp_cv__"] > 25)
+        _n_dynamic_range = sum(1 for r in data if r.get("__dynamic_range_flag__", _t['dynamic_range_ok']) != _t['dynamic_range_ok'])
 
         with st.container(border=True):
             st.markdown(f"#### {_t['qc_panel_title']}")
-            qc_c1, qc_c2, qc_c3, qc_c4, qc_c5, qc_c6 = st.columns(6)
+            qc_c1, qc_c2, qc_c3, qc_c4, qc_c5, qc_c6, qc_c7 = st.columns(7)
             qc_c1.metric(_t['qc_panel_total'], _n_total_rep)
             qc_c2.metric(_t['qc_panel_qc_fail'], _n_qc_fail)
             qc_c3.metric(_t['qc_panel_saturated'], _n_saturated)
             qc_c4.metric(_t['qc_panel_outlier'], _n_outlier)
             qc_c5.metric(_t['qc_panel_below_lod'], _n_below_lod)
             qc_c6.metric(_t['qc_panel_high_cv'], _n_high_cv)
+            qc_c7.metric(_t['dynamic_range_qc_panel_label'], _n_dynamic_range)
 
-            _n_flags_total = _n_qc_fail + _n_saturated + _n_outlier + _n_below_lod + _n_high_cv
+            _n_flags_total = _n_qc_fail + _n_saturated + _n_outlier + _n_below_lod + _n_high_cv + _n_dynamic_range
             _flag_ratio = _n_flags_total / max(_n_total_rep, 1)
             if _flag_ratio == 0:
                 st.success(_t['qc_panel_verdict_good'])
@@ -2832,6 +3123,12 @@ with tab_results:
                 ),
                 "CV% (Sample)": (f"{r['__conc_smp_cv__']:.1f}" if not np.isnan(r['__conc_smp_cv__']) else "—"),
                 _t['lod_qc_col']: r.get("__lod_loq_flag__", "—"),
+                "Dilution Factor": r.get("__dilution_factor__", 1.0),
+                f"{_t['stock_conc_col']} (Sample)": (
+                    f"{r['__stock_conc_smp__']:.1f}" if r.get("__stock_conc_smp__") is not None
+                    and not np.isnan(r["__stock_conc_smp__"]) else "—"
+                ),
+                _t['dynamic_range_warning_label']: r.get("__dynamic_range_flag__", "—"),
                 _t['fc_col']: r["__fc__"], _t['regulation_status']: r["__regulation__"],
                 "n (Control)": r["__n_ctrl__"], "n (Sample)": r["__n_smp__"],
             })
@@ -3475,7 +3772,7 @@ with tab_batch:
                     )
 
                 st.markdown(_t['batch_settings_title'])
-                bscol1, bscol2 = st.columns(2)
+                bscol1, bscol2, bscol3 = st.columns(3)
                 with bscol1:
                     _batch_expected_ratio = st.number_input(
                         _t['batch_expected_ratio'], min_value=0.01, max_value=100.0,
@@ -3484,6 +3781,11 @@ with tab_batch:
                 with bscol2:
                     _batch_ploidy = st.number_input(
                         _t['batch_ploidy'], min_value=1, max_value=10, value=2, step=1, key="batch_ploidy"
+                    )
+                with bscol3:
+                    _batch_dilution = st.number_input(
+                        _t['dilution_factor_field_label'], min_value=1.0, value=1.0, step=1.0,
+                        key="batch_dilution", help=_t['dilution_factor_field_help']
                     )
 
                 if st.button(_t['batch_run_btn'], key="batch_run_btn", use_container_width=True) and _batch_ref_assays:
@@ -3494,6 +3796,7 @@ with tab_batch:
                     st.session_state["_batch_expected_ratio_cache"] = _batch_expected_ratio
                     st.session_state["_batch_ploidy_cache"] = _batch_ploidy
                     st.session_state["_batch_target_assay_cache"] = _batch_target_assay
+                    st.session_state["_batch_dilution_cache"] = _batch_dilution
 
     # ── Display cached results (persists across reruns/tab switches) ───────────
     _batch_results = st.session_state.get("_batch_results_cache")
@@ -3501,6 +3804,7 @@ with tab_batch:
         _exp_ratio = st.session_state.get("_batch_expected_ratio_cache", 1.0)
         _b_ploidy = st.session_state.get("_batch_ploidy_cache", 2)
         _b_target_assay = st.session_state.get("_batch_target_assay_cache", "—")
+        _b_dilution = st.session_state.get("_batch_dilution_cache", 1.0)
 
         st.markdown(f"#### {_t['batch_results_title']}")
         _batch_rows = []
@@ -3517,6 +3821,16 @@ with tab_batch:
             else:
                 classification = _t['batch_class_normal']
 
+            _batch_lam_t = r["lambda_t"]
+            if _batch_lam_t < 0.05:
+                _batch_dr_flag = _t['dynamic_range_low']
+            elif _batch_lam_t > 4.0:
+                _batch_dr_flag = _t['dynamic_range_saturated']
+            elif _batch_lam_t > 3.0:
+                _batch_dr_flag = _t['dynamic_range_high']
+            else:
+                _batch_dr_flag = _t['dynamic_range_ok']
+
             _batch_rows.append({
                 _t['batch_col_sample']: r["Sample"],
                 _t['batch_col_lambda_t']: round(r["lambda_t"], 5),
@@ -3526,6 +3840,8 @@ with tab_batch:
                                        if not np.isnan(r["ci_low"]) else "—"),
                 _t['batch_col_cn']: round(_b_ploidy * r["ratio"], 3),
                 _t['batch_col_conc']: round(r["conc"], 1),
+                _t['stock_conc_col']: round(r["conc"] * _b_dilution, 1),
+                _t['dynamic_range_warning_label']: _batch_dr_flag,
                 _t['batch_col_class']: classification,
             })
 
@@ -3667,7 +3983,7 @@ with tab_vaf:
             if not _vaf_std_df.empty:
                 st.markdown(_t['vaf_assay_title'])
                 _vaf_unique_targets = sorted(_vaf_std_df["Target"].unique())
-                vacol1, vacol2 = st.columns(2)
+                vacol1, vacol2, vacol3 = st.columns(3)
                 with vacol1:
                     _vaf_mutant_assay = st.selectbox(
                         _t['vaf_mutant_label'], options=_vaf_unique_targets, key="vaf_mutant_assay"
@@ -3677,6 +3993,11 @@ with tab_vaf:
                     _vaf_wt_assay = st.selectbox(
                         _t['vaf_wt_label'], options=_vaf_wt_options, key="vaf_wt_assay"
                     ) if _vaf_wt_options else None
+                with vacol3:
+                    _vaf_dilution = st.number_input(
+                        _t['dilution_factor_field_label'], min_value=1.0, value=1.0, step=1.0,
+                        key="vaf_dilution", help=_t['dilution_factor_field_help']
+                    )
 
                 if st.button(_t['vaf_run_btn'], key="vaf_run_btn", use_container_width=True) and _vaf_wt_assay:
                     _vaf_results = pool_and_compute_vaf(
@@ -3685,11 +4006,13 @@ with tab_vaf:
                     st.session_state["_vaf_results_cache"] = _vaf_results
                     st.session_state["_vaf_mutant_assay_cache"] = _vaf_mutant_assay
                     st.session_state["_vaf_wt_assay_cache"] = _vaf_wt_assay
+                    st.session_state["_vaf_dilution_cache"] = _vaf_dilution
 
     # ── Display cached results ──────────────────────────────────────────────────
     _vaf_results = st.session_state.get("_vaf_results_cache")
     if _vaf_results:
         st.markdown(f"#### {_t['vaf_results_title']}")
+        _v_dilution = st.session_state.get("_vaf_dilution_cache", 1.0)
         _vaf_rows = []
         _n_detected = 0
         for r in _vaf_results:
@@ -3703,6 +4026,7 @@ with tab_vaf:
                 _t['vaf_col_ci']: (f"{r['ci_low']*100:.3f}\u2013{r['ci_high']*100:.3f}"
                                      if not np.isnan(r["ci_low"]) else "—"),
                 _t['vaf_col_conc_mut']: round(r["conc_mut"], 2),
+                _t['stock_conc_col']: round(r["conc_mut"] * _v_dilution, 2),
                 _t['vaf_col_detected']: _t['vaf_detected_yes'] if r["detected"] else _t['vaf_detected_no'],
             })
 
@@ -3979,7 +4303,7 @@ with tab_crm:
     crm_mode = st.radio(
         _t['crm_mode_label'],
         options=[_t['crm_mode_homogeneity'], _t['crm_mode_stability'],
-                 _t['crm_mode_uncertainty'], _t['crm_mode_coa']],
+                 _t['crm_mode_uncertainty'], _t['crm_mode_equivalence'], _t['crm_mode_coa']],
         key="crm_mode", horizontal=True
     )
     st.markdown("---")
@@ -4100,6 +4424,49 @@ with tab_crm:
             fig_unc.update_layout(title="Uncertainty Component Contributions (absolute units)", height=350)
             st.plotly_chart(fig_unc, use_container_width=True, key="unc_chart")
 
+    # ── Batch-to-Batch (Lot) Equivalence ──────────────────────────────────────
+    elif crm_mode == _t['crm_mode_equivalence']:
+        st.caption(_t['equiv_description'])
+        eq_c1, eq_c2 = st.columns(2)
+        with eq_c1:
+            _eq_lot1_txt = st.text_area(_t['equiv_lot1_label'], key="eq_lot1", height=150)
+        with eq_c2:
+            _eq_lot2_txt = st.text_area(_t['equiv_lot2_label'], key="eq_lot2", height=150)
+        _eq_margin = st.number_input(_t['equiv_margin_label'], min_value=0.1, max_value=100.0,
+                                      value=10.0, step=0.5, key="eq_margin")
+
+        if st.button(_t['equiv_calc_btn'], key="eq_calc_btn"):
+            _eq_lot1_arr = parse_input_data(_eq_lot1_txt)
+            _eq_lot2_arr = parse_input_data(_eq_lot2_txt)
+            _eq_result = compute_lot_equivalence(_eq_lot1_arr, _eq_lot2_arr, _eq_margin)
+            if _eq_result is None:
+                st.error("Need at least 2 values per lot.")
+            else:
+                if _eq_result["is_equivalent"]:
+                    st.success(_t['equiv_result_equivalent'].format(
+                        diff=_eq_result["percent_diff"], lo=_eq_result["ci_low_pct"],
+                        hi=_eq_result["ci_high_pct"], margin=_eq_margin))
+                else:
+                    st.error(_t['equiv_result_not_equivalent'].format(
+                        diff=_eq_result["percent_diff"], lo=_eq_result["ci_low_pct"],
+                        hi=_eq_result["ci_high_pct"], margin=_eq_margin))
+
+                eqc1, eqc2, eqc3 = st.columns(3)
+                eqc1.metric(_t['equiv_mean1_label'], f"{_eq_result['mean1']:.4f}")
+                eqc2.metric(_t['equiv_mean2_label'], f"{_eq_result['mean2']:.4f}")
+                eqc3.metric("% Difference", f"{_eq_result['percent_diff']:+.2f}%")
+
+                fig_eq = go.Figure()
+                fig_eq.add_trace(go.Bar(x=["% Difference"], y=[_eq_result["percent_diff"]],
+                                         marker_color="#00796b",
+                                         error_y=dict(type="data", symmetric=False,
+                                                       array=[_eq_result["ci_high_pct"] - _eq_result["percent_diff"]],
+                                                       arrayminus=[_eq_result["percent_diff"] - _eq_result["ci_low_pct"]])))
+                fig_eq.add_hline(y=_eq_margin, line_dash="dash", line_color="red")
+                fig_eq.add_hline(y=-_eq_margin, line_dash="dash", line_color="red")
+                fig_eq.update_layout(title=_t['equiv_chart_title'], yaxis_title="% Difference (90% CI)", height=400)
+                st.plotly_chart(fig_eq, use_container_width=True, key="eq_chart")
+
     # ── CoA Generator ──────────────────────────────────────────────────────────
     else:
         st.caption(_t['coa_description'])
@@ -4168,3 +4535,53 @@ with tab_report:
                 label=f"⬇️ {_t['pdf_report']}", data=pdf_buffer,
                 file_name="absolutegene_report.pdf", mime="application/pdf", key="pdf_dl"
             )
+
+        st.markdown("---")
+        st.markdown(f"#### {_t['lims_export_title']}")
+        st.caption(_t['lims_export_description'])
+        lims_c1, lims_c2, lims_c3 = st.columns(3)
+        with lims_c1:
+            _lims_operator = st.text_input(_t['lims_operator_label'], value="", key="lims_operator")
+        with lims_c2:
+            _lims_instrument = st.text_input(_t['lims_instrument_label'], value="", key="lims_instrument")
+        with lims_c3:
+            import datetime as _dt
+            _lims_run_date = st.text_input(_t['lims_run_date_label'],
+                                            value=_dt.date.today().isoformat(), key="lims_run_date")
+
+        if data:
+            _lims_rows = []
+            for r in data:
+                _lims_rows.append({
+                    _t['lims_col_sample_id']: f"{r['__gene__']}_{r['__group__']}",
+                    _t['lims_col_test_code']: "dPCR_RATIO",
+                    _t['lims_col_analyte']: r["__gene__"],
+                    _t['lims_col_result_value']: f"{r['__ratio_smp__']:.4f}",
+                    _t['lims_col_result_unit']: "ratio",
+                    _t['lims_col_reference']: (f"{r['__ratio_ctrl__']:.4f}" if r["__ratio_ctrl__"] is not None else ""),
+                    _t['lims_col_flag']: r["__regulation__"],
+                    _t['lims_col_result_date']: _lims_run_date,
+                    _t['lims_col_instrument']: _lims_instrument,
+                    _t['lims_col_operator']: _lims_operator,
+                    _t['lims_col_comments']: r.get("__dynamic_range_flag__", ""),
+                })
+                _lims_rows.append({
+                    _t['lims_col_sample_id']: f"{r['__gene__']}_{r['__group__']}",
+                    _t['lims_col_test_code']: "dPCR_CONC",
+                    _t['lims_col_analyte']: r["__gene__"],
+                    _t['lims_col_result_value']: (f"{r['__conc_smp__']:.2f}"
+                                                    if r.get("__conc_smp__") is not None and not np.isnan(r["__conc_smp__"]) else ""),
+                    _t['lims_col_result_unit']: "copies/uL",
+                    _t['lims_col_reference']: "",
+                    _t['lims_col_flag']: r.get("__lod_loq_flag__", ""),
+                    _t['lims_col_result_date']: _lims_run_date,
+                    _t['lims_col_instrument']: _lims_instrument,
+                    _t['lims_col_operator']: _lims_operator,
+                    _t['lims_col_comments']: "",
+                })
+            lims_df = pd.DataFrame(_lims_rows)
+            lims_csv = lims_df.to_csv(index=False).encode("utf-8")
+            st.download_button(_t['lims_export_btn'], data=lims_csv,
+                                file_name="absolutegene_lims_export.csv", mime="text/csv", key="lims_export_dl")
+            with st.expander("Preview", expanded=False):
+                st.dataframe(lims_df, use_container_width=True)

@@ -397,6 +397,19 @@ translations = {
         "coa_download_btn": "⬇️ Analiz Sertifikası (CoA)",
         "dilution_factor_field_label": "Seyreltme Faktörü",
         "dilution_factor_field_help": "Bu örnek, dPCR reaksiyonuna eklenmeden önce seyreltildiyse buraya seyreltme faktörünü girin (örn. 1:100 seyreltme için 100). Varsayılan 1 = seyreltme yok. Not: Oran/CN/Kat Değişimi seyreltmeden etkilenmez (hedef ve referans eşit seyrelir); yalnızca mutlak konsantrasyon (kopya/µL) düzeltilir.",
+        "dilution_settings_expander": "🧪 Seyreltme Ayarları (opsiyonel — stok konsantrasyonu için)",
+        "dilution_mode_selector_label": "Nasıl belirtmek istersiniz?",
+        "dilution_mode_volumes": "💧 Hacimlerden hesapla (önerilen)",
+        "dilution_mode_manual": "🔢 Seyreltme faktörünü doğrudan gir",
+        "dilution_rxn_vol_label": "Reaksiyon Hacmi (µL)",
+        "dilution_rxn_vol_help": "Toplam dPCR reaksiyon karışımının hacmi (örn. Bio-Rad QX200 için tipik olarak 20-22 µL).",
+        "dilution_tmpl_vol_label": "Eklenen Örnek/Şablon Hacmi (µL)",
+        "dilution_tmpl_vol_help": "Reaksiyona eklediğiniz örnek (DNA/RNA) hacmi (örn. tipik olarak 2-9 µL).",
+        "dilution_pre_dilution_label": "Ön-Seyreltme Faktörü (varsa)",
+        "dilution_pre_dilution_help": "Reaksiyona eklemeden önce örneği ayrıca seyrelttiyseniz buraya o seyreltme faktörünü girin (örn. 1:10 ön-seyreltme için 10). Seyreltmediyseniz 1 bırakın.",
+        "dilution_computed_factor": "📐 Hesaplanan toplam seyreltme faktörü: **{factor:.2f}×**  \n(Reaksiyon/Şablon = {rxn:.1f}/{tmpl:.1f} = {ratio:.2f}× {pre_txt})",
+        "dilution_computed_factor_pre_txt": "× Ön-seyreltme {pre:.1f}×",
+        "dilution_no_pre": "(ön-seyreltme yok)",
         "stock_conc_col": "Stok Konsantrasyonu (kopya/µL)",
         "dynamic_range_warning_label": "Dinamik Aralık Durumu",
         "dynamic_range_ok": "✅ Optimal aralıkta",
@@ -811,6 +824,19 @@ translations = {
         "coa_download_btn": "⬇️ Certificate of Analysis (CoA)",
         "dilution_factor_field_label": "Dilution Factor",
         "dilution_factor_field_help": "If this sample was diluted before being added to the dPCR reaction, enter the dilution factor here (e.g. 100 for a 1:100 dilution). Default 1 = no dilution. Note: Ratio/CN/Fold Change are unaffected by dilution (target and reference are diluted equally); only the absolute concentration (copies/µL) is corrected.",
+        "dilution_settings_expander": "🧪 Dilution Settings (optional — for stock concentration)",
+        "dilution_mode_selector_label": "How would you like to specify this?",
+        "dilution_mode_volumes": "💧 Calculate from volumes (recommended)",
+        "dilution_mode_manual": "🔢 Enter dilution factor directly",
+        "dilution_rxn_vol_label": "Reaction Volume (µL)",
+        "dilution_rxn_vol_help": "Total volume of the dPCR reaction mix (e.g. typically 20-22 µL for Bio-Rad QX200).",
+        "dilution_tmpl_vol_label": "Sample/Template Volume Added (µL)",
+        "dilution_tmpl_vol_help": "Volume of sample (DNA/RNA) you added to the reaction (e.g. typically 2-9 µL).",
+        "dilution_pre_dilution_label": "Pre-Dilution Factor (if any)",
+        "dilution_pre_dilution_help": "If you diluted the sample separately before adding it to the reaction, enter that dilution factor here (e.g. 10 for a 1:10 pre-dilution). Leave at 1 if you didn't pre-dilute.",
+        "dilution_computed_factor": "📐 Calculated total dilution factor: **{factor:.2f}×**  \n(Reaction/Template = {rxn:.1f}/{tmpl:.1f} = {ratio:.2f}× {pre_txt})",
+        "dilution_computed_factor_pre_txt": "× Pre-dilution {pre:.1f}×",
+        "dilution_no_pre": "(no pre-dilution)",
         "stock_conc_col": "Stock Concentration (copies/µL)",
         "dynamic_range_warning_label": "Dynamic Range Status",
         "dynamic_range_ok": "✅ Optimal range",
@@ -1153,6 +1179,63 @@ def import_project_state(project_dict):
             st.session_state[k] = v
             count += 1
     return count
+
+def compute_effective_dilution(reaction_volume_ul, template_volume_ul, pre_dilution_factor=1.0):
+    """
+    Computes the effective dilution factor between the dPCR reaction and the
+    original stock sample, from volumes a user actually measures at the
+    bench (reaction volume, template volume added, and any pre-dilution
+    performed before adding the template to the reaction).
+
+    When V_template µL of (possibly pre-diluted) sample is added to a total
+    reaction volume V_rxn, the sample is diluted by V_rxn/V_template within
+    the reaction. If the added material was itself pre-diluted by
+    pre_dilution_factor from the original stock, the total dilution factor
+    (to back-calculate the original stock concentration from the measured
+    reaction concentration) is:
+        total_dilution = (V_rxn / V_template) * pre_dilution_factor
+    """
+    if not reaction_volume_ul or not template_volume_ul or template_volume_ul <= 0:
+        return 1.0
+    return (reaction_volume_ul / template_volume_ul) * (pre_dilution_factor or 1.0)
+
+def render_dilution_input(key_prefix, expanded=False):
+    """
+    Renders a user-friendly dilution-factor input, reused across Data Entry,
+    Batch Screening, and the VAF Calculator. Defaults to the more intuitive
+    volume-based mode (reaction volume + template volume added, with an
+    optional pre-dilution factor), since most users know these bench values
+    more readily than an already-computed dilution factor. A manual-entry
+    fallback is available for users who already know their exact factor.
+    Returns the effective dilution factor (float, >=1.0).
+    """
+    with st.expander(_t['dilution_settings_expander'], expanded=expanded):
+        _mode = st.radio(
+            _t['dilution_mode_selector_label'],
+            options=[_t['dilution_mode_volumes'], _t['dilution_mode_manual']],
+            key=f"{key_prefix}_dilmode", horizontal=True
+        )
+        if _mode == _t['dilution_mode_volumes']:
+            vc1, vc2, vc3 = st.columns(3)
+            with vc1:
+                _rxn_vol = st.number_input(_t['dilution_rxn_vol_label'], min_value=0.1, value=20.0,
+                                            step=0.1, key=f"{key_prefix}_rxnvol", help=_t['dilution_rxn_vol_help'])
+            with vc2:
+                _tmpl_vol = st.number_input(_t['dilution_tmpl_vol_label'], min_value=0.01, value=2.0,
+                                             step=0.1, key=f"{key_prefix}_tmplvol", help=_t['dilution_tmpl_vol_help'])
+            with vc3:
+                _pre_dil = st.number_input(_t['dilution_pre_dilution_label'], min_value=1.0, value=1.0,
+                                            step=1.0, key=f"{key_prefix}_predil", help=_t['dilution_pre_dilution_help'])
+            _factor = compute_effective_dilution(_rxn_vol, _tmpl_vol, _pre_dil)
+            _ratio = _rxn_vol / _tmpl_vol if _tmpl_vol else 1.0
+            _pre_txt = (_t['dilution_computed_factor_pre_txt'].format(pre=_pre_dil)
+                        if _pre_dil and _pre_dil != 1.0 else _t['dilution_no_pre'])
+            st.caption(_t['dilution_computed_factor'].format(factor=_factor, rxn=_rxn_vol, tmpl=_tmpl_vol,
+                                                               ratio=_ratio, pre_txt=_pre_txt))
+            return _factor
+        else:
+            return st.number_input(_t['dilution_factor_field_label'], min_value=1.0, value=1.0, step=1.0,
+                                    key=f"{key_prefix}_manualval", help=_t['dilution_factor_field_help'])
 
 def recommend_dilution(current_lambda, target_lambda=1.6):
     """
@@ -2591,7 +2674,7 @@ with tab_data:
 
         # ── Control group input ──────────────────────────────────────────────
         st.markdown(f"**{_t['control_group']} — {_t['target_gene']} {i+1}**")
-        cc1, cc2, cc_dil = st.columns([1, 1, 0.6])
+        cc1, cc2 = st.columns(2)
         with cc1:
             ctrl_target_pos_txt = _ta(
                 f"Control {i+1} — {_t['positive_partitions']} ({_t['target_gene']})", f"ctrl_tgt_pos_{i}"
@@ -2600,11 +2683,7 @@ with tab_data:
             ctrl_target_tot_txt = _ta(
                 f"Control {i+1} — {_t['total_partitions']} ({_t['target_gene']})", f"ctrl_tgt_tot_{i}"
             )
-        with cc_dil:
-            ctrl_dilution_factor = st.number_input(
-                _t['dilution_factor_field_label'], min_value=1.0, value=1.0, step=1.0,
-                key=f"ctrl_dilution_{i}", help=_t['dilution_factor_field_help']
-            )
+        ctrl_dilution_factor = render_dilution_input(f"ctrl_{i}")
 
         ctrl_ref_pos_txts, ctrl_ref_tot_txts = [], []
         for r in range(num_ref_genes):
@@ -2691,7 +2770,7 @@ with tab_data:
         # ── Patient groups ────────────────────────────────────────────────────
         for j in range(num_patient_groups):
             st.markdown(f"**{_t['patient_group']} {j+1} — {_t['target_gene']} {i+1}**")
-            pc1, pc2, pc_dil = st.columns([1, 1, 0.6])
+            pc1, pc2 = st.columns(2)
             with pc1:
                 smp_target_pos_txt = _ta(
                     f"Group {j+1} — {_t['positive_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_pos_{i}_{j}"
@@ -2700,11 +2779,7 @@ with tab_data:
                 smp_target_tot_txt = _ta(
                     f"Group {j+1} — {_t['total_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_tot_{i}_{j}"
                 )
-            with pc_dil:
-                smp_dilution_factor = st.number_input(
-                    _t['dilution_factor_field_label'], min_value=1.0, value=1.0, step=1.0,
-                    key=f"smp_dilution_{i}_{j}", help=_t['dilution_factor_field_help']
-                )
+            smp_dilution_factor = render_dilution_input(f"smp_{i}_{j}")
 
             smp_ref_pos_txts, smp_ref_tot_txts = [], []
             for r in range(num_ref_genes):
@@ -3772,7 +3847,7 @@ with tab_batch:
                     )
 
                 st.markdown(_t['batch_settings_title'])
-                bscol1, bscol2, bscol3 = st.columns(3)
+                bscol1, bscol2 = st.columns(2)
                 with bscol1:
                     _batch_expected_ratio = st.number_input(
                         _t['batch_expected_ratio'], min_value=0.01, max_value=100.0,
@@ -3782,11 +3857,7 @@ with tab_batch:
                     _batch_ploidy = st.number_input(
                         _t['batch_ploidy'], min_value=1, max_value=10, value=2, step=1, key="batch_ploidy"
                     )
-                with bscol3:
-                    _batch_dilution = st.number_input(
-                        _t['dilution_factor_field_label'], min_value=1.0, value=1.0, step=1.0,
-                        key="batch_dilution", help=_t['dilution_factor_field_help']
-                    )
+                _batch_dilution = render_dilution_input("batch")
 
                 if st.button(_t['batch_run_btn'], key="batch_run_btn", use_container_width=True) and _batch_ref_assays:
                     _batch_results = pool_and_compute_batch(
@@ -3983,7 +4054,7 @@ with tab_vaf:
             if not _vaf_std_df.empty:
                 st.markdown(_t['vaf_assay_title'])
                 _vaf_unique_targets = sorted(_vaf_std_df["Target"].unique())
-                vacol1, vacol2, vacol3 = st.columns(3)
+                vacol1, vacol2 = st.columns(2)
                 with vacol1:
                     _vaf_mutant_assay = st.selectbox(
                         _t['vaf_mutant_label'], options=_vaf_unique_targets, key="vaf_mutant_assay"
@@ -3993,11 +4064,7 @@ with tab_vaf:
                     _vaf_wt_assay = st.selectbox(
                         _t['vaf_wt_label'], options=_vaf_wt_options, key="vaf_wt_assay"
                     ) if _vaf_wt_options else None
-                with vacol3:
-                    _vaf_dilution = st.number_input(
-                        _t['dilution_factor_field_label'], min_value=1.0, value=1.0, step=1.0,
-                        key="vaf_dilution", help=_t['dilution_factor_field_help']
-                    )
+                _vaf_dilution = render_dilution_input("vaf")
 
                 if st.button(_t['vaf_run_btn'], key="vaf_run_btn", use_container_width=True) and _vaf_wt_assay:
                     _vaf_results = pool_and_compute_vaf(

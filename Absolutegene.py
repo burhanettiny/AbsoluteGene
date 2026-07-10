@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 import os
 import json
 
+APP_VERSION = "1.3.0"  # bump on any change to calculation logic or statistical methods
+
 try:
     plt.rcParams['font.family'] = 'DejaVu Sans'
     plt.rcParams['axes.unicode_minus'] = False
@@ -73,7 +75,7 @@ translations = {
         "num_ref_genes": "🔹 Referans Gen Sayısı",
         "ref_gene_help": "dMIQE kılavuzları sağlam normalizasyon için ≥1 doğrulanmış referans lokusu önerir; ≥2 önerilir.",
         "ploidy_label": "🔹 Referans Lokus Ploidi Sayısı",
-        "ploidy_help": "Kopya sayısı varyasyonu (CNV) hesabı için referans lokusun bilinen kopya sayısı (diploid organizmada genelde 2).",
+        "ploidy_help": "Kopya sayısı varyasyonu (CNV) hesabı için referans lokusun bilinen kopya sayısı (diploid organizmada genelde 2). ⚠️ Önemli varsayım: bu değer, TÜM örneklerde (kontrol dahil) referans lokusun tam olarak bu sayıda kopyaya sahip olduğunu varsayar. Referans lokusun kendisi bir anöploidi veya CNV'den etkileniyorsa, tüm CN hesapları sessizce yanlış olur — referans lokusu seçerken bunu doğrulayın.",
         "partition_vol_label": "🔹 Partisyon Hacmi (nL)",
         "partition_vol_help": "Damlacık/kuyucuk başına hacim. Bio-Rad QX200: ~0.85 nL, QX ONE: ~0.7 nL, Qiagen QIAcuity: plaka tipine göre değişir. Sadece kopya/µL hesaplaması için kullanılır; oran/CNV hesabını etkilemez.",
         "qc_min_partitions": "🔹 Minimum Kabul Edilebilir Partisyon Sayısı (QC)",
@@ -83,6 +85,7 @@ translations = {
         "outlier_enable_help": "λ (partisyon başına kopya sayısı) değerlerindeki istatistiksel olarak aşırı replikatları tespit eder.",
         "outlier_method_label": "Tespit yöntemi",
         "outlier_method_help": "Grubbs: normal dağılım için. IQR: parametrik olmayan, çarpık dağılımlar için.",
+        "grubbs_power_warning": "⚠️ Grubbs testinin gücü küçük n'de (dPCR'de tipik olan 3-5 replikat) düşüktür — gerçek bir aykırı değeri kaçırma olasılığı yüksektir. 'Aykırı değer bulunamadı' sonucunu 'veri kesinlikle temiz' olarak yorumlamayın.",
         "outlier_alpha_label": "Anlamlılık düzeyi (α)",
         "outlier_iqr_label": "IQR çarpanı (k)",
         "patient_data_header": "📥 Hasta ve Kontrol Grubu Partisyon Verisi Girin",
@@ -295,6 +298,13 @@ translations = {
         "mu_poisson_source": "Poisson Sayım İstatistiği Belirsizliği (%)",
         "mu_poisson_help": "Otomatik hesaplanabilir (replikat CV%'den) veya manuel girilebilir.",
         "mu_poisson_auto": "Sonuçlardan otomatik al",
+        "mu_poisson_auto_replicate": "📊 Replikat CV%'sinden (gözlenen toplam varyasyon)",
+        "mu_poisson_auto_theoretical": "🎯 Teorik Poisson SE'den (sadece sayım istatistiği)",
+        "mu_double_count_warning": "⚠️ Bu değer replikatlar arası **gözlenen toplam varyasyonu** yansıtır (pipetleme + run-to-run + Poisson sayımı hepsi dahil). Aşağıya ayrıca pipetleme/hassasiyet belirsizliği eklerseniz **aynı varyasyon kaynağını iki kez saymış olabilirsiniz**. Bunun yerine 'Teorik Poisson SE' seçeneğini kullanmayı düşünün.",
+        "mu_double_count_error": "❌ **Çifte sayım riski:** 'Replikat CV%'sinden' modunu seçtiniz VE ek olarak pipetleme/hassasiyet belirsizliği girdiniz. Replikat CV zaten bu kaynakları içerebilir. Ya pipetleme/hassasiyeti sıfırlayın (yalnızca replikat CV kullanın) ya da 'Teorik Poisson SE' moduna geçip diğer kaynakları ayrı ayrı ekleyin.",
+        "mu_theoretical_note": "Bu değer, yalnızca partisyon sayım istatistiğinden (Poisson) türetilmiştir — pipetleme veya biyolojik varyasyon içermez. Bu nedenle aşağıdaki diğer bileşenlerle güvenle birleştirilebilir.",
+        "mu_no_lambda_cache": "ℹ️ Bu sonuç için λ verisi önbellekte bulunamadı — lütfen önce Veri Girişi sekmesinde hesaplama yapın.",
+        "unbalanced_design_note": "ℹ️ Dengesiz tasarım tespit edildi (grup başına replikat sayıları: {n_list}). Hiçbir veri atılmadı — varyans bileşenleri, dengesiz tek-yönlü rastgele-etki ANOVA için standart yöntem-momentleri düzeltmesiyle (Searle ve ark. 1992) hesaplandı.",
         "mu_poisson_manual": "Manuel gir",
         "mu_pipetting_label": "Pipetleme / Seyreltme Belirsizliği (%)",
         "mu_pipetting_help": "Tipik olarak iyi pipetleme tekniğinde %1-2 CV. Kendi doğrulama verinize göre girin.",
@@ -341,6 +351,13 @@ translations = {
         "comparison_deming_label": "Deming Regresyonu",
         "comparison_ba_chart_title": "Bland-Altman Grafiği",
         "comparison_deming_chart_title": "Deming Regresyon Grafiği",
+        "comparison_deming_ci_label": "Deming %95 GA (bootstrap, n=1000)",
+        "comparison_pb_label": "Passing-Bablok",
+        "comparison_pb_note": "ℹ️ Passing-Bablok, hata varyans oranı hakkında varsayım gerektirmeyen, aykırı değerlere karşı dayanıklı, parametrik olmayan bir yöntemdir (CLSI EP09 tarafından tercih edilir). Varyans oranını bilmiyorsanız bu sonuca Deming'den daha fazla güvenin.",
+        "comparison_normality_ok": "✅ Farklar normal dağılıyor (Shapiro-Wilk p={p:.4f}) — %95 uyum sınırları geçerli.",
+        "comparison_normality_warn": "⚠️ Farklar normal dağılmıyor olabilir (Shapiro-Wilk p={p:.4f}) — ±1.96 SD uyum sınırları güvenilir olmayabilir; dikkatli yorumlayın.",
+        "comparison_prop_bias_ok": "✅ Anlamlı orantısal bias tespit edilmedi (eğim p={p:.4f}).",
+        "comparison_prop_bias_warn": "⚠️ **Orantısal bias tespit edildi** (fark-ortalama eğimi={slope:.4f}, p={p:.4f}). Tek bir 'ortalama fark' değeri yanıltıcı olabilir — fark, ölçüm aralığına göre sistematik olarak değişiyor.",
         # CRM Production
         "crm_title": "🏭 Sertifikalı Referans Malzeme (CRM) Üretim Araçları",
         "crm_description": "ISO Guide 35 / ISO 17034 genel ilkelerine dayalı homojenlik testi, stabilite testi, atanmış değer & belirsizlik bütçesi ve sertifika (CoA) oluşturucu. Bu araçlar araştırma amaçlıdır; resmi bir CRM üretim/onay süreci yerine geçmez.",
@@ -508,7 +525,7 @@ translations = {
         "num_ref_genes": "🔹 Number of Reference Genes",
         "ref_gene_help": "dMIQE guidelines recommend ≥1 validated reference locus for normalization; ≥2 is preferred.",
         "ploidy_label": "🔹 Reference Locus Ploidy",
-        "ploidy_help": "Known copy number of the reference locus, used for copy number variation (CNV) calculation (typically 2 for a diploid organism).",
+        "ploidy_help": "Known copy number of the reference locus, used for copy number variation (CNV) calculation (typically 2 for a diploid organism). ⚠️ Important assumption: this value assumes the reference locus has EXACTLY this copy number in ALL samples (including controls). If the reference locus itself is affected by aneuploidy or CNV, all downstream CN calculations will be silently wrong — verify this when choosing your reference locus.",
         "partition_vol_label": "🔹 Partition Volume (nL)",
         "partition_vol_help": "Volume per droplet/well. Bio-Rad QX200: ~0.85 nL, QX ONE: ~0.7 nL, Qiagen QIAcuity: varies by plate type. Only affects copies/µL, not the ratio/CNV calculation.",
         "qc_min_partitions": "🔹 Minimum Accepted Partitions (QC)",
@@ -518,6 +535,7 @@ translations = {
         "outlier_enable_help": "Detects statistically extreme replicates in λ (copies per partition).",
         "outlier_method_label": "Detection method",
         "outlier_method_help": "Grubbs: for normally distributed data. IQR: non-parametric, robust for skewed distributions.",
+        "grubbs_power_warning": "⚠️ Grubbs' test has low power at small n (3-5 replicates, typical for dPCR) — it may easily miss a genuine outlier. Don't interpret 'no outlier found' as 'the data is definitely clean'.",
         "outlier_alpha_label": "Significance level (α)",
         "outlier_iqr_label": "IQR multiplier (k)",
         "patient_data_header": "📥 Enter Patient and Control Group Partition Data",
@@ -729,6 +747,13 @@ translations = {
         "mu_poisson_source": "Poisson Counting Statistics Uncertainty (%)",
         "mu_poisson_help": "Can be auto-calculated (from replicate CV%) or entered manually.",
         "mu_poisson_auto": "Auto-fetch from results",
+        "mu_poisson_auto_replicate": "📊 From Replicate CV% (total observed variability)",
+        "mu_poisson_auto_theoretical": "🎯 From Theoretical Poisson SE (counting statistics only)",
+        "mu_double_count_warning": "⚠️ This value reflects the **total observed variability** between replicates (pipetting + run-to-run + Poisson counting, all combined). If you also add pipetting/precision uncertainty below, you may be **double-counting the same source of variation**. Consider using the 'Theoretical Poisson SE' option instead.",
+        "mu_double_count_error": "❌ **Double-counting risk:** You selected 'From Replicate CV%' AND entered additional pipetting/precision uncertainty. Replicate CV may already include these sources. Either zero out pipetting/precision (use replicate CV alone), or switch to 'Theoretical Poisson SE' mode and add the other components separately.",
+        "mu_theoretical_note": "This value is derived purely from partition counting statistics (Poisson) — it does not include pipetting or biological variation. It can therefore be safely combined with the other components below.",
+        "mu_no_lambda_cache": "ℹ️ No cached λ data found for this result — please calculate it in the Data Entry tab first.",
+        "unbalanced_design_note": "ℹ️ Unbalanced design detected (replicates per group: {n_list}). No data was discarded — variance components were calculated using the standard method-of-moments correction for unbalanced one-way random-effects ANOVA (Searle et al. 1992).",
         "mu_poisson_manual": "Enter manually",
         "mu_pipetting_label": "Pipetting / Dilution Uncertainty (%)",
         "mu_pipetting_help": "Typically ~1-2% CV for good pipetting technique. Enter based on your own validation data.",
@@ -772,6 +797,13 @@ translations = {
         "comparison_deming_label": "Deming Regression",
         "comparison_ba_chart_title": "Bland-Altman Plot",
         "comparison_deming_chart_title": "Deming Regression Plot",
+        "comparison_deming_ci_label": "Deming 95% CI (bootstrap, n=1000)",
+        "comparison_pb_label": "Passing-Bablok",
+        "comparison_pb_note": "ℹ️ Passing-Bablok is a non-parametric method that requires no assumption about the error-variance ratio and is robust to outliers (preferred by CLSI EP09). Trust this result more than Deming's if you don't know the true variance ratio.",
+        "comparison_normality_ok": "✅ Differences are approximately normal (Shapiro-Wilk p={p:.4f}) — the 95% limits of agreement are valid.",
+        "comparison_normality_warn": "⚠️ Differences may not be normally distributed (Shapiro-Wilk p={p:.4f}) — the ±1.96 SD limits of agreement may not be reliable; interpret with caution.",
+        "comparison_prop_bias_ok": "✅ No significant proportional bias detected (slope p={p:.4f}).",
+        "comparison_prop_bias_warn": "⚠️ **Proportional bias detected** (difference-vs-mean slope={slope:.4f}, p={p:.4f}). A single 'mean difference' figure may be misleading — the disagreement changes systematically across the measurement range.",
         # CRM Production
         "crm_title": "🏭 Certified Reference Material (CRM) Production Tools",
         "crm_description": "Homogeneity testing, stability testing, assigned value & uncertainty budget, and certificate (CoA) generation, based on the general principles of ISO Guide 35 / ISO 17034. These tools are for research purposes and do not replace a formal CRM production/certification process.",
@@ -962,14 +994,20 @@ def safe_str(text):
 # ═══════════════════════════════════════════════════════════════════════════════
 # CORE dPCR MATH — Poisson statistics
 # ═══════════════════════════════════════════════════════════════════════════════
-def poisson_lambda(positive, total):
+def poisson_lambda(positive, total, alpha=0.05):
     """
     Returns (lambda, ci_low, ci_high, status) for a single partition (droplet/well) count.
     lambda = copies per partition, derived from the Poisson distribution.
     status: 'ok', 'saturated' (all partitions positive), or 'invalid'.
-    95% CI uses the delta-method normal approximation:
-        p = positive/total ; lambda = -ln(1-p)
-        Var(lambda) ~= p / (n * (1-p))
+
+    The 95% CI is computed via the EXACT (Clopper-Pearson) binomial
+    confidence interval on p = positive/total, transformed to lambda-space
+    via lambda = -ln(1-p). This is more rigorous than a normal/delta-method
+    approximation, which becomes miscalibrated at low positive counts or
+    when p is close to 0 or 1 — precisely the regime relevant near an
+    assay's limit of detection. Clopper-Pearson bounds are obtained from
+    the Beta distribution quantiles (the standard exact-CI construction for
+    a binomial proportion; see e.g. Clopper & Pearson, Biometrika 1934).
     """
     if total is None or total <= 0 or positive is None or positive < 0 or positive > total:
         return None, None, None, "invalid"
@@ -977,10 +1015,35 @@ def poisson_lambda(positive, total):
     if p >= 1.0:
         return None, None, None, "saturated"
     lam = -np.log(1 - p)
-    se = np.sqrt(p / (total * (1 - p))) if (total * (1 - p)) > 0 else np.nan
-    ci_low = max(lam - 1.96 * se, 0.0) if not np.isnan(se) else None
-    ci_high = lam + 1.96 * se if not np.isnan(se) else None
+
+    x, n = positive, total
+    p_low = 0.0 if x == 0 else stats.beta.ppf(alpha / 2, x, n - x + 1)
+    p_high = 1.0 if x == n else stats.beta.ppf(1 - alpha / 2, x + 1, n - x)
+    ci_low = -np.log(1 - p_low) if p_low < 1.0 else 0.0
+    ci_high = -np.log(1 - p_high) if p_high < 1.0 else np.inf
+    ci_low = max(ci_low, 0.0)
     return lam, ci_low, ci_high, "ok"
+
+def poisson_se(positive, total):
+    """
+    Standard-error-like quantity for lambda, used throughout the app for
+    error propagation into derived quantities (ratios, fractional
+    abundance, etc.) that need an SE rather than a full confidence
+    interval. Back-derived from the exact Clopper-Pearson CI half-width
+    (se = (ci_high - ci_low) / (2*z)), which is better calibrated than the
+    raw normal-approximation formula at low counts, while still providing
+    a simple SE-like value for the standard delta-method propagation
+    formulas used elsewhere in this app. Falls back to the normal
+    approximation sqrt(p/(n*(1-p))) if the exact CI is degenerate
+    (e.g. at very small or very large p, where the Beta-based bounds can
+    become numerically unstable).
+    """
+    lam, ci_low, ci_high, status = poisson_lambda(positive, total)
+    if status != "ok" or ci_low is None or ci_high is None or np.isinf(ci_high):
+        p = positive / total if total else np.nan
+        return np.sqrt(p / (total * (1 - p))) if (total and (1 - p) > 0) else np.nan
+    z = stats.norm.ppf(0.975)
+    return (ci_high - ci_low) / (2 * z)
 
 def geometric_mean(values):
     values = np.array(values, dtype=float)
@@ -1060,8 +1123,8 @@ def pool_and_compute_batch(std_df, target_assay, ref_assays, partition_vol_nl_lo
             continue
 
         p_t, p_r = pos_t / tot_t, pos_r / tot_r
-        se_t = np.sqrt(p_t / (tot_t * (1 - p_t))) if (1 - p_t) > 0 else np.nan
-        se_r = np.sqrt(p_r / (tot_r * (1 - p_r))) if (1 - p_r) > 0 else np.nan
+        se_t = poisson_se(pos_t, tot_t)
+        se_r = poisson_se(pos_r, tot_r)
 
         ratio, ci_low, ci_high = poisson_ratio_ci(lam_t, se_t, lam_r, se_r)
         conc = lam_t / partition_vol_nl_local * 1000.0
@@ -1127,8 +1190,8 @@ def pool_and_compute_vaf(std_df, mutant_assay, wt_assay, partition_vol_nl_local)
 
         p_m = pos_m / tot_m if tot_m > 0 else np.nan
         p_w = pos_w / tot_w if tot_w > 0 else np.nan
-        se_m = np.sqrt(p_m / (tot_m * (1 - p_m))) if (1 - p_m) > 0 else np.nan
-        se_w = np.sqrt(p_w / (tot_w * (1 - p_w))) if (1 - p_w) > 0 else np.nan
+        se_m = poisson_se(pos_m, tot_m)
+        se_w = poisson_se(pos_w, tot_w)
 
         fa, ci_low, ci_high = compute_vaf(lam_m, se_m, lam_w, se_w)
         conc_mut = lam_m / partition_vol_nl_local * 1000.0
@@ -1155,7 +1218,7 @@ _PROJECT_TEXT_PREFIXES = (
 
 def export_project_state():
     """Serializes all data-entry-relevant session_state keys into a JSON-safe dict."""
-    project = {"_absolutegene_project_version": 1}
+    project = {"_absolutegene_project_version": 1, "_absolutegene_app_version": APP_VERSION}
     for k in _PROJECT_SCALAR_KEYS:
         if k in st.session_state:
             v = st.session_state[k]
@@ -1314,48 +1377,58 @@ def compute_rcv(result1, result2, cv_analytical_pct, cv_biological_pct, z=1.96):
 
 def compute_precision_study(day_groups):
     """
-    Nested one-way ANOVA (day/run as the grouping factor) for a basic
-    precision (repeatability / intermediate precision) study, following
-    the general approach of CLSI EP05-A3. Assumes equal replicates per day
-    for simplicity (unbalanced designs are common in practice but require
-    more elaborate variance-component estimation).
+    Nested one-way random-effects ANOVA (day/run as the grouping factor)
+    for a basic precision (repeatability / intermediate precision) study,
+    following the general approach of CLSI EP05-A3.
+
+    Correctly handles UNBALANCED designs (unequal replicate counts per
+    day) using the standard method-of-moments variance-component
+    correction term n0 for unbalanced one-way random-effects models
+    (Searle, Casella & McCulloch, "Variance Components", 1992):
+        n0 = (N - sum(n_i^2)/N) / (k-1)
+        sigma_between^2 = max((MS_between - MS_within) / n0, 0)
+    For a balanced design (all n_i equal), n0 reduces exactly to n_i and
+    this is equivalent to the simple balanced-ANOVA formula — no data is
+    discarded in either case.
 
     day_groups: list of arrays, one array of replicate values per day/run.
 
     Returns dict with repeatability_cv, between_day_cv, total_cv (all %),
-    grand_mean, and the underlying ANOVA mean squares.
+    grand_mean, the underlying ANOVA mean squares, and is_balanced (bool)
+    plus n_per_day (list) so the caller can inform the user when the
+    design was unbalanced.
     """
     day_groups = [np.array(g, dtype=float) for g in day_groups if len(g) > 0]
     k = len(day_groups)
     if k < 2:
         return None
-    n_per_day = [len(g) for g in day_groups]
-    if len(set(n_per_day)) != 1:
-        n = min(n_per_day)
-        day_groups = [g[:n] for g in day_groups]
-    else:
-        n = n_per_day[0]
-    if n < 2:
+    n_per_day = np.array([len(g) for g in day_groups])
+    if np.any(n_per_day < 2):
         return None
+    N = int(np.sum(n_per_day))
+    is_balanced = len(set(n_per_day.tolist())) == 1
 
     all_values = np.concatenate(day_groups)
     grand_mean = np.mean(all_values)
     day_means = np.array([np.mean(g) for g in day_groups])
 
     ss_within = sum(np.sum((g - np.mean(g)) ** 2) for g in day_groups)
-    df_within = k * (n - 1)
+    df_within = N - k
     ms_within = ss_within / df_within if df_within > 0 else np.nan
 
-    ss_between = n * np.sum((day_means - grand_mean) ** 2)
+    ss_between = np.sum(n_per_day * (day_means - grand_mean) ** 2)
     df_between = k - 1
     ms_between = ss_between / df_between if df_between > 0 else np.nan
 
-    s_between_day_sq = max((ms_between - ms_within) / n, 0.0) if not np.isnan(ms_between) else 0.0
+    n0 = (N - np.sum(n_per_day ** 2) / N) / df_between if df_between > 0 else np.nan
+
+    s_between_day_sq = max((ms_between - ms_within) / n0, 0.0) if (not np.isnan(ms_between) and n0) else 0.0
     s_repeatability = np.sqrt(ms_within) if ms_within >= 0 else np.nan
     s_total = np.sqrt(ms_within + s_between_day_sq)
 
     return {
-        "grand_mean": grand_mean, "k_days": k, "n_per_day": n,
+        "grand_mean": grand_mean, "k_days": k, "n_per_day": n_per_day.tolist(),
+        "is_balanced": is_balanced, "n0": n0,
         "ms_within": ms_within, "ms_between": ms_between,
         "repeatability_cv": (s_repeatability / grand_mean * 100) if grand_mean != 0 else np.nan,
         "between_day_cv": (np.sqrt(s_between_day_sq) / grand_mean * 100) if grand_mean != 0 else np.nan,
@@ -1367,8 +1440,22 @@ def compute_bland_altman(method1_vals, method2_vals):
     Bland-Altman agreement analysis for paired measurements from two
     methods (Bland JM, Altman DG. Statistical methods for assessing
     agreement between two methods of clinical measurement. Lancet 1986).
+
+    In addition to the classic bias/limits-of-agreement, this also checks
+    two common assumptions/pitfalls that are frequently overlooked:
+      - Normality of the differences (Shapiro-Wilk, n>=3): the +-1.96 SD
+        limits of agreement are only strictly valid if differences are
+        approximately normally distributed.
+      - Proportional bias: regresses the differences on the means; if the
+        slope is significantly different from zero, the bias is not
+        constant across the measurement range (a common real-world
+        pattern, e.g. increasing divergence at higher concentrations),
+        which the single mean-difference "bias" figure would otherwise
+        hide.
+
     Returns dict with mean_diff (bias), sd_diff, loa_low, loa_high,
-    means (array of per-pair means), diffs (array of per-pair differences).
+    means, diffs, shapiro_p (normality of diffs), proportional_bias_slope,
+    proportional_bias_p.
     """
     m1 = np.array(method1_vals, dtype=float)
     m2 = np.array(method2_vals, dtype=float)
@@ -1380,22 +1467,48 @@ def compute_bland_altman(method1_vals, method2_vals):
     means = (m1 + m2) / 2
     mean_diff = float(np.mean(diffs))
     sd_diff = float(np.std(diffs, ddof=1))
+
+    shapiro_p = np.nan
+    if n >= 3:
+        try:
+            shapiro_p = float(stats.shapiro(diffs).pvalue)
+        except Exception:
+            shapiro_p = np.nan
+
+    prop_slope, prop_p = np.nan, np.nan
+    if n >= 3 and np.std(means) > 0:
+        try:
+            _res = stats.linregress(means, diffs)
+            prop_slope, prop_p = float(_res.slope), float(_res.pvalue)
+        except Exception:
+            pass
+
     return {
         "means": means, "diffs": diffs, "mean_diff": mean_diff, "sd_diff": sd_diff,
         "loa_low": mean_diff - 1.96 * sd_diff, "loa_high": mean_diff + 1.96 * sd_diff,
-        "n": n,
+        "n": n, "shapiro_p": shapiro_p,
+        "proportional_bias_slope": prop_slope, "proportional_bias_p": prop_p,
     }
 
-def compute_deming_regression(method1_vals, method2_vals, variance_ratio=1.0):
+def compute_deming_regression(method1_vals, method2_vals, variance_ratio=1.0, n_boot=1000, seed=42):
     """
     Deming regression: linear regression accounting for measurement error
     in both variables (unlike ordinary least squares, which assumes the
     x-variable is error-free). variance_ratio (lambda) = Var(error_y)/Var(error_x);
     lambda=1 assumes equal error variance in both methods (a common default
-    when no independent estimate of the error ratio is available).
-    Returns dict with slope, intercept.
+    when no independent estimate of the error ratio is available — note
+    that this assumption is frequently WRONG for two genuinely different
+    assay technologies, and should be set from prior precision data when
+    possible).
     Reference: Linnet K. Estimation of the linear relationship between the
     measurements of two methods with proportional errors. Stat Med 1990.
+
+    95% confidence intervals for slope and intercept are obtained via
+    non-parametric bootstrap resampling (percentile method), since no
+    simple closed-form CI exists for the Deming estimator under arbitrary
+    variance-ratio assumptions.
+
+    Returns dict with slope, intercept, slope_ci_low/high, intercept_ci_low/high.
     """
     x = np.array(method1_vals, dtype=float)
     y = np.array(method2_vals, dtype=float)
@@ -1403,14 +1516,87 @@ def compute_deming_regression(method1_vals, method2_vals, variance_ratio=1.0):
     x, y = x[:n], y[:n]
     if n < 3:
         return None
-    mx, my = np.mean(x), np.mean(y)
-    sxx = np.sum((x - mx) ** 2) / (n - 1)
-    syy = np.sum((y - my) ** 2) / (n - 1)
-    sxy = np.sum((x - mx) * (y - my)) / (n - 1)
-    lam = variance_ratio
-    slope = (syy - lam * sxx + np.sqrt((syy - lam * sxx) ** 2 + 4 * lam * sxy ** 2)) / (2 * sxy) if sxy != 0 else np.nan
-    intercept = my - slope * mx
-    return {"slope": slope, "intercept": intercept, "n": n}
+
+    def _fit(xx, yy, lam):
+        mx, my = np.mean(xx), np.mean(yy)
+        sxx = np.sum((xx - mx) ** 2) / (len(xx) - 1)
+        syy = np.sum((yy - my) ** 2) / (len(yy) - 1)
+        sxy = np.sum((xx - mx) * (yy - my)) / (len(xx) - 1)
+        if sxy == 0:
+            return np.nan, np.nan
+        s = (syy - lam * sxx + np.sqrt((syy - lam * sxx) ** 2 + 4 * lam * sxy ** 2)) / (2 * sxy)
+        b = my - s * mx
+        return s, b
+
+    slope, intercept = _fit(x, y, variance_ratio)
+
+    rng = np.random.default_rng(seed)
+    boot_slopes, boot_intercepts = [], []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        s_b, i_b = _fit(x[idx], y[idx], variance_ratio)
+        if not np.isnan(s_b):
+            boot_slopes.append(s_b)
+            boot_intercepts.append(i_b)
+
+    if len(boot_slopes) >= 20:
+        slope_ci_low, slope_ci_high = np.percentile(boot_slopes, [2.5, 97.5])
+        intercept_ci_low, intercept_ci_high = np.percentile(boot_intercepts, [2.5, 97.5])
+    else:
+        slope_ci_low = slope_ci_high = intercept_ci_low = intercept_ci_high = np.nan
+
+    return {
+        "slope": slope, "intercept": intercept, "n": n,
+        "slope_ci_low": slope_ci_low, "slope_ci_high": slope_ci_high,
+        "intercept_ci_low": intercept_ci_low, "intercept_ci_high": intercept_ci_high,
+    }
+
+def compute_passing_bablok(method1_vals, method2_vals):
+    """
+    Passing-Bablok regression: a non-parametric method-comparison
+    regression that, unlike Deming regression, does not require an
+    assumption about the ratio of measurement error variances between the
+    two methods, and is robust to outliers and non-normally distributed
+    data (Passing H, Bablok W. A new biometrical procedure for testing the
+    equality of measurements from two different analytical methods.
+    J Clin Chem Clin Biochem 1983;21:709-720). This is the method
+    generally recommended by CLSI EP09 for method-comparison studies where
+    the error-variance ratio is unknown, making it a useful complement (or
+    alternative) to Deming regression in this app.
+
+    Returns dict with slope, intercept, n_pairs.
+    """
+    x = np.asarray(method1_vals, dtype=float)
+    y = np.asarray(method2_vals, dtype=float)
+    n = min(len(x), len(y))
+    x, y = x[:n], y[:n]
+    if n < 3:
+        return None
+
+    slopes = []
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            dx = x[j] - x[i]
+            if dx != 0:
+                s = (y[j] - y[i]) / dx
+                if s != -1:
+                    slopes.append(s)
+    if not slopes:
+        return None
+    slopes_sorted = np.sort(np.array(slopes))
+    N = len(slopes_sorted)
+    K = int(np.sum(slopes_sorted < -1))
+
+    if N % 2 == 0:
+        idx1 = min(max(N // 2 + K, 1), N)
+        idx2 = min(max(idx1 + 1, 1), N)
+        slope = 0.5 * (slopes_sorted[idx1 - 1] + slopes_sorted[idx2 - 1])
+    else:
+        idx = min(max((N + 1) // 2 + K, 1), N)
+        slope = slopes_sorted[idx - 1]
+
+    intercept = float(np.median(y - slope * x))
+    return {"slope": float(slope), "intercept": intercept, "n_pairs": N}
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CRM PRODUCTION — Homogeneity, Stability, Assigned Value/Uncertainty Budget (per
@@ -1423,36 +1609,41 @@ def compute_homogeneity(unit_groups):
     Veen AMH, Schimmel H, Lamberty A. "Homogeneity and stability of reference
     materials." Accred Qual Assur 2001;6:20-25.
 
+    Correctly handles UNBALANCED designs (unequal replicate counts per
+    unit/vial): the F-test itself generalizes naturally to unequal n_i
+    using properly weighted sums of squares, and the between-unit
+    variance-component estimate (s_bb^2 / u_bb) uses the standard
+    method-of-moments correction term n0 for unbalanced one-way
+    random-effects models (Searle, Casella & McCulloch, 1992), so no
+    replicate data is discarded.
+
     unit_groups: list of arrays, one array of replicate measurements per
-    CRM unit/vial (equal replicate count per unit assumed for simplicity).
+    CRM unit/vial.
 
     Returns dict with ms_within, ms_between, F, F_crit, p_value,
     is_homogeneous (bool, F <= F_crit at alpha=0.05), s_bb (between-unit
     standard deviation estimate), u_bb (standard uncertainty contribution
-    from potential inhomogeneity), grand_mean.
+    from potential inhomogeneity), grand_mean, is_balanced, n_per_unit.
     """
     unit_groups = [np.array(g, dtype=float) for g in unit_groups if len(g) > 0]
     p = len(unit_groups)
     if p < 2:
         return None
-    n_per_unit = [len(g) for g in unit_groups]
-    if len(set(n_per_unit)) != 1:
-        n = min(n_per_unit)
-        unit_groups = [g[:n] for g in unit_groups]
-    else:
-        n = n_per_unit[0]
-    if n < 2:
+    n_per_unit = np.array([len(g) for g in unit_groups])
+    if np.any(n_per_unit < 2):
         return None
+    N = int(np.sum(n_per_unit))
+    is_balanced = len(set(n_per_unit.tolist())) == 1
 
     all_values = np.concatenate(unit_groups)
     grand_mean = float(np.mean(all_values))
     unit_means = np.array([np.mean(g) for g in unit_groups])
 
     ss_within = sum(np.sum((g - np.mean(g)) ** 2) for g in unit_groups)
-    df_within = p * (n - 1)
+    df_within = N - p
     ms_within = ss_within / df_within if df_within > 0 else np.nan
 
-    ss_between = n * np.sum((unit_means - grand_mean) ** 2)
+    ss_between = np.sum(n_per_unit * (unit_means - grand_mean) ** 2)
     df_between = p - 1
     ms_between = ss_between / df_between if df_between > 0 else np.nan
 
@@ -1461,17 +1652,22 @@ def compute_homogeneity(unit_groups):
     p_value = stats.f.sf(F, df_between, df_within) if not np.isnan(F) else np.nan
     is_homogeneous = (F <= F_crit) if not np.isnan(F) else True
 
-    if ms_between > ms_within:
-        s_bb_sq = (ms_between - ms_within) / n
+    n0 = (N - np.sum(n_per_unit ** 2) / N) / df_between if df_between > 0 else np.nan
+
+    if ms_between > ms_within and n0:
+        s_bb_sq = (ms_between - ms_within) / n0
         u_bb = np.sqrt(s_bb_sq)
     else:
         # Conservative minimum-uncertainty estimate when between-unit
-        # variance is not resolvable from within-unit noise (Linsinger et al. 2001)
-        u_bb = np.sqrt(ms_within / n) * (2.0 / df_between) ** 0.25 if df_between > 0 else np.nan
+        # variance is not resolvable from within-unit noise (Linsinger et al. 2001).
+        # Uses the harmonic-mean replicate count for the unbalanced case.
+        _n_harmonic = p / np.sum(1.0 / n_per_unit)
+        u_bb = np.sqrt(ms_within / _n_harmonic) * (2.0 / df_between) ** 0.25 if df_between > 0 else np.nan
         s_bb_sq = 0.0
 
     return {
-        "grand_mean": grand_mean, "p_units": p, "n_per_unit": n,
+        "grand_mean": grand_mean, "p_units": p, "n_per_unit": n_per_unit.tolist(),
+        "is_balanced": is_balanced,
         "ms_within": ms_within, "ms_between": ms_between, "F": F, "F_crit": F_crit,
         "p_value": p_value, "is_homogeneous": is_homogeneous,
         "s_bb": np.sqrt(s_bb_sq), "u_bb": u_bb,
@@ -1689,9 +1885,8 @@ def compute_lod_loq(ntc_pos, ntc_tot, partition_vol_nl_local):
         ntc_lambda = 0.0
         contamination = False
     else:
-        p = pos_total / tot_total
         ntc_lambda, _, _, _ = poisson_lambda(pos_total, tot_total)
-        se = np.sqrt(p / (tot_total * (1 - p))) if (1 - p) > 0 else np.nan
+        se = poisson_se(pos_total, tot_total)
         lod_lambda = ntc_lambda + 1.645 * se if not np.isnan(se) else ntc_lambda
         contamination = True
 
@@ -1763,33 +1958,105 @@ def _auto_detect_column(df_columns, field):
                 return orig_c
     return None
 
+def _decode_csv_bytes(file_bytes):
+    """
+    Decodes uploaded CSV/TSV bytes robustly. Tries UTF-8 (with BOM handling)
+    first; if that produces a suspiciously high proportion of replacement
+    characters (a sign the file is actually in a different encoding, e.g.
+    Latin-1/Windows-1252, common from some Windows-based instrument export
+    tools in non-English locales), falls back to latin-1, which can decode
+    any byte sequence without raising and is a reasonable practical default
+    for Western European lab software exports.
+    """
+    try:
+        text_utf8 = file_bytes.decode("utf-8-sig", errors="replace")
+        bad_ratio = text_utf8.count("\ufffd") / max(len(text_utf8), 1)
+        if bad_ratio < 0.01:
+            return text_utf8
+    except Exception:
+        pass
+    try:
+        return file_bytes.decode("latin-1")
+    except Exception:
+        return file_bytes.decode("utf-8", errors="replace")
+
+def _find_header_row(lines, sep, max_scan=25):
+    """
+    Some instrument exports include a few metadata/title lines (e.g. run
+    name, date, instrument serial) before the actual column-header row.
+    Scans the first `max_scan` lines and returns the index of the line
+    that best matches a "column header" pattern (highest number of cells
+    that match one of our known column-name aliases), so that leading
+    metadata rows can be skipped automatically instead of breaking the
+    parse (or silently mis-parsing metadata as data).
+    Returns 0 if the first line already looks like a good header (the
+    common case), avoiding any behavior change for well-formed files.
+    """
+    all_aliases = set()
+    for aliases in _COLUMN_ALIASES.values():
+        all_aliases.update(aliases)
+
+    best_idx, best_score = 0, -1
+    for idx, line in enumerate(lines[:max_scan]):
+        cells = [c.strip().lower() for c in line.split(sep)]
+        score = sum(1 for c in cells if c in all_aliases or any(a in c for a in all_aliases if len(a) > 3))
+        if score > best_score:
+            best_score, best_idx = score, idx
+    return best_idx
+
 def parse_instrument_csv(file_bytes):
     """
     Parses a generic dPCR/ddPCR instrument export (QuantaSoft, QX Manager,
     QIAcuity, or similar CSV/TSV exports). Auto-detects Sample, Target,
     Positives, and Total (accepted partitions) columns using common column
-    name aliases across instruments. Returns (df, detected_cols, error) where
-    df has standardized columns: Sample, Target, Positives, Total.
-    detected_cols is a dict {field: column_name_or_None} for any fields that
-    need manual mapping.
+    name aliases across instruments. Handles common real-world quirks:
+    non-UTF-8 encodings, leading metadata rows before the header, and
+    comma-decimal locales (handled downstream in build_standard_import_df).
+    Returns (df, detected_cols, error) where df has standardized columns:
+    Sample, Target, Positives, Total. detected_cols is a dict
+    {field: column_name_or_None} for any fields that need manual mapping.
     """
     import io as _io
     try:
-        content = file_bytes.decode("utf-8-sig", errors="replace")
+        content = _decode_csv_bytes(file_bytes)
     except Exception as e:
         return None, None, f"File decoding error: {e}"
 
+    if not content.strip():
+        return None, None, "File is empty."
+
+    lines = content.splitlines()
     sep = "\t" if content.count("\t") > content.count(",") else ","
+    header_idx = _find_header_row(lines, sep)
+
     try:
-        df = pd.read_csv(_io.StringIO(content), sep=sep)
+        df = pd.read_csv(_io.StringIO(content), sep=sep, skiprows=header_idx)
     except Exception as e:
         return None, None, f"CSV parse error: {e}"
 
     if df.empty or len(df.columns) < 2:
         return None, None, "No usable columns found in file."
 
+    df.columns = [str(c).strip() for c in df.columns]
     detected = {field: _auto_detect_column(df.columns, field) for field in _COLUMN_ALIASES}
     return df, detected, None
+
+def _to_numeric_robust(series):
+    """
+    Converts a column to numeric, tolerating comma-decimal locale
+    formatting (e.g. "1234,56" instead of "1234.56"), which is common in
+    CSV exports from instruments configured for European locales. Falls
+    back to standard pandas numeric coercion (NaN on failure) for values
+    that still don't parse.
+    """
+    numeric = pd.to_numeric(series, errors="coerce")
+    if numeric.isna().any():
+        fallback = pd.to_numeric(
+            series.astype(str).str.replace(".", "", regex=False).str.replace(",", ".", regex=False),
+            errors="coerce"
+        )
+        numeric = numeric.fillna(fallback)
+    return numeric
 
 def build_standard_import_df(raw_df, col_map):
     """
@@ -1799,8 +2066,8 @@ def build_standard_import_df(raw_df, col_map):
     out = pd.DataFrame()
     out["Sample"] = raw_df[col_map["sample"]].astype(str).str.strip()
     out["Target"] = raw_df[col_map["target"]].astype(str).str.strip()
-    out["Positives"] = pd.to_numeric(raw_df[col_map["positives"]], errors="coerce")
-    out["Total"] = pd.to_numeric(raw_df[col_map["total"]], errors="coerce")
+    out["Positives"] = _to_numeric_robust(raw_df[col_map["positives"]])
+    out["Total"] = _to_numeric_robust(raw_df[col_map["total"]])
     out = out.dropna(subset=["Positives", "Total"])
     out = out[out["Total"] > 0]
     return out.reset_index(drop=True)
@@ -2379,7 +2646,7 @@ st.sidebar.link_button(
     "https://GeneQuantify.streamlit.app/",
     use_container_width=True
 )
-st.sidebar.caption("AbsoluteGene — GPL-3.0 | mailtoburhanettin@gmail.com")
+st.sidebar.caption(f"AbsoluteGene v{APP_VERSION} — GPL-3.0 | mailtoburhanettin@gmail.com")
 
 tab_data, tab_results, tab_batch, tab_vaf, tab_clinical, tab_crm, tab_report = st.tabs([
     f"📥 {_t['tab_data']}", f"📊 {_t['tab_results']}", f"🔬 {_t['tab_batch']}",
@@ -2434,6 +2701,8 @@ with tab_data:
             )
             outlier_method = st.radio(_t['outlier_method_label'], options=["Grubbs", "IQR"],
                                        key="outlier_method", help=_t['outlier_method_help'])
+            if outlier_method == "Grubbs":
+                st.caption(_t['grubbs_power_warning'])
         with out_c2:
             if outlier_method == "Grubbs":
                 grubbs_alpha = st.number_input(
@@ -2658,6 +2927,8 @@ with tab_data:
             "lam_target_kept": lam_t_kept, "NF_kept": NF_kept, "ratio_kept": ratio_kept,
             "ref_matrix_kept": ref_matrix_kept,
             "detail_rows": detail_rows,
+            "pos_target_kept": pos_t[kept] if kept else np.array([]),
+            "tot_target_kept": tot_t[kept] if kept else np.array([]),
         }
 
     def _ta(label, key):
@@ -2858,6 +3129,27 @@ with tab_data:
             else:
                 dynamic_range_flag = _t['dynamic_range_ok']
 
+            # ── Theoretical Poisson-only relative uncertainty (for MU budget) ────
+            # Inverse-variance pooling of each kept replicate's Poisson SE (as a
+            # relative %), giving a pure counting-statistics uncertainty estimate
+            # that is free of pipetting/biological replicate-to-replicate scatter
+            # (unlike __conc_smp_cv__, which reflects total observed variability).
+            _pos_kept = smp_result.get("pos_target_kept", np.array([]))
+            _tot_kept = smp_result.get("tot_target_kept", np.array([]))
+            if len(_pos_kept) > 0:
+                _rel_vars = []
+                for _pp, _tt, _ll in zip(_pos_kept, _tot_kept, smp_result["lam_target_kept"]):
+                    if _ll > 0:
+                        _se_i = poisson_se(_pp, _tt)
+                        if not np.isnan(_se_i):
+                            _rel_vars.append((_se_i / _ll) ** 2)
+                if _rel_vars:
+                    _poisson_rel_se_pct = np.sqrt(1.0 / np.sum(1.0 / np.array(_rel_vars))) * 100
+                else:
+                    _poisson_rel_se_pct = np.nan
+            else:
+                _poisson_rel_se_pct = np.nan
+
             # ── LOD/LOQ QC flag (if NTC data provided for this gene) ─────────────
             lod_loq_flag = "—"
             if lod_loq_result is not None:
@@ -2999,6 +3291,7 @@ with tab_data:
                 "__dilution_factor__": smp_dilution_factor,
                 "__stock_conc_smp__": stock_conc_smp_mean, "__stock_conc_smp_lo__": stock_conc_smp_lo,
                 "__stock_conc_smp_hi__": stock_conc_smp_hi, "__dynamic_range_flag__": dynamic_range_flag,
+                "__lambda_smp_mean__": _mean_lam_smp, "__poisson_rel_se_pct__": _poisson_rel_se_pct,
             })
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3784,7 +4077,7 @@ def create_pdf(results, stat_rows, input_df, lang, multigroup_results=None):
     elements.append(Spacer(1, 16))
     elements.append(hr())
     elements.append(Paragraph(safe_str(
-        f"AbsoluteGene — For research and educational use only. Not validated for clinical "
+        f"AbsoluteGene v{APP_VERSION} — For research and educational use only. Not validated for clinical "
         f"diagnostic purposes. | Generated: {now} | Contact: mailtoburhanettin@gmail.com"
     ), small_style))
 
@@ -3999,7 +4292,7 @@ with tab_batch:
                 table_rows=_batch_pdf_table_rows,
                 chart_png_bytes=_chart_bytes,
                 chart_caption="Figure. Ratio (95% CI) per sample. Dashed line = expected (no-change) ratio.",
-                footer_note="AbsoluteGene — For research and educational use only. Not validated for clinical diagnostic purposes.",
+                footer_note=f"AbsoluteGene v{APP_VERSION} — For research and educational use only. Not validated for clinical diagnostic purposes.",
                 references=[
                     "Poisson-based dPCR quantification: Dube S, Qin J, Ramakrishnan R (2008). PLoS ONE, 3(8), e2876.",
                     "digital MIQE guidelines: Huggett JF et al. (2013). Clin Chem, 59(6), 892-902.",
@@ -4167,7 +4460,7 @@ with tab_vaf:
                 table_rows=_vaf_pdf_table_rows,
                 chart_png_bytes=_vaf_chart_bytes,
                 chart_caption="Figure. Fractional Abundance (FA%, 95% CI) per sample. Red = mutant detected.",
-                footer_note="AbsoluteGene — For research and educational use only. Not validated for clinical diagnostic purposes.",
+                footer_note=f"AbsoluteGene v{APP_VERSION} — For research and educational use only. Not validated for clinical diagnostic purposes.",
                 references=[
                     "Delta-method CI for ddPCR fractional abundance: Hindson CM et al. (2013). Nat Methods, 10(10), 1003-1005.",
                     "digital MIQE guidelines: Huggett JF et al. (2013). Clin Chem, 59(6), 892-902.",
@@ -4205,15 +4498,27 @@ with tab_clinical:
         mu_c1, mu_c2 = st.columns(2)
         with mu_c1:
             _mu_source_mode = st.radio(_t['mu_poisson_source'],
-                                        options=[_t['mu_poisson_auto'], _t['mu_poisson_manual']],
+                                        options=[_t['mu_poisson_auto_replicate'], _t['mu_poisson_auto_theoretical'],
+                                                 _t['mu_poisson_manual']],
                                         key="mu_source_mode")
         with mu_c2:
-            if _mu_source_mode == _t['mu_poisson_auto'] and _mu_gene_options:
+            if _mu_source_mode == _t['mu_poisson_auto_replicate'] and _mu_gene_options:
                 _mu_selected = st.selectbox(_t['mu_gene_select'], options=_mu_gene_options, key="mu_gene_select")
                 _mu_match = data[_mu_gene_options.index(_mu_selected)]
                 _u_poisson_val = _mu_match.get("__conc_smp_cv__", 0.0)
                 _u_poisson_val = 0.0 if (_u_poisson_val is None or np.isnan(_u_poisson_val)) else _u_poisson_val
                 st.metric(_t['mu_poisson_source'], f"{_u_poisson_val:.2f}%")
+                st.warning(_t['mu_double_count_warning'])
+            elif _mu_source_mode == _t['mu_poisson_auto_theoretical'] and _mu_gene_options:
+                _mu_selected = st.selectbox(_t['mu_gene_select'], options=_mu_gene_options, key="mu_gene_select_theo")
+                _mu_match = data[_mu_gene_options.index(_mu_selected)]
+                _u_poisson_val = _mu_match.get("__poisson_rel_se_pct__", np.nan)
+                if _u_poisson_val is not None and not np.isnan(_u_poisson_val):
+                    st.metric(_t['mu_poisson_source'], f"{_u_poisson_val:.2f}%")
+                    st.caption(_t['mu_theoretical_note'])
+                else:
+                    _u_poisson_val = 0.0
+                    st.info(_t['mu_no_lambda_cache'])
             else:
                 _u_poisson_val = st.number_input(_t['mu_poisson_source'], min_value=0.0, max_value=100.0,
                                                   value=5.0, step=0.1, key="mu_poisson_manual_val",
@@ -4231,6 +4536,9 @@ with tab_clinical:
         with mu_c5:
             _mu_k = st.number_input(_t['mu_k_label'], min_value=1.0, max_value=3.0, value=2.0,
                                      step=0.5, key="mu_k_val")
+
+        if (_mu_source_mode == _t['mu_poisson_auto_replicate']) and (_u_pipetting_val > 0 or _u_precision_val > 0):
+            st.error(_t['mu_double_count_error'])
 
         if st.button(_t['mu_calc_btn'], key="mu_calc_btn"):
             _mu_result = compute_mu_budget(_u_poisson_val, _u_pipetting_val, _u_precision_val, _mu_k)
@@ -4299,6 +4607,8 @@ with tab_clinical:
             if _prec_result is None:
                 st.error("Insufficient data — need at least 2 days with ≥2 replicates each.")
             else:
+                if not _prec_result["is_balanced"]:
+                    st.info(_t['unbalanced_design_note'].format(n_list=_prec_result["n_per_day"]))
                 pc1, pc2, pc3, pc4 = st.columns(4)
                 pc1.metric(_t['precision_grand_mean'], f"{_prec_result['grand_mean']:.4f}")
                 pc2.metric(_t['precision_repeatability_cv'], f"{_prec_result['repeatability_cv']:.2f}%")
@@ -4328,6 +4638,7 @@ with tab_clinical:
             _m2_arr = parse_input_data(_comp_m2_txt)
             _ba_result = compute_bland_altman(_m1_arr, _m2_arr)
             _deming_result = compute_deming_regression(_m1_arr, _m2_arr, _comp_variance_ratio)
+            _pb_result = compute_passing_bablok(_m1_arr, _m2_arr)
 
             if _ba_result is None:
                 st.error("Need at least 2 paired values.")
@@ -4337,6 +4648,46 @@ with tab_clinical:
                 bc2.metric(_t['comparison_loa_label'], f"{_ba_result['loa_low']:.3f} to {_ba_result['loa_high']:.3f}")
                 if _deming_result:
                     bc3.metric(_t['comparison_deming_label'], f"y={_deming_result['slope']:.3f}x+{_deming_result['intercept']:.3f}")
+
+                # ── Assumption checks (normality, proportional bias) ──────────────
+                if not np.isnan(_ba_result["shapiro_p"]):
+                    if _ba_result["shapiro_p"] >= 0.05:
+                        st.success(_t['comparison_normality_ok'].format(p=_ba_result["shapiro_p"]))
+                    else:
+                        st.warning(_t['comparison_normality_warn'].format(p=_ba_result["shapiro_p"]))
+                if not np.isnan(_ba_result["proportional_bias_p"]):
+                    if _ba_result["proportional_bias_p"] >= 0.05:
+                        st.success(_t['comparison_prop_bias_ok'].format(p=_ba_result["proportional_bias_p"]))
+                    else:
+                        st.warning(_t['comparison_prop_bias_warn'].format(
+                            slope=_ba_result["proportional_bias_slope"], p=_ba_result["proportional_bias_p"]))
+
+                # ── Regression method comparison table (Deming vs Passing-Bablok) ──
+                if _deming_result or _pb_result:
+                    st.markdown(f"**{_t['comparison_deming_label']} vs {_t['comparison_pb_label']}**")
+                    _reg_rows = []
+                    if _deming_result:
+                        _slope_ci = (f"{_deming_result['slope_ci_low']:.4f}–{_deming_result['slope_ci_high']:.4f}"
+                                      if not np.isnan(_deming_result['slope_ci_low']) else "—")
+                        _int_ci = (f"{_deming_result['intercept_ci_low']:.4f}–{_deming_result['intercept_ci_high']:.4f}"
+                                   if not np.isnan(_deming_result['intercept_ci_low']) else "—")
+                        _reg_rows.append({
+                            "Method": _t['comparison_deming_label'],
+                            "Slope": round(_deming_result["slope"], 4),
+                            f"Slope {_t['comparison_deming_ci_label']}": _slope_ci,
+                            "Intercept": round(_deming_result["intercept"], 4),
+                            "Intercept 95% CI": _int_ci,
+                        })
+                    if _pb_result:
+                        _reg_rows.append({
+                            "Method": _t['comparison_pb_label'],
+                            "Slope": round(_pb_result["slope"], 4),
+                            f"Slope {_t['comparison_deming_ci_label']}": "—",
+                            "Intercept": round(_pb_result["intercept"], 4),
+                            "Intercept 95% CI": "—",
+                        })
+                    st.dataframe(pd.DataFrame(_reg_rows), use_container_width=True)
+                    st.caption(_t['comparison_pb_note'])
 
                 fig_ba = go.Figure()
                 fig_ba.add_trace(go.Scatter(x=_ba_result["means"], y=_ba_result["diffs"], mode="markers",
@@ -4348,12 +4699,18 @@ with tab_clinical:
                                       yaxis_title="Difference (M2-M1)", height=380)
                 st.plotly_chart(fig_ba, use_container_width=True, key="ba_chart")
 
-                if _deming_result:
+                if _deming_result or _pb_result:
                     fig_dem = go.Figure()
                     fig_dem.add_trace(go.Scatter(x=_m1_arr, y=_m2_arr, mode="markers", marker=dict(color="#00796b"), name="Data"))
                     _x_line = np.array([min(_m1_arr), max(_m1_arr)])
-                    _y_line = _deming_result["slope"] * _x_line + _deming_result["intercept"]
-                    fig_dem.add_trace(go.Scatter(x=_x_line, y=_y_line, mode="lines", line=dict(color="red"), name="Deming fit"))
+                    if _deming_result:
+                        _y_line = _deming_result["slope"] * _x_line + _deming_result["intercept"]
+                        fig_dem.add_trace(go.Scatter(x=_x_line, y=_y_line, mode="lines", line=dict(color="red"),
+                                                      name=_t['comparison_deming_label']))
+                    if _pb_result:
+                        _y_line_pb = _pb_result["slope"] * _x_line + _pb_result["intercept"]
+                        fig_dem.add_trace(go.Scatter(x=_x_line, y=_y_line_pb, mode="lines", line=dict(color="blue", dash="dot"),
+                                                      name=_t['comparison_pb_label']))
                     fig_dem.update_layout(title=_t['comparison_deming_chart_title'], xaxis_title="Method 1",
                                            yaxis_title="Method 2", height=380)
                     st.plotly_chart(fig_dem, use_container_width=True, key="deming_chart")
@@ -4398,6 +4755,8 @@ with tab_crm:
                 else:
                     st.error(_t['homog_result_inhomogeneous'].format(
                         F=_homog_result["F"], fcrit=_homog_result["F_crit"], p=_homog_result["p_value"]))
+                if not _homog_result["is_balanced"]:
+                    st.info(_t['unbalanced_design_note'].format(n_list=_homog_result["n_per_unit"]))
 
                 hc1, hc2, hc3 = st.columns(3)
                 hc1.metric(_t['homog_grand_mean_label'], f"{_homog_result['grand_mean']:.5f}")
@@ -4572,7 +4931,7 @@ with tab_crm:
                 description=_coa_traceability,
                 summary_rows=_coa_summary_rows,
                 table_header=None, table_rows=None, chart_png_bytes=None, chart_caption=None,
-                footer_note=("This certificate was generated by AbsoluteGene for research and internal "
+                footer_note=(f"This certificate was generated by AbsoluteGene v{APP_VERSION} for research and internal "
                               "documentation purposes. It does not constitute a formally accredited "
                               "Certificate of Analysis under ISO 17034 unless issued by an accredited "
                               "reference material producer following full validation."),

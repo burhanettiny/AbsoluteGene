@@ -1,0 +1,6 @@
+# Additional dependencies for running the regression test suite
+# (test_absolutegene.py). Install alongside requirements.txt:
+#   pip install -r requirements.txt -r requirements-dev.txt
+# Then run:
+#   pytest test_absolutegene.py -v
+pytest>=7.4.0

@@ -2943,30 +2943,59 @@ with tab_data:
             f"🧬 {_t['target_gene']} {i+1}</h4>", unsafe_allow_html=True
         )
 
-        # ── Control group input ──────────────────────────────────────────────
-        st.markdown(f"**{_t['control_group']} — {_t['target_gene']} {i+1}**")
-        cc1, cc2 = st.columns(2)
-        with cc1:
+        # ── Side-by-side input row: Control | Group 1 | Group 2 | ... ────────
+        # (Laid out this way so users can paste a Control column and Patient
+        # column(s) directly next to each other, matching how the data is
+        # usually laid out in a spreadsheet.)
+        _n_entry_cols = 1 + num_patient_groups
+        _entry_cols = st.columns(_n_entry_cols)
+
+        with _entry_cols[0]:
+            st.markdown(f"**{_t['control_group']}**")
             ctrl_target_pos_txt = _ta(
                 f"Control {i+1} — {_t['positive_partitions']} ({_t['target_gene']})", f"ctrl_tgt_pos_{i}"
             )
-        with cc2:
             ctrl_target_tot_txt = _ta(
                 f"Control {i+1} — {_t['total_partitions']} ({_t['target_gene']})", f"ctrl_tgt_tot_{i}"
             )
-        ctrl_dilution_factor = render_dilution_input(f"ctrl_{i}")
-
-        ctrl_ref_pos_txts, ctrl_ref_tot_txts = [], []
-        for r in range(num_ref_genes):
-            rc1, rc2 = st.columns(2)
-            ref_lbl = f"{_t['reference_gene']} {r+1}" if num_ref_genes > 1 else _t['reference_gene']
-            with rc1:
+            ctrl_dilution_factor = render_dilution_input(f"ctrl_{i}")
+            ctrl_ref_pos_txts, ctrl_ref_tot_txts = [], []
+            for r in range(num_ref_genes):
+                ref_lbl = f"{_t['reference_gene']} {r+1}" if num_ref_genes > 1 else _t['reference_gene']
                 rp = _ta(f"Control {i+1} — {_t['positive_partitions']} ({ref_lbl})", f"ctrl_ref_pos_{i}_{r}")
-            with rc2:
                 rt = _ta(f"Control {i+1} — {_t['total_partitions']} ({ref_lbl})", f"ctrl_ref_tot_{i}_{r}")
-            ctrl_ref_pos_txts.append(rp)
-            ctrl_ref_tot_txts.append(rt)
+                ctrl_ref_pos_txts.append(rp)
+                ctrl_ref_tot_txts.append(rt)
 
+        smp_target_pos_txts, smp_target_tot_txts = [], []
+        smp_dilution_factors = []
+        smp_ref_pos_txts_all, smp_ref_tot_txts_all = [], []
+        for j in range(num_patient_groups):
+            with _entry_cols[j + 1]:
+                st.markdown(f"**{_t['patient_group']} {j+1}**")
+                _pos_txt = _ta(
+                    f"Group {j+1} — {_t['positive_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_pos_{i}_{j}"
+                )
+                _tot_txt = _ta(
+                    f"Group {j+1} — {_t['total_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_tot_{i}_{j}"
+                )
+                _dil = render_dilution_input(f"smp_{i}_{j}")
+                _ref_pos_list, _ref_tot_list = [], []
+                for r in range(num_ref_genes):
+                    ref_lbl = f"{_t['reference_gene']} {r+1}" if num_ref_genes > 1 else _t['reference_gene']
+                    rp = _ta(f"Group {j+1} — {_t['positive_partitions']} ({ref_lbl})", f"smp_ref_pos_{i}_{j}_{r}")
+                    rt = _ta(f"Group {j+1} — {_t['total_partitions']} ({ref_lbl})", f"smp_ref_tot_{i}_{j}_{r}")
+                    _ref_pos_list.append(rp)
+                    _ref_tot_list.append(rt)
+                smp_target_pos_txts.append(_pos_txt)
+                smp_target_tot_txts.append(_tot_txt)
+                smp_dilution_factors.append(_dil)
+                smp_ref_pos_txts_all.append(_ref_pos_list)
+                smp_ref_tot_txts_all.append(_ref_tot_list)
+
+        st.divider()
+
+        # ── Control group processing (computation, full width) ───────────────
         ctrl_result = sync_and_compute(
             ctrl_target_pos_txt, ctrl_target_tot_txt, ctrl_ref_pos_txts, ctrl_ref_tot_txts,
             f"{_t['control_group']} {i+1}", f"ctrl_{i}"
@@ -3038,30 +3067,15 @@ with tab_data:
                         st.info(_t['ntc_zero_note'].format(n=int(lod_loq_result["ntc_tot_total"])))
                     st.caption(_t['loq_heuristic_note'])
 
-        # ── Patient groups ────────────────────────────────────────────────────
+        # ── Patient groups (computation + results, full width) ───────────────
         for j in range(num_patient_groups):
-            st.markdown(f"**{_t['patient_group']} {j+1} — {_t['target_gene']} {i+1}**")
-            pc1, pc2 = st.columns(2)
-            with pc1:
-                smp_target_pos_txt = _ta(
-                    f"Group {j+1} — {_t['positive_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_pos_{i}_{j}"
-                )
-            with pc2:
-                smp_target_tot_txt = _ta(
-                    f"Group {j+1} — {_t['total_partitions']} ({_t['target_gene']} {i+1})", f"smp_tgt_tot_{i}_{j}"
-                )
-            smp_dilution_factor = render_dilution_input(f"smp_{i}_{j}")
+            smp_target_pos_txt = smp_target_pos_txts[j]
+            smp_target_tot_txt = smp_target_tot_txts[j]
+            smp_dilution_factor = smp_dilution_factors[j]
+            smp_ref_pos_txts = smp_ref_pos_txts_all[j]
+            smp_ref_tot_txts = smp_ref_tot_txts_all[j]
 
-            smp_ref_pos_txts, smp_ref_tot_txts = [], []
-            for r in range(num_ref_genes):
-                rc1, rc2 = st.columns(2)
-                ref_lbl = f"{_t['reference_gene']} {r+1}" if num_ref_genes > 1 else _t['reference_gene']
-                with rc1:
-                    rp = _ta(f"Group {j+1} — {_t['positive_partitions']} ({ref_lbl})", f"smp_ref_pos_{i}_{j}_{r}")
-                with rc2:
-                    rt = _ta(f"Group {j+1} — {_t['total_partitions']} ({ref_lbl})", f"smp_ref_tot_{i}_{j}_{r}")
-                smp_ref_pos_txts.append(rp)
-                smp_ref_tot_txts.append(rt)
+            st.markdown(f"**{_t['patient_group']} {j+1} — {_t['target_gene']} {i+1}**")
 
             smp_result = sync_and_compute(
                 smp_target_pos_txt, smp_target_tot_txt, smp_ref_pos_txts, smp_ref_tot_txts,
@@ -3293,6 +3307,7 @@ with tab_data:
                 "__stock_conc_smp_hi__": stock_conc_smp_hi, "__dynamic_range_flag__": dynamic_range_flag,
                 "__lambda_smp_mean__": _mean_lam_smp, "__poisson_rel_se_pct__": _poisson_rel_se_pct,
             })
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MULTI-GROUP ANALYSIS (≥3 groups per gene) — omnibus + post-hoc + correction

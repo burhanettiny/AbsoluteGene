@@ -14,6 +14,10 @@ from reportlab.pdfbase import pdfmetrics
 import matplotlib.pyplot as plt
 import os
 import json
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from openpyxl.formatting.rule import CellIsRule
 
 APP_VERSION = "1.3.0"  # bump on any change to calculation logic or statistical methods
 
@@ -97,6 +101,11 @@ translations = {
         "total_partitions": "Toplam Kabul Edilen Partisyon Sayısı",
         "input_format_info": "ℹ️ Her satıra bir replikat gelecek şekilde girin. 'Pozitif' ve 'Toplam' kutularındaki satır sayıları eşleşmelidir.",
         "warning_empty_input": "⚠️ Dikkat: Verileri alt alta yazın; Pozitif ve Toplam kutularındaki satır sayısı eşit olmalı.",
+        "warning_field_empty": "⚠️ Bir veya birden fazla gerekli alan boş bırakılmış (Hedef Pozitif/Toplam veya Referans Gen Pozitif/Toplam). Lütfen tüm kutulara veri girin.",
+        "warning_all_excluded_qc": "⚠️ Girilen tüm replikatlar **düşük partisyon sayısı (QC eşiği: {thr})** nedeniyle elendi — hiçbiri analiz edilemedi. Eşiği düşürmeyi (Çalışma Tasarımı ayarlarından) veya verileri kontrol etmeyi düşünün.",
+        "warning_all_excluded_saturated": "⚠️ Girilen tüm replikatlar **doygun** (tüm partisyonlar pozitif, λ hesaplanamıyor) — hiçbiri analiz edilemedi. Örneğin daha fazla seyreltilmesi gerekebilir.",
+        "warning_all_excluded_outlier": "⚠️ Girilen tüm replikatlar **aykırı değer olarak işaretlenip dışlandı** — hiçbiri analiz için kalmadı. Aykırı değer onay kutularınızı kontrol edin.",
+        "warning_all_excluded_mixed": "⚠️ Girilen tüm replikatlar elendi (QC/doygunluk/aykırı değer kombinasyonu nedeniyle) — hiçbiri analiz edilemedi. Detaylar için Sonuçlar sekmesindeki Giriş Verileri Tablosu'na bakın.",
         "qc_fail_warning": "⚠️ **Düşük partisyon sayısı uyarısı:** {n} replikat, minimum eşik ({thr}) altında kabul edilen partisyona sahip. Bu replikatlar analiz için düşük güvenilirlikte olabilir.",
         "saturation_warning": "⚠️ **Doygunluk uyarısı:** {n} replikatta tüm partisyonlar pozitif (p≥1.0) — λ hesaplanamıyor. Örneğin daha fazla seyreltilmesi gerekiyor.",
         "gr_tbl": "📋 Giriş Verileri Tablosu (λ ve %95 GA dahil)",
@@ -278,6 +287,22 @@ translations = {
         "project_import_uploader": "Proje dosyası yükleyin (.json)",
         "project_import_success": "✅ Proje yüklendi ({n} alan geri yüklendi)! Veri Girişi sekmesine geçin.",
         "project_import_error": "❌ Proje dosyası okunamadı: {err}",
+        "history_expander": "📚 Oturum Geçmişi (Anlık Görüntüler)",
+        "history_description": "Mevcut çalışma durumunuzun adlandırılmış anlık görüntülerini bu oturum içinde kaydedip geri yükleyebilirsiniz. ⚠️ Bunlar yalnızca bu tarayıcı oturumunda saklanır — sayfayı yenilerseniz kaybolur. Kalıcı saklama için yukarıdaki 'Projeyi Dışa Aktar' ile JSON indirin.",
+        "history_name_label": "Anlık görüntü adı",
+        "history_save_btn": "📌 Şu Anki Durumu Kaydet",
+        "history_saved_success": "✅ '{name}' kaydedildi.",
+        "history_select_label": "Kayıtlı anlık görüntüler",
+        "history_restore_btn": "↩️ Geri Yükle",
+        "history_download_btn": "📥 İndir",
+        "history_delete_btn": "🗑️ Sil",
+        "history_restore_success": "✅ Anlık görüntü geri yüklendi ({n} alan). Veri Girişi sekmesine geçin.",
+        "history_no_snapshots": "Henüz kaydedilmiş anlık görüntü yok.",
+        "advanced_mode_label": "🎓 Gelişmiş Mod",
+        "advanced_mode_help": "Klinik Araçlar ve CRM Üretimi sekmeleri ile Multipleks Dönüştürücü ve NTC/LOD-LOQ gibi ileri düzey araçları gösterir. Kapalıyken sadece temel dPCR analiz akışı (Veri Girişi → Sonuçlar → Rapor) görünür.",
+        "simple_mode_caption": "ℹ️ Basit Mod aktif — sadece temel analiz akışı görünüyor. İleri düzey araçlar (Klinik/CRM/Multipleks) için Gelişmiş Modu açın.",
+        "advanced_gate_title": "🎓 Bu Gelişmiş Bir Araçtır",
+        "advanced_gate_message": "Bu sekme, ileri düzey istatistiksel/metrolojik araçlar içerir (ölçüm belirsizliği, homojenlik testi, yöntem karşılaştırma vb.). Kullanmak için sol kenar çubuğundaki **Gelişmiş Mod**'u açın.",
         "batch_pdf_btn": "📥 Tarama Raporunu PDF Olarak Hazırla",
         "batch_pdf_report": "Toplu Numune Tarama Raporu",
         "batch_pdf_description": "Bu rapor, her numune için Poisson istatistiğine dayalı λ, normalize oran, %95 güven aralığı ve beklenen orana göre sınıflandırmayı içerir. Sınıflandırma, örneğin oran güven aralığının beklenen (değişim-yok) değeri içerip içermediğine göre belirlenir.",
@@ -440,6 +465,9 @@ translations = {
         "lims_instrument_label": "Cihaz",
         "lims_run_date_label": "Çalışma Tarihi",
         "lims_export_btn": "📥 LIMS Formatında Dışa Aktar (CSV)",
+        "excel_export_title": "📊 Biçimlendirilmiş Excel Raporu",
+        "excel_export_description": "Özet, Giriş Verileri, Sonuçlar ve İstatistik sayfalarını içeren, renk kodlu (yukarı regüle=kırmızı, aşağı regüle=mavi, dışlanan replikat=sarı, anlamlı sonuç=yeşil) biçimlendirilmiş bir .xlsx dosyası indirin.",
+        "excel_export_btn": "📥 Excel Raporunu İndir (.xlsx)",
         "lims_col_sample_id": "Sample_ID",
         "lims_col_test_code": "Test_Code",
         "lims_col_analyte": "Analyte",
@@ -489,6 +517,10 @@ translations = {
         "batch_download_btn": "📥 Tarama Sonuçlarını İndir (CSV)",
         "batch_no_data": "Sonuç yok — önce dosya yükleyip taramayı çalıştırın.",
         "batch_n_flagged": "{n} / {total} numune beklenen orandan istatistiksel olarak anlamlı şekilde farklı (%95 GA değişim-yok değerini içermiyor).",
+        "batch_multi_gene_help": "Birden fazla hedef gen seçerseniz, sonuçlar sekmesinde tüm genler × örnekler için bir ısı haritası otomatik olarak oluşturulur.",
+        "batch_heatmap_title": "🌡️ Çoklu Gen Isı Haritası",
+        "batch_heatmap_description": "Seçilen tüm hedef genler için örnekler arası Kopya Sayısı veya Oran değerlerini tek bir ızgarada gösterir — kohort genelinde örüntüleri (örn. belirli örneklerde çoklu gen kazanımı) hızlıca tespit etmeye yardımcı olur.",
+        "batch_heatmap_metric_label": "Gösterilecek metrik",
         "tab_vaf": "VAF Hesaplayıcı",
         "vaf_title": "🧬 VAF / Mutasyon Fraksiyonu Hesaplayıcı",
         "vaf_description": "Likit biyopsi / ctDNA izleme için tasarlanmıştır. Mutant ve Wild-type (yabanıl tip) assay'lerini içeren bir CSV yükleyin; her örnek için Fraksiyonel Bolluk (FA%, varyant allel fraksiyonu) ve %95 güven aralığı hesaplanır.",
@@ -547,6 +579,11 @@ translations = {
         "total_partitions": "Total Accepted Partition Count",
         "input_format_info": "ℹ️ Enter one replicate per line. The number of lines in 'Positive' and 'Total' boxes must match.",
         "warning_empty_input": "⚠️ Warning: Enter data one value per line; the number of lines in Positive and Total boxes must be equal.",
+        "warning_field_empty": "⚠️ One or more required fields are empty (Target Positive/Total or a Reference Gene Positive/Total). Please enter data in all boxes.",
+        "warning_all_excluded_qc": "⚠️ All entered replicates were excluded due to **low partition count (QC threshold: {thr})** — none could be analyzed. Consider lowering the threshold (in Study Design settings) or checking your data.",
+        "warning_all_excluded_saturated": "⚠️ All entered replicates are **saturated** (all partitions positive, λ cannot be calculated) — none could be analyzed. The sample may need further dilution.",
+        "warning_all_excluded_outlier": "⚠️ All entered replicates were **flagged and excluded as outliers** — none remain for analysis. Check your outlier exclusion checkboxes.",
+        "warning_all_excluded_mixed": "⚠️ All entered replicates were excluded (a mix of QC/saturation/outlier reasons) — none could be analyzed. See the Input Data Table in the Results tab for details.",
         "qc_fail_warning": "⚠️ **Low partition count warning:** {n} replicate(s) have accepted partitions below the minimum threshold ({thr}). These replicates may have reduced reliability.",
         "saturation_warning": "⚠️ **Saturation warning:** {n} replicate(s) have all partitions positive (p≥1.0) — λ cannot be calculated. Further dilution is recommended.",
         "gr_tbl": "📋 Input Data Table (incl. λ and 95% CI)",
@@ -728,6 +765,22 @@ translations = {
         "project_import_uploader": "Upload project file (.json)",
         "project_import_success": "✅ Project loaded ({n} fields restored)! Switch to the Data Entry tab.",
         "project_import_error": "❌ Could not read project file: {err}",
+        "history_expander": "📚 Session History (Snapshots)",
+        "history_description": "Save and restore named snapshots of your current work state within this session. ⚠️ These are only stored in this browser session — they're lost if you refresh the page. For permanent storage, use 'Export Project' above to download a JSON file.",
+        "history_name_label": "Snapshot name",
+        "history_save_btn": "📌 Save Current State",
+        "history_saved_success": "✅ '{name}' saved.",
+        "history_select_label": "Saved snapshots",
+        "history_restore_btn": "↩️ Restore",
+        "history_download_btn": "📥 Download",
+        "history_delete_btn": "🗑️ Delete",
+        "history_restore_success": "✅ Snapshot restored ({n} fields). Switch to the Data Entry tab.",
+        "history_no_snapshots": "No snapshots saved yet.",
+        "advanced_mode_label": "🎓 Advanced Mode",
+        "advanced_mode_help": "Shows the Clinical Tools and CRM Production tabs, plus advanced tools like the Multiplex Converter and NTC/LOD-LOQ. When off, only the basic dPCR analysis flow (Data Entry → Results → Report) is shown.",
+        "simple_mode_caption": "ℹ️ Simple Mode is active — only the basic analysis flow is shown. Turn on Advanced Mode for clinical/CRM/multiplex tools.",
+        "advanced_gate_title": "🎓 This is an Advanced Tool",
+        "advanced_gate_message": "This tab contains advanced statistical/metrology tools (measurement uncertainty, homogeneity testing, method comparison, etc.). Turn on **Advanced Mode** in the left sidebar to use it.",
         "batch_pdf_btn": "📥 Prepare Screening Report (PDF)",
         "batch_pdf_report": "Batch Sample Screening Report",
         "batch_pdf_description": "This report includes, for each sample, the Poisson-derived λ, normalized ratio, 95% confidence interval, and classification relative to the expected ratio. Classification is based on whether the sample's ratio confidence interval includes the expected (no-change) value.",
@@ -882,6 +935,9 @@ translations = {
         "lims_instrument_label": "Instrument",
         "lims_run_date_label": "Run Date",
         "lims_export_btn": "📥 Export in LIMS Format (CSV)",
+        "excel_export_title": "📊 Formatted Excel Report",
+        "excel_export_description": "Download a formatted .xlsx file with Summary, Input Data, Results, and Statistics sheets, color-coded (upregulated=red, downregulated=blue, excluded replicate=yellow, significant result=green).",
+        "excel_export_btn": "📥 Download Excel Report (.xlsx)",
         "lims_col_sample_id": "Sample_ID",
         "lims_col_test_code": "Test_Code",
         "lims_col_analyte": "Analyte",
@@ -931,6 +987,10 @@ translations = {
         "batch_download_btn": "📥 Download Screening Results (CSV)",
         "batch_no_data": "No results yet — upload a file and run the screening first.",
         "batch_n_flagged": "{n} / {total} samples are statistically significantly different from the expected ratio (95% CI does not include the no-change value).",
+        "batch_multi_gene_help": "If you select multiple target genes, a heatmap across all genes × samples is automatically generated in the results section.",
+        "batch_heatmap_title": "🌡️ Multi-Gene Heatmap",
+        "batch_heatmap_description": "Shows Copy Number or Ratio values for all selected target genes across samples in a single grid — helps quickly spot patterns across a cohort (e.g. multi-gene gain in specific samples).",
+        "batch_heatmap_metric_label": "Metric to display",
         "tab_vaf": "VAF Calculator",
         "vaf_title": "🧬 VAF / Mutation Fraction Calculator",
         "vaf_description": "Designed for liquid biopsy / ctDNA monitoring. Upload a CSV containing Mutant and Wild-type assays; the Fractional Abundance (FA%, variant allele fraction) with 95% CI is calculated for each sample.",
@@ -2400,6 +2460,17 @@ st.markdown(
 )
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# SIDEBAR — Simple / Advanced Mode toggle
+# ═══════════════════════════════════════════════════════════════════════════════
+advanced_mode = st.sidebar.toggle(
+    _t['advanced_mode_label'], value=False, key="advanced_mode",
+    help=_t['advanced_mode_help']
+)
+if not advanced_mode:
+    st.sidebar.caption(_t['simple_mode_caption'])
+st.sidebar.divider()
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # SIDEBAR — User guide, links
 # ═══════════════════════════════════════════════════════════════════════════════
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -2523,6 +2594,54 @@ with st.sidebar.expander(_t['project_expander'], expanded=False):
             st.success(_t['project_import_success'].format(n=_n_restored))
         except Exception as _e:
             st.error(_t['project_import_error'].format(err=str(_e)))
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SIDEBAR — Session History Panel (in-session snapshots, not persisted across
+# browser reloads — Streamlit has no server-side storage without extra infra;
+# for permanent storage use the JSON Export/Import above instead).
+# ═══════════════════════════════════════════════════════════════════════════════
+with st.sidebar.expander(_t['history_expander'], expanded=False):
+    st.caption(_t['history_description'])
+    if "_history_snapshots" not in st.session_state:
+        st.session_state["_history_snapshots"] = []
+
+    _hist_name_default = f"Snapshot {len(st.session_state['_history_snapshots']) + 1}"
+    _hist_name = st.text_input(_t['history_name_label'], value=_hist_name_default, key="history_name_input")
+    if st.button(_t['history_save_btn'], key="history_save_btn", use_container_width=True):
+        import datetime as _dt_hist
+        st.session_state["_history_snapshots"].append({
+            "name": _hist_name or _hist_name_default,
+            "timestamp": _dt_hist.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "data": export_project_state(),
+        })
+        st.success(_t['history_saved_success'].format(name=_hist_name or _hist_name_default))
+
+    _snapshots = st.session_state["_history_snapshots"]
+    if _snapshots:
+        st.markdown("---")
+        _snapshot_labels = [f"{s['name']} ({s['timestamp']})" for s in _snapshots]
+        _selected_snapshot_idx = st.selectbox(
+            _t['history_select_label'], options=range(len(_snapshots)),
+            format_func=lambda i: _snapshot_labels[i], key="history_select"
+        )
+        hcol1, hcol2, hcol3 = st.columns(3)
+        with hcol1:
+            if st.button(_t['history_restore_btn'], key="history_restore_btn", use_container_width=True):
+                _n = import_project_state(_snapshots[_selected_snapshot_idx]["data"])
+                st.success(_t['history_restore_success'].format(n=_n))
+        with hcol2:
+            st.download_button(
+                _t['history_download_btn'],
+                data=json.dumps(_snapshots[_selected_snapshot_idx]["data"], ensure_ascii=False, indent=2).encode("utf-8"),
+                file_name=f"{_snapshots[_selected_snapshot_idx]['name'].replace(' ', '_')}.json",
+                mime="application/json", key="history_download_btn", use_container_width=True
+            )
+        with hcol3:
+            if st.button(_t['history_delete_btn'], key="history_delete_btn", use_container_width=True):
+                st.session_state["_history_snapshots"].pop(_selected_snapshot_idx)
+                st.rerun()
+    else:
+        st.caption(_t['history_no_snapshots'])
 
 guide_clicked = st.sidebar.button(_t['guide_btn'], use_container_width=True)
 if guide_clicked:
@@ -2761,44 +2880,45 @@ with tab_data:
                     st.error(_t['dilution_result_saturated'].format(lam=_lam, factor=_factor))
                 st.caption(_t['dilution_factor_note'])
 
-    # ── 2-Color Multiplex Cluster Converter ───────────────────────────────────
-    with st.expander(_t['multiplex_expander'], expanded=False):
-        st.caption(_t['multiplex_description'])
-        mx_c1, mx_c2, mx_c3, mx_c4 = st.columns(4)
-        with mx_c1:
-            _mx_n11 = st.number_input(_t['multiplex_n11_label'], min_value=0, value=1500, step=10, key="mx_n11")
-        with mx_c2:
-            _mx_n10 = st.number_input(_t['multiplex_n10_label'], min_value=0, value=400, step=10, key="mx_n10")
-        with mx_c3:
-            _mx_n01 = st.number_input(_t['multiplex_n01_label'], min_value=0, value=300, step=10, key="mx_n01")
-        with mx_c4:
-            _mx_n00 = st.number_input(_t['multiplex_n00_label'], min_value=0, value=17800, step=10, key="mx_n00")
+    # ── 2-Color Multiplex Cluster Converter (advanced) ────────────────────────
+    if advanced_mode:
+        with st.expander(_t['multiplex_expander'], expanded=False):
+            st.caption(_t['multiplex_description'])
+            mx_c1, mx_c2, mx_c3, mx_c4 = st.columns(4)
+            with mx_c1:
+                _mx_n11 = st.number_input(_t['multiplex_n11_label'], min_value=0, value=1500, step=10, key="mx_n11")
+            with mx_c2:
+                _mx_n10 = st.number_input(_t['multiplex_n10_label'], min_value=0, value=400, step=10, key="mx_n10")
+            with mx_c3:
+                _mx_n01 = st.number_input(_t['multiplex_n01_label'], min_value=0, value=300, step=10, key="mx_n01")
+            with mx_c4:
+                _mx_n00 = st.number_input(_t['multiplex_n00_label'], min_value=0, value=17800, step=10, key="mx_n00")
 
-        if st.button(_t['multiplex_calc_btn'], key="mx_calc_btn"):
-            _mx_result = compute_multiplex_cluster(_mx_n11, _mx_n10, _mx_n01, _mx_n00)
-            if _mx_result is None:
-                st.error("Invalid input — check that counts are non-negative and total > 0.")
-            else:
-                st.markdown(_t['multiplex_result_title'])
-                mxc1, mxc2, mxc3 = st.columns(3)
-                mxc1.metric(_t['multiplex_pos_target_label'], _mx_result["pos_target"])
-                mxc2.metric(_t['multiplex_pos_ref_label'], _mx_result["pos_ref"])
-                mxc3.metric(_t['multiplex_total_label'], _mx_result["N"])
+            if st.button(_t['multiplex_calc_btn'], key="mx_calc_btn"):
+                _mx_result = compute_multiplex_cluster(_mx_n11, _mx_n10, _mx_n01, _mx_n00)
+                if _mx_result is None:
+                    st.error("Invalid input — check that counts are non-negative and total > 0.")
+                else:
+                    st.markdown(_t['multiplex_result_title'])
+                    mxc1, mxc2, mxc3 = st.columns(3)
+                    mxc1.metric(_t['multiplex_pos_target_label'], _mx_result["pos_target"])
+                    mxc2.metric(_t['multiplex_pos_ref_label'], _mx_result["pos_ref"])
+                    mxc3.metric(_t['multiplex_total_label'], _mx_result["N"])
 
-                mxr1, mxr2 = st.columns(2)
-                mxr1.metric(
-                    _t['multiplex_ratio_covaware'],
-                    f"{_mx_result['ratio']:.4f}",
-                    delta=f"{_mx_result['ci_low']:.4f}–{_mx_result['ci_high']:.4f}",
-                    delta_color="off"
-                )
-                mxr2.metric(
-                    _t['multiplex_ratio_indep'],
-                    f"{_mx_result['ratio']:.4f}",
-                    delta=f"{_mx_result['ci_low_indep']:.4f}–{_mx_result['ci_high_indep']:.4f}",
-                    delta_color="off"
-                )
-                st.info(_t['multiplex_paste_hint'])
+                    mxr1, mxr2 = st.columns(2)
+                    mxr1.metric(
+                        _t['multiplex_ratio_covaware'],
+                        f"{_mx_result['ratio']:.4f}",
+                        delta=f"{_mx_result['ci_low']:.4f}–{_mx_result['ci_high']:.4f}",
+                        delta_color="off"
+                    )
+                    mxr2.metric(
+                        _t['multiplex_ratio_indep'],
+                        f"{_mx_result['ratio']:.4f}",
+                        delta=f"{_mx_result['ci_low_indep']:.4f}–{_mx_result['ci_high_indep']:.4f}",
+                        delta_color="off"
+                    )
+                    st.info(_t['multiplex_paste_hint'])
 
     st.markdown(
         f"<div style='font-size:15px;font-weight:700;color:#004d40;margin-bottom:6px;'>"
@@ -2931,6 +3051,32 @@ with tab_data:
             "tot_target_kept": tot_t[kept] if kept else np.array([]),
         }
 
+    def show_exclusion_diagnosis(result_dict):
+        """
+        When sync_and_compute returns a valid (non-None) result but zero
+        replicates survived processing, this shows a diagnostic message
+        that actually explains WHY (all QC-failed / all saturated / all
+        outlier-excluded / a mix) instead of a generic, potentially
+        misleading message about mismatched line counts (which is not
+        actually what happened in this case — the input parsed fine).
+        """
+        rows = result_dict["detail_rows"] if result_dict else []
+        if not rows:
+            st.error(_t['warning_field_empty'])
+            return
+        n = len(rows)
+        n_qc = sum(1 for r in rows if r["qc_fail"])
+        n_sat = sum(1 for r in rows if r["target_status"] == "saturated")
+        n_excl = sum(1 for r in rows if r["excluded"])
+        if n_qc == n:
+            st.error(_t['warning_all_excluded_qc'].format(thr=int(qc_min_partitions)))
+        elif n_sat == n:
+            st.error(_t['warning_all_excluded_saturated'])
+        elif n_excl == n:
+            st.error(_t['warning_all_excluded_outlier'])
+        else:
+            st.error(_t['warning_all_excluded_mixed'])
+
     def _ta(label, key):
         """text_area wrapper that avoids the Streamlit session-state/value conflict warning."""
         kwargs = {} if key in st.session_state else {"value": ""}
@@ -3000,8 +3146,11 @@ with tab_data:
             ctrl_target_pos_txt, ctrl_target_tot_txt, ctrl_ref_pos_txts, ctrl_ref_tot_txts,
             f"{_t['control_group']} {i+1}", f"ctrl_{i}"
         )
-        if ctrl_result is None or len(ctrl_result["kept"]) == 0:
-            st.error(_t['warning_empty_input'])
+        if ctrl_result is None:
+            st.error(_t['warning_field_empty'])
+            continue
+        if len(ctrl_result["kept"]) == 0:
+            show_exclusion_diagnosis(ctrl_result)
             continue
 
         # ── geNorm-style reference stability (control) ──────────────────────
@@ -3038,34 +3187,35 @@ with tab_data:
 
         avg_ctrl_ratio = float(np.mean(ctrl_result["ratio_kept"])) if len(ctrl_result["ratio_kept"]) > 0 else None
 
-        # ── NTC / LOD-LOQ (optional) ──────────────────────────────────────────
+        # ── NTC / LOD-LOQ (optional, advanced) ────────────────────────────────
         lod_loq_result = None
-        with st.expander(_t['ntc_expander'], expanded=False):
-            st.caption(_t['ntc_description'])
-            ntc_c1, ntc_c2 = st.columns(2)
-            with ntc_c1:
-                ntc_pos_txt = _ta(f"{_t['ntc_positive_label']} — {_t['target_gene']} {i+1}", f"ntc_pos_{i}")
-            with ntc_c2:
-                ntc_tot_txt = _ta(f"{_t['ntc_total_label']} — {_t['target_gene']} {i+1}", f"ntc_tot_{i}")
+        if advanced_mode:
+            with st.expander(_t['ntc_expander'], expanded=False):
+                st.caption(_t['ntc_description'])
+                ntc_c1, ntc_c2 = st.columns(2)
+                with ntc_c1:
+                    ntc_pos_txt = _ta(f"{_t['ntc_positive_label']} — {_t['target_gene']} {i+1}", f"ntc_pos_{i}")
+                with ntc_c2:
+                    ntc_tot_txt = _ta(f"{_t['ntc_total_label']} — {_t['target_gene']} {i+1}", f"ntc_tot_{i}")
 
-            ntc_pos_arr = parse_input_data(ntc_pos_txt)
-            ntc_tot_arr = parse_input_data(ntc_tot_txt)
-            if len(ntc_pos_arr) > 0 and len(ntc_tot_arr) > 0:
-                lod_loq_result = compute_lod_loq(ntc_pos_arr, ntc_tot_arr, partition_vol_nl)
-                if lod_loq_result is not None:
-                    _gene_label_lod = f"{_t['target_gene']} {i+1}"
-                    st.markdown(f"**{_t['lod_result_title'].format(gene=_gene_label_lod)}**")
-                    lod_c1, lod_c2 = st.columns(2)
-                    lod_c1.metric(_t['lod_label'], f"{lod_loq_result['lod_conc']:.2f}")
-                    lod_c2.metric(_t['loq_label'], f"{lod_loq_result['loq_conc']:.2f}")
-                    if lod_loq_result["contamination"]:
-                        st.warning(_t['ntc_contamination_warning'].format(
-                            lam=lod_loq_result["ntc_lambda"],
-                            pos=int(lod_loq_result["ntc_pos_total"]), tot=int(lod_loq_result["ntc_tot_total"])
-                        ))
-                    else:
-                        st.info(_t['ntc_zero_note'].format(n=int(lod_loq_result["ntc_tot_total"])))
-                    st.caption(_t['loq_heuristic_note'])
+                ntc_pos_arr = parse_input_data(ntc_pos_txt)
+                ntc_tot_arr = parse_input_data(ntc_tot_txt)
+                if len(ntc_pos_arr) > 0 and len(ntc_tot_arr) > 0:
+                    lod_loq_result = compute_lod_loq(ntc_pos_arr, ntc_tot_arr, partition_vol_nl)
+                    if lod_loq_result is not None:
+                        _gene_label_lod = f"{_t['target_gene']} {i+1}"
+                        st.markdown(f"**{_t['lod_result_title'].format(gene=_gene_label_lod)}**")
+                        lod_c1, lod_c2 = st.columns(2)
+                        lod_c1.metric(_t['lod_label'], f"{lod_loq_result['lod_conc']:.2f}")
+                        lod_c2.metric(_t['loq_label'], f"{lod_loq_result['loq_conc']:.2f}")
+                        if lod_loq_result["contamination"]:
+                            st.warning(_t['ntc_contamination_warning'].format(
+                                lam=lod_loq_result["ntc_lambda"],
+                                pos=int(lod_loq_result["ntc_pos_total"]), tot=int(lod_loq_result["ntc_tot_total"])
+                            ))
+                        else:
+                            st.info(_t['ntc_zero_note'].format(n=int(lod_loq_result["ntc_tot_total"])))
+                        st.caption(_t['loq_heuristic_note'])
 
         # ── Patient groups (computation + results, full width) ───────────────
         for j in range(num_patient_groups):
@@ -3081,8 +3231,11 @@ with tab_data:
                 smp_target_pos_txt, smp_target_tot_txt, smp_ref_pos_txts, smp_ref_tot_txts,
                 f"{_t['patient_group']} {j+1} — Gene {i+1}", f"smp_{i}_{j}"
             )
-            if smp_result is None or len(smp_result["kept"]) == 0:
-                st.error(_t['warning_empty_input'])
+            if smp_result is None:
+                st.error(_t['warning_field_empty'])
+                continue
+            if len(smp_result["kept"]) == 0:
+                show_exclusion_diagnosis(smp_result)
                 continue
 
             if num_ref_genes >= 2 and smp_result["ref_matrix_kept"].shape[1] >= 2:
@@ -3657,6 +3810,134 @@ with tab_results:
 # ═══════════════════════════════════════════════════════════════════════════════
 # PDF REPORT GENERATION
 # ═══════════════════════════════════════════════════════════════════════════════
+def create_excel_report(data, stats_data, input_values_table, lang):
+    """
+    Builds a formatted multi-sheet Excel workbook (openpyxl) with:
+      - Summary sheet (study parameters)
+      - Input Data sheet (raw replicate values, outlier rows highlighted red)
+      - Results sheet (Ratio/CN/Fold Change, conditionally colored by
+        regulation status: red=upregulated, blue=downregulated)
+      - Statistics sheet (p-values, significant results bolded/highlighted)
+    Column widths are auto-sized and headers are frozen/styled for a more
+    usable deliverable than a plain CSV.
+    """
+    wb = Workbook()
+
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    header_fill = PatternFill(start_color="00695C", end_color="00695C", fill_type="solid")
+    up_fill = PatternFill(start_color="FFCDD2", end_color="FFCDD2", fill_type="solid")
+    down_fill = PatternFill(start_color="BBDEFB", end_color="BBDEFB", fill_type="solid")
+    excluded_fill = PatternFill(start_color="FFF9C4", end_color="FFF9C4", fill_type="solid")
+    sig_fill = PatternFill(start_color="C8E6C9", end_color="C8E6C9", fill_type="solid")
+    thin_border = Border(*(Side(style="thin", color="CCCCCC"),) * 4)
+
+    def _write_sheet(ws, headers, rows, row_fill_fn=None):
+        for c, h in enumerate(headers, start=1):
+            cell = ws.cell(row=1, column=c, value=h)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            cell.border = thin_border
+        for r, row in enumerate(rows, start=2):
+            fill = row_fill_fn(row) if row_fill_fn else None
+            for c, h in enumerate(headers, start=1):
+                val = row.get(h, "")
+                if isinstance(val, float) and np.isnan(val):
+                    val = ""
+                cell = ws.cell(row=r, column=c, value=val)
+                cell.border = thin_border
+                if fill:
+                    cell.fill = fill
+        for c, h in enumerate(headers, start=1):
+            max_len = max([len(str(h))] + [len(str(row.get(h, ""))) for row in rows]) if rows else len(str(h))
+            ws.column_dimensions[get_column_letter(c)].width = min(max(max_len + 2, 10), 40)
+        ws.freeze_panes = "A2"
+
+    # ── Summary sheet ─────────────────────────────────────────────────────────
+    ws_summary = wb.active
+    ws_summary.title = "Summary"
+    n_genes = len(set(r["__gene__"] for r in data)) if data else 0
+    n_groups = len(set(r["__group__"] for r in data)) if data else 0
+    summary_rows = [
+        {"Parameter": "AbsoluteGene version", "Value": APP_VERSION},
+        {"Parameter": "Generated", "Value": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")},
+        {"Parameter": "Target genes analyzed", "Value": n_genes},
+        {"Parameter": "Patient groups", "Value": n_groups},
+        {"Parameter": "Total replicates", "Value": len(input_values_table)},
+        {"Parameter": "Calculation method", "Value": "Poisson statistics (dPCR, absolute quantification)"},
+    ]
+    _write_sheet(ws_summary, ["Parameter", "Value"], summary_rows)
+
+    # ── Input Data sheet ─────────────────────────────────────────────────────
+    if input_values_table:
+        ws_input = wb.create_sheet("Input Data")
+        headers = ["__gene__", "Grup", "__replicate__", "__positive__", "__total__",
+                   "__lambda__", "__conc__", "Outlier Excluded"]
+        rename = {"__gene__": "Gene", "Grup": "Group", "__replicate__": "Replicate #",
+                   "__positive__": "Positive", "__total__": "Total", "__lambda__": "Lambda",
+                   "__conc__": "Concentration (copies/uL)", "Outlier Excluded": "Status"}
+        clean_rows = [{rename[h]: row.get(h, "") for h in headers} for row in input_values_table]
+
+        def _input_fill(row):
+            status = str(row.get("Status", ""))
+            return excluded_fill if status.startswith(("Yes", "Evet")) else None
+
+        _write_sheet(ws_input, list(rename.values()), clean_rows, row_fill_fn=_input_fill)
+
+    # ── Results sheet ────────────────────────────────────────────────────────
+    if data:
+        ws_res = wb.create_sheet("Results")
+        headers = ["Gene", "Group", "Ratio (Control)", "Ratio (Sample)", "CN (Control)", "CN (Sample)",
+                    "Concentration (copies/uL)", "Fold Change", "Regulation"]
+        clean_rows = []
+        for r in data:
+            clean_rows.append({
+                "Gene": r["__gene__"], "Group": r["__group__"],
+                "Ratio (Control)": round(r["__ratio_ctrl__"], 4) if r["__ratio_ctrl__"] is not None else "",
+                "Ratio (Sample)": round(r["__ratio_smp__"], 4),
+                "CN (Control)": round(r["__cn_ctrl__"], 3) if r["__cn_ctrl__"] is not None else "",
+                "CN (Sample)": round(r["__cn_smp__"], 3),
+                "Concentration (copies/uL)": (round(r["__conc_smp__"], 1)
+                                               if r.get("__conc_smp__") is not None and not np.isnan(r["__conc_smp__"]) else ""),
+                "Fold Change": round(r["__fc__"], 4),
+                "Regulation": r["__regulation__"],
+            })
+
+        def _res_fill(row):
+            reg = str(row.get("Regulation", "")).lower()
+            if "up" in reg or "yukarı" in reg or "kazan" in reg or "gain" in reg:
+                return up_fill
+            if "down" in reg or "aşağı" in reg or "kayıp" in reg or "loss" in reg:
+                return down_fill
+            return None
+
+        _write_sheet(ws_res, headers, clean_rows, row_fill_fn=_res_fill)
+
+    # ── Statistics sheet ─────────────────────────────────────────────────────
+    if stats_data:
+        ws_stat = wb.create_sheet("Statistics")
+        headers = ["Gene", "Comparison", "Test Type", "Test Method", "p-value", "Significance"]
+        clean_rows = []
+        for r in stats_data:
+            pval = r.get("__pvalue__", float("nan"))
+            clean_rows.append({
+                "Gene": r["__gene__"], "Comparison": r.get("Comparison", ""),
+                "Test Type": r["__test_type__"], "Test Method": r["__test_method__"],
+                "p-value": round(pval, 4) if not np.isnan(pval) else "",
+                "Significance": r["__significance__"],
+            })
+
+        def _stat_fill(row):
+            return sig_fill if "significant" in str(row.get("Significance", "")).lower() and \
+                "insignificant" not in str(row.get("Significance", "")).lower() else None
+
+        _write_sheet(ws_stat, headers, clean_rows, row_fill_fn=_stat_fill)
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    return buffer
+
 def create_simple_pdf(report_title, subtitle, description, summary_rows, table_header,
                        table_rows, chart_png_bytes, chart_caption, footer_note, references=None):
     """
@@ -4143,11 +4424,13 @@ with tab_batch:
                 _batch_unique_targets = sorted(_batch_std_df["Target"].unique())
                 bacol1, bacol2 = st.columns(2)
                 with bacol1:
-                    _batch_target_assay = st.selectbox(
-                        _t['batch_target_label'], options=_batch_unique_targets, key="batch_target_assay"
+                    _batch_target_assays = st.multiselect(
+                        _t['batch_target_label'], options=_batch_unique_targets,
+                        default=_batch_unique_targets[:1] if _batch_unique_targets else [],
+                        key="batch_target_assays", help=_t['batch_multi_gene_help']
                     )
                 with bacol2:
-                    _batch_ref_options = [t for t in _batch_unique_targets if t != _batch_target_assay]
+                    _batch_ref_options = [t for t in _batch_unique_targets if t not in _batch_target_assays]
                     _batch_ref_assays = st.multiselect(
                         _t['batch_ref_label'], options=_batch_ref_options,
                         default=_batch_ref_options[:1] if _batch_ref_options else [],
@@ -4167,22 +4450,26 @@ with tab_batch:
                     )
                 _batch_dilution = render_dilution_input("batch")
 
-                if st.button(_t['batch_run_btn'], key="batch_run_btn", use_container_width=True) and _batch_ref_assays:
-                    _batch_results = pool_and_compute_batch(
-                        _batch_std_df, _batch_target_assay, _batch_ref_assays, partition_vol_nl
-                    )
-                    st.session_state["_batch_results_cache"] = _batch_results
+                if st.button(_t['batch_run_btn'], key="batch_run_btn", use_container_width=True) and _batch_ref_assays and _batch_target_assays:
+                    _batch_results_by_gene = {}
+                    for _assay in _batch_target_assays:
+                        _batch_results_by_gene[_assay] = pool_and_compute_batch(
+                            _batch_std_df, _assay, _batch_ref_assays, partition_vol_nl
+                        )
+                    st.session_state["_batch_results_by_gene_cache"] = _batch_results_by_gene
                     st.session_state["_batch_expected_ratio_cache"] = _batch_expected_ratio
                     st.session_state["_batch_ploidy_cache"] = _batch_ploidy
-                    st.session_state["_batch_target_assay_cache"] = _batch_target_assay
                     st.session_state["_batch_dilution_cache"] = _batch_dilution
 
     # ── Display cached results (persists across reruns/tab switches) ───────────
-    _batch_results = st.session_state.get("_batch_results_cache")
-    if _batch_results:
+    _batch_results_by_gene = st.session_state.get("_batch_results_by_gene_cache")
+    _batch_results = None
+    if _batch_results_by_gene:
+        _first_gene = list(_batch_results_by_gene.keys())[0]
+        _batch_results = _batch_results_by_gene[_first_gene]
         _exp_ratio = st.session_state.get("_batch_expected_ratio_cache", 1.0)
         _b_ploidy = st.session_state.get("_batch_ploidy_cache", 2)
-        _b_target_assay = st.session_state.get("_batch_target_assay_cache", "—")
+        _b_target_assay = _first_gene
         _b_dilution = st.session_state.get("_batch_dilution_cache", 1.0)
 
         st.markdown(f"#### {_t['batch_results_title']}")
@@ -4257,6 +4544,55 @@ with tab_batch:
             yaxis_title=_t['batch_col_ratio'], height=420, showlegend=False
         )
         st.plotly_chart(fig_batch, use_container_width=True, key="batch_screening_chart")
+
+        # ── Multi-gene heatmap (only when ≥2 target genes were analyzed) ───────
+        if len(_batch_results_by_gene) >= 2:
+            st.markdown("---")
+            st.markdown(f"#### {_t['batch_heatmap_title']}")
+            st.caption(_t['batch_heatmap_description'])
+
+            _heatmap_metric = st.radio(
+                _t['batch_heatmap_metric_label'],
+                options=[_t['batch_col_cn'], _t['batch_col_ratio']],
+                key="batch_heatmap_metric", horizontal=True
+            )
+
+            _all_genes = list(_batch_results_by_gene.keys())
+            _all_samples = sorted({r["Sample"] for res in _batch_results_by_gene.values() for r in res})
+            _matrix = np.full((len(_all_genes), len(_all_samples)), np.nan)
+            for _gi, _gene in enumerate(_all_genes):
+                _res_by_sample = {r["Sample"]: r for r in _batch_results_by_gene[_gene]}
+                for _si, _sample in enumerate(_all_samples):
+                    _r = _res_by_sample.get(_sample)
+                    if _r is not None:
+                        _val = _b_ploidy * _r["ratio"] if _heatmap_metric == _t['batch_col_cn'] else _r["ratio"]
+                        _matrix[_gi, _si] = _val
+
+            fig_heatmap = go.Figure(go.Heatmap(
+                z=_matrix, x=_all_samples, y=_all_genes,
+                colorscale="RdBu_r", zmid=_exp_ratio * (_b_ploidy if _heatmap_metric == _t['batch_col_cn'] else 1),
+                colorbar=dict(title=_heatmap_metric),
+                text=np.round(_matrix, 3), texttemplate="%{text}", textfont=dict(size=9),
+            ))
+            fig_heatmap.update_layout(
+                title=f"{_heatmap_metric} — {_t['batch_heatmap_title']}",
+                xaxis_title=_t['batch_col_sample'], yaxis_title=_t['batch_target_label'],
+                height=max(300, 60 * len(_all_genes) + 150)
+            )
+            st.plotly_chart(fig_heatmap, use_container_width=True, key="batch_heatmap_chart")
+
+            # Per-gene results in expanders (since the main table above only shows the first gene)
+            for _gene in _all_genes[1:]:
+                with st.expander(f"{_t['batch_results_title']} — {_gene}", expanded=False):
+                    _gene_rows = []
+                    for r in _batch_results_by_gene[_gene]:
+                        _gene_rows.append({
+                            _t['batch_col_sample']: r["Sample"],
+                            _t['batch_col_ratio']: round(r["ratio"], 4),
+                            _t['batch_col_cn']: round(_b_ploidy * r["ratio"], 3),
+                            _t['batch_col_conc']: round(r["conc"], 1),
+                        })
+                    st.dataframe(pd.DataFrame(_gene_rows), use_container_width=True)
 
         # ── PDF report ────────────────────────────────────────────────────────
         if st.button(_t['batch_pdf_btn'], key="batch_pdf_btn"):
@@ -4497,469 +4833,481 @@ with tab_clinical:
     st.caption(_t['clinical_description'])
     st.markdown("---")
 
-    clinical_mode = st.radio(
-        _t['clinical_mode_label'],
-        options=[_t['clinical_mode_mu'], _t['clinical_mode_rcv'],
-                 _t['clinical_mode_precision'], _t['clinical_mode_comparison']],
-        key="clinical_mode", horizontal=True
-    )
-    st.markdown("---")
+    if advanced_mode:
 
-    # ── MU Budget ──────────────────────────────────────────────────────────────
-    if clinical_mode == _t['clinical_mode_mu']:
-        st.caption(_t['mu_description'])
+        clinical_mode = st.radio(
+            _t['clinical_mode_label'],
+            options=[_t['clinical_mode_mu'], _t['clinical_mode_rcv'],
+                     _t['clinical_mode_precision'], _t['clinical_mode_comparison']],
+            key="clinical_mode", horizontal=True
+        )
+        st.markdown("---")
 
-        _mu_gene_options = [f"{r['__gene__']} / {r['__group__']}" for r in data] if data else []
-        mu_c1, mu_c2 = st.columns(2)
-        with mu_c1:
-            _mu_source_mode = st.radio(_t['mu_poisson_source'],
-                                        options=[_t['mu_poisson_auto_replicate'], _t['mu_poisson_auto_theoretical'],
-                                                 _t['mu_poisson_manual']],
-                                        key="mu_source_mode")
-        with mu_c2:
-            if _mu_source_mode == _t['mu_poisson_auto_replicate'] and _mu_gene_options:
-                _mu_selected = st.selectbox(_t['mu_gene_select'], options=_mu_gene_options, key="mu_gene_select")
-                _mu_match = data[_mu_gene_options.index(_mu_selected)]
-                _u_poisson_val = _mu_match.get("__conc_smp_cv__", 0.0)
-                _u_poisson_val = 0.0 if (_u_poisson_val is None or np.isnan(_u_poisson_val)) else _u_poisson_val
-                st.metric(_t['mu_poisson_source'], f"{_u_poisson_val:.2f}%")
-                st.warning(_t['mu_double_count_warning'])
-            elif _mu_source_mode == _t['mu_poisson_auto_theoretical'] and _mu_gene_options:
-                _mu_selected = st.selectbox(_t['mu_gene_select'], options=_mu_gene_options, key="mu_gene_select_theo")
-                _mu_match = data[_mu_gene_options.index(_mu_selected)]
-                _u_poisson_val = _mu_match.get("__poisson_rel_se_pct__", np.nan)
-                if _u_poisson_val is not None and not np.isnan(_u_poisson_val):
+        # ── MU Budget ──────────────────────────────────────────────────────────────
+        if clinical_mode == _t['clinical_mode_mu']:
+            st.caption(_t['mu_description'])
+
+            _mu_gene_options = [f"{r['__gene__']} / {r['__group__']}" for r in data] if data else []
+            mu_c1, mu_c2 = st.columns(2)
+            with mu_c1:
+                _mu_source_mode = st.radio(_t['mu_poisson_source'],
+                                            options=[_t['mu_poisson_auto_replicate'], _t['mu_poisson_auto_theoretical'],
+                                                     _t['mu_poisson_manual']],
+                                            key="mu_source_mode")
+            with mu_c2:
+                if _mu_source_mode == _t['mu_poisson_auto_replicate'] and _mu_gene_options:
+                    _mu_selected = st.selectbox(_t['mu_gene_select'], options=_mu_gene_options, key="mu_gene_select")
+                    _mu_match = data[_mu_gene_options.index(_mu_selected)]
+                    _u_poisson_val = _mu_match.get("__conc_smp_cv__", 0.0)
+                    _u_poisson_val = 0.0 if (_u_poisson_val is None or np.isnan(_u_poisson_val)) else _u_poisson_val
                     st.metric(_t['mu_poisson_source'], f"{_u_poisson_val:.2f}%")
-                    st.caption(_t['mu_theoretical_note'])
+                    st.warning(_t['mu_double_count_warning'])
+                elif _mu_source_mode == _t['mu_poisson_auto_theoretical'] and _mu_gene_options:
+                    _mu_selected = st.selectbox(_t['mu_gene_select'], options=_mu_gene_options, key="mu_gene_select_theo")
+                    _mu_match = data[_mu_gene_options.index(_mu_selected)]
+                    _u_poisson_val = _mu_match.get("__poisson_rel_se_pct__", np.nan)
+                    if _u_poisson_val is not None and not np.isnan(_u_poisson_val):
+                        st.metric(_t['mu_poisson_source'], f"{_u_poisson_val:.2f}%")
+                        st.caption(_t['mu_theoretical_note'])
+                    else:
+                        _u_poisson_val = 0.0
+                        st.info(_t['mu_no_lambda_cache'])
                 else:
-                    _u_poisson_val = 0.0
-                    st.info(_t['mu_no_lambda_cache'])
-            else:
-                _u_poisson_val = st.number_input(_t['mu_poisson_source'], min_value=0.0, max_value=100.0,
-                                                  value=5.0, step=0.1, key="mu_poisson_manual_val",
-                                                  help=_t['mu_poisson_help'])
+                    _u_poisson_val = st.number_input(_t['mu_poisson_source'], min_value=0.0, max_value=100.0,
+                                                      value=5.0, step=0.1, key="mu_poisson_manual_val",
+                                                      help=_t['mu_poisson_help'])
 
-        mu_c3, mu_c4, mu_c5 = st.columns(3)
-        with mu_c3:
-            _u_pipetting_val = st.number_input(_t['mu_pipetting_label'], min_value=0.0, max_value=50.0,
-                                                value=1.5, step=0.1, key="mu_pipetting_val",
-                                                help=_t['mu_pipetting_help'])
-        with mu_c4:
-            _u_precision_val = st.number_input(_t['mu_precision_label'], min_value=0.0, max_value=50.0,
-                                                value=0.0, step=0.1, key="mu_precision_val",
-                                                help=_t['mu_precision_help'])
-        with mu_c5:
-            _mu_k = st.number_input(_t['mu_k_label'], min_value=1.0, max_value=3.0, value=2.0,
-                                     step=0.5, key="mu_k_val")
+            mu_c3, mu_c4, mu_c5 = st.columns(3)
+            with mu_c3:
+                _u_pipetting_val = st.number_input(_t['mu_pipetting_label'], min_value=0.0, max_value=50.0,
+                                                    value=1.5, step=0.1, key="mu_pipetting_val",
+                                                    help=_t['mu_pipetting_help'])
+            with mu_c4:
+                _u_precision_val = st.number_input(_t['mu_precision_label'], min_value=0.0, max_value=50.0,
+                                                    value=0.0, step=0.1, key="mu_precision_val",
+                                                    help=_t['mu_precision_help'])
+            with mu_c5:
+                _mu_k = st.number_input(_t['mu_k_label'], min_value=1.0, max_value=3.0, value=2.0,
+                                         step=0.5, key="mu_k_val")
 
-        if (_mu_source_mode == _t['mu_poisson_auto_replicate']) and (_u_pipetting_val > 0 or _u_precision_val > 0):
-            st.error(_t['mu_double_count_error'])
+            if (_mu_source_mode == _t['mu_poisson_auto_replicate']) and (_u_pipetting_val > 0 or _u_precision_val > 0):
+                st.error(_t['mu_double_count_error'])
 
-        if st.button(_t['mu_calc_btn'], key="mu_calc_btn"):
-            _mu_result = compute_mu_budget(_u_poisson_val, _u_pipetting_val, _u_precision_val, _mu_k)
-            _val_label = _mu_selected if (_mu_source_mode == _t['mu_poisson_auto'] and _mu_gene_options) else "—"
-            st.success(_t['mu_result_title'].format(value=_val_label, U=_mu_result["U_pct"], k=_mu_k))
+            if st.button(_t['mu_calc_btn'], key="mu_calc_btn"):
+                _mu_result = compute_mu_budget(_u_poisson_val, _u_pipetting_val, _u_precision_val, _mu_k)
+                _val_label = _mu_selected if (_mu_source_mode == _t['mu_poisson_auto'] and _mu_gene_options) else "—"
+                st.success(_t['mu_result_title'].format(value=_val_label, U=_mu_result["U_pct"], k=_mu_k))
 
-            st.markdown(_t['mu_budget_table_title'])
-            _mu_table_rows = [{_t['mu_col_source']: k, _t['mu_col_contribution']: f"{v:.3f}%"}
-                               for k, v in _mu_result["components"].items()]
-            _mu_table_rows.append({_t['mu_col_source']: _t['mu_col_combined'], _t['mu_col_contribution']: f"{_mu_result['u_c_pct']:.3f}%"})
-            _mu_table_rows.append({_t['mu_col_source']: f"{_t['mu_col_expanded']} (k={_mu_k})", _t['mu_col_contribution']: f"{_mu_result['U_pct']:.3f}%"})
-            st.dataframe(pd.DataFrame(_mu_table_rows), use_container_width=True)
+                st.markdown(_t['mu_budget_table_title'])
+                _mu_table_rows = [{_t['mu_col_source']: k, _t['mu_col_contribution']: f"{v:.3f}%"}
+                                   for k, v in _mu_result["components"].items()]
+                _mu_table_rows.append({_t['mu_col_source']: _t['mu_col_combined'], _t['mu_col_contribution']: f"{_mu_result['u_c_pct']:.3f}%"})
+                _mu_table_rows.append({_t['mu_col_source']: f"{_t['mu_col_expanded']} (k={_mu_k})", _t['mu_col_contribution']: f"{_mu_result['U_pct']:.3f}%"})
+                st.dataframe(pd.DataFrame(_mu_table_rows), use_container_width=True)
 
-            fig_mu = go.Figure(go.Bar(
-                x=list(_mu_result["components"].keys()), y=list(_mu_result["components"].values()),
-                marker_color="#00796b"
-            ))
-            fig_mu.update_layout(title="Uncertainty Component Contributions", yaxis_title="Relative uncertainty (%)", height=350)
-            st.plotly_chart(fig_mu, use_container_width=True, key="mu_chart")
+                fig_mu = go.Figure(go.Bar(
+                    x=list(_mu_result["components"].keys()), y=list(_mu_result["components"].values()),
+                    marker_color="#00796b"
+                ))
+                fig_mu.update_layout(title="Uncertainty Component Contributions", yaxis_title="Relative uncertainty (%)", height=350)
+                st.plotly_chart(fig_mu, use_container_width=True, key="mu_chart")
 
-    # ── RCV ────────────────────────────────────────────────────────────────────
-    elif clinical_mode == _t['clinical_mode_rcv']:
-        st.caption(_t['rcv_description'])
-        rcv_c1, rcv_c2 = st.columns(2)
-        with rcv_c1:
-            _rcv_result1 = st.number_input(_t['rcv_result1_label'], value=10.0, step=0.1, key="rcv_result1")
-        with rcv_c2:
-            _rcv_result2 = st.number_input(_t['rcv_result2_label'], value=12.0, step=0.1, key="rcv_result2")
-        rcv_c3, rcv_c4, rcv_c5 = st.columns(3)
-        with rcv_c3:
-            _rcv_cv_a = st.number_input(_t['rcv_cv_analytical_label'], min_value=0.0, max_value=100.0,
-                                         value=5.0, step=0.1, key="rcv_cv_a", help=_t['rcv_cv_analytical_help'])
-        with rcv_c4:
-            _rcv_cv_b = st.number_input(_t['rcv_cv_biological_label'], min_value=0.0, max_value=200.0,
-                                         value=15.0, step=0.5, key="rcv_cv_b", help=_t['rcv_cv_biological_help'])
-        with rcv_c5:
-            _rcv_z = st.number_input(_t['rcv_z_label'], min_value=1.0, max_value=3.0, value=1.96,
-                                      step=0.01, key="rcv_z")
+        # ── RCV ────────────────────────────────────────────────────────────────────
+        elif clinical_mode == _t['clinical_mode_rcv']:
+            st.caption(_t['rcv_description'])
+            rcv_c1, rcv_c2 = st.columns(2)
+            with rcv_c1:
+                _rcv_result1 = st.number_input(_t['rcv_result1_label'], value=10.0, step=0.1, key="rcv_result1")
+            with rcv_c2:
+                _rcv_result2 = st.number_input(_t['rcv_result2_label'], value=12.0, step=0.1, key="rcv_result2")
+            rcv_c3, rcv_c4, rcv_c5 = st.columns(3)
+            with rcv_c3:
+                _rcv_cv_a = st.number_input(_t['rcv_cv_analytical_label'], min_value=0.0, max_value=100.0,
+                                             value=5.0, step=0.1, key="rcv_cv_a", help=_t['rcv_cv_analytical_help'])
+            with rcv_c4:
+                _rcv_cv_b = st.number_input(_t['rcv_cv_biological_label'], min_value=0.0, max_value=200.0,
+                                             value=15.0, step=0.5, key="rcv_cv_b", help=_t['rcv_cv_biological_help'])
+            with rcv_c5:
+                _rcv_z = st.number_input(_t['rcv_z_label'], min_value=1.0, max_value=3.0, value=1.96,
+                                          step=0.01, key="rcv_z")
 
-        if st.button(_t['rcv_calc_btn'], key="rcv_calc_btn"):
-            _rcv_res = compute_rcv(_rcv_result1, _rcv_result2, _rcv_cv_a, _rcv_cv_b, _rcv_z)
-            if _rcv_res is None:
-                st.error("Invalid input.")
-            else:
-                if _rcv_res["significant"]:
-                    st.error(_t['rcv_result_significant'].format(change=_rcv_res["percent_change"], rcv=_rcv_res["rcv_pct"]))
+            if st.button(_t['rcv_calc_btn'], key="rcv_calc_btn"):
+                _rcv_res = compute_rcv(_rcv_result1, _rcv_result2, _rcv_cv_a, _rcv_cv_b, _rcv_z)
+                if _rcv_res is None:
+                    st.error("Invalid input.")
                 else:
-                    st.success(_t['rcv_result_not_significant'].format(change=_rcv_res["percent_change"], rcv=_rcv_res["rcv_pct"]))
-                rc1, rc2 = st.columns(2)
-                rc1.metric("RCV (%)", f"±{_rcv_res['rcv_pct']:.2f}%")
-                rc2.metric("Observed Change (%)", f"{_rcv_res['percent_change']:+.2f}%")
+                    if _rcv_res["significant"]:
+                        st.error(_t['rcv_result_significant'].format(change=_rcv_res["percent_change"], rcv=_rcv_res["rcv_pct"]))
+                    else:
+                        st.success(_t['rcv_result_not_significant'].format(change=_rcv_res["percent_change"], rcv=_rcv_res["rcv_pct"]))
+                    rc1, rc2 = st.columns(2)
+                    rc1.metric("RCV (%)", f"±{_rcv_res['rcv_pct']:.2f}%")
+                    rc2.metric("Observed Change (%)", f"{_rcv_res['percent_change']:+.2f}%")
 
-    # ── Precision Study ───────────────────────────────────────────────────────
-    elif clinical_mode == _t['clinical_mode_precision']:
-        st.caption(_t['precision_description'])
-        _prec_n_days = st.number_input(_t['precision_n_days'], min_value=2, max_value=20, value=3, step=1, key="prec_n_days")
-        _prec_day_arrays = []
-        _prec_cols = st.columns(min(int(_prec_n_days), 4))
-        for _d in range(int(_prec_n_days)):
-            with _prec_cols[_d % len(_prec_cols)]:
-                _txt = st.text_area(_t['precision_day_label'].format(i=_d + 1), key=f"prec_day_{_d}", height=120)
-                _prec_day_arrays.append(parse_input_data(_txt))
+        # ── Precision Study ───────────────────────────────────────────────────────
+        elif clinical_mode == _t['clinical_mode_precision']:
+            st.caption(_t['precision_description'])
+            _prec_n_days = st.number_input(_t['precision_n_days'], min_value=2, max_value=20, value=3, step=1, key="prec_n_days")
+            _prec_day_arrays = []
+            _prec_cols = st.columns(min(int(_prec_n_days), 4))
+            for _d in range(int(_prec_n_days)):
+                with _prec_cols[_d % len(_prec_cols)]:
+                    _txt = st.text_area(_t['precision_day_label'].format(i=_d + 1), key=f"prec_day_{_d}", height=120)
+                    _prec_day_arrays.append(parse_input_data(_txt))
 
-        if st.button(_t['precision_calc_btn'], key="prec_calc_btn"):
-            _prec_result = compute_precision_study(_prec_day_arrays)
-            if _prec_result is None:
-                st.error("Insufficient data — need at least 2 days with ≥2 replicates each.")
-            else:
-                if not _prec_result["is_balanced"]:
-                    st.info(_t['unbalanced_design_note'].format(n_list=_prec_result["n_per_day"]))
-                pc1, pc2, pc3, pc4 = st.columns(4)
-                pc1.metric(_t['precision_grand_mean'], f"{_prec_result['grand_mean']:.4f}")
-                pc2.metric(_t['precision_repeatability_cv'], f"{_prec_result['repeatability_cv']:.2f}%")
-                pc3.metric(_t['precision_between_day_cv'], f"{_prec_result['between_day_cv']:.2f}%")
-                pc4.metric(_t['precision_total_cv'], f"{_prec_result['total_cv']:.2f}%")
+            if st.button(_t['precision_calc_btn'], key="prec_calc_btn"):
+                _prec_result = compute_precision_study(_prec_day_arrays)
+                if _prec_result is None:
+                    st.error("Insufficient data — need at least 2 days with ≥2 replicates each.")
+                else:
+                    if not _prec_result["is_balanced"]:
+                        st.info(_t['unbalanced_design_note'].format(n_list=_prec_result["n_per_day"]))
+                    pc1, pc2, pc3, pc4 = st.columns(4)
+                    pc1.metric(_t['precision_grand_mean'], f"{_prec_result['grand_mean']:.4f}")
+                    pc2.metric(_t['precision_repeatability_cv'], f"{_prec_result['repeatability_cv']:.2f}%")
+                    pc3.metric(_t['precision_between_day_cv'], f"{_prec_result['between_day_cv']:.2f}%")
+                    pc4.metric(_t['precision_total_cv'], f"{_prec_result['total_cv']:.2f}%")
 
-                fig_prec = go.Figure()
-                for _d, arr in enumerate(_prec_day_arrays):
-                    if len(arr) > 0:
-                        fig_prec.add_trace(go.Box(y=arr, name=f"Day {_d+1}", boxpoints="all"))
-                fig_prec.update_layout(title="Precision Study — Per-Day Distribution", height=380)
-                st.plotly_chart(fig_prec, use_container_width=True, key="prec_chart")
+                    fig_prec = go.Figure()
+                    for _d, arr in enumerate(_prec_day_arrays):
+                        if len(arr) > 0:
+                            fig_prec.add_trace(go.Box(y=arr, name=f"Day {_d+1}", boxpoints="all"))
+                    fig_prec.update_layout(title="Precision Study — Per-Day Distribution", height=380)
+                    st.plotly_chart(fig_prec, use_container_width=True, key="prec_chart")
 
-    # ── Method Comparison ─────────────────────────────────────────────────────
+        # ── Method Comparison ─────────────────────────────────────────────────────
+        else:
+            st.caption(_t['comparison_description'])
+            comp_c1, comp_c2 = st.columns(2)
+            with comp_c1:
+                _comp_m1_txt = st.text_area(_t['comparison_method1_label'], key="comp_m1", height=150)
+            with comp_c2:
+                _comp_m2_txt = st.text_area(_t['comparison_method2_label'], key="comp_m2", height=150)
+            _comp_variance_ratio = st.number_input(_t['comparison_variance_ratio_label'], min_value=0.01, max_value=100.0,
+                                                    value=1.0, step=0.1, key="comp_var_ratio")
+
+            if st.button(_t['comparison_calc_btn'], key="comp_calc_btn"):
+                _m1_arr = parse_input_data(_comp_m1_txt)
+                _m2_arr = parse_input_data(_comp_m2_txt)
+                _ba_result = compute_bland_altman(_m1_arr, _m2_arr)
+                _deming_result = compute_deming_regression(_m1_arr, _m2_arr, _comp_variance_ratio)
+                _pb_result = compute_passing_bablok(_m1_arr, _m2_arr)
+
+                if _ba_result is None:
+                    st.error("Need at least 2 paired values.")
+                else:
+                    bc1, bc2, bc3 = st.columns(3)
+                    bc1.metric(_t['comparison_bias_label'], f"{_ba_result['mean_diff']:.4f}")
+                    bc2.metric(_t['comparison_loa_label'], f"{_ba_result['loa_low']:.3f} to {_ba_result['loa_high']:.3f}")
+                    if _deming_result:
+                        bc3.metric(_t['comparison_deming_label'], f"y={_deming_result['slope']:.3f}x+{_deming_result['intercept']:.3f}")
+
+                    # ── Assumption checks (normality, proportional bias) ──────────────
+                    if not np.isnan(_ba_result["shapiro_p"]):
+                        if _ba_result["shapiro_p"] >= 0.05:
+                            st.success(_t['comparison_normality_ok'].format(p=_ba_result["shapiro_p"]))
+                        else:
+                            st.warning(_t['comparison_normality_warn'].format(p=_ba_result["shapiro_p"]))
+                    if not np.isnan(_ba_result["proportional_bias_p"]):
+                        if _ba_result["proportional_bias_p"] >= 0.05:
+                            st.success(_t['comparison_prop_bias_ok'].format(p=_ba_result["proportional_bias_p"]))
+                        else:
+                            st.warning(_t['comparison_prop_bias_warn'].format(
+                                slope=_ba_result["proportional_bias_slope"], p=_ba_result["proportional_bias_p"]))
+
+                    # ── Regression method comparison table (Deming vs Passing-Bablok) ──
+                    if _deming_result or _pb_result:
+                        st.markdown(f"**{_t['comparison_deming_label']} vs {_t['comparison_pb_label']}**")
+                        _reg_rows = []
+                        if _deming_result:
+                            _slope_ci = (f"{_deming_result['slope_ci_low']:.4f}–{_deming_result['slope_ci_high']:.4f}"
+                                          if not np.isnan(_deming_result['slope_ci_low']) else "—")
+                            _int_ci = (f"{_deming_result['intercept_ci_low']:.4f}–{_deming_result['intercept_ci_high']:.4f}"
+                                       if not np.isnan(_deming_result['intercept_ci_low']) else "—")
+                            _reg_rows.append({
+                                "Method": _t['comparison_deming_label'],
+                                "Slope": round(_deming_result["slope"], 4),
+                                f"Slope {_t['comparison_deming_ci_label']}": _slope_ci,
+                                "Intercept": round(_deming_result["intercept"], 4),
+                                "Intercept 95% CI": _int_ci,
+                            })
+                        if _pb_result:
+                            _reg_rows.append({
+                                "Method": _t['comparison_pb_label'],
+                                "Slope": round(_pb_result["slope"], 4),
+                                f"Slope {_t['comparison_deming_ci_label']}": "—",
+                                "Intercept": round(_pb_result["intercept"], 4),
+                                "Intercept 95% CI": "—",
+                            })
+                        st.dataframe(pd.DataFrame(_reg_rows), use_container_width=True)
+                        st.caption(_t['comparison_pb_note'])
+
+                    fig_ba = go.Figure()
+                    fig_ba.add_trace(go.Scatter(x=_ba_result["means"], y=_ba_result["diffs"], mode="markers",
+                                                 marker=dict(color="#00796b")))
+                    fig_ba.add_hline(y=_ba_result["mean_diff"], line_color="black", line_dash="solid")
+                    fig_ba.add_hline(y=_ba_result["loa_low"], line_color="red", line_dash="dash")
+                    fig_ba.add_hline(y=_ba_result["loa_high"], line_color="red", line_dash="dash")
+                    fig_ba.update_layout(title=_t['comparison_ba_chart_title'], xaxis_title="Mean of methods",
+                                          yaxis_title="Difference (M2-M1)", height=380)
+                    st.plotly_chart(fig_ba, use_container_width=True, key="ba_chart")
+
+                    if _deming_result or _pb_result:
+                        fig_dem = go.Figure()
+                        fig_dem.add_trace(go.Scatter(x=_m1_arr, y=_m2_arr, mode="markers", marker=dict(color="#00796b"), name="Data"))
+                        _x_line = np.array([min(_m1_arr), max(_m1_arr)])
+                        if _deming_result:
+                            _y_line = _deming_result["slope"] * _x_line + _deming_result["intercept"]
+                            fig_dem.add_trace(go.Scatter(x=_x_line, y=_y_line, mode="lines", line=dict(color="red"),
+                                                          name=_t['comparison_deming_label']))
+                        if _pb_result:
+                            _y_line_pb = _pb_result["slope"] * _x_line + _pb_result["intercept"]
+                            fig_dem.add_trace(go.Scatter(x=_x_line, y=_y_line_pb, mode="lines", line=dict(color="blue", dash="dot"),
+                                                          name=_t['comparison_pb_label']))
+                        fig_dem.update_layout(title=_t['comparison_deming_chart_title'], xaxis_title="Method 1",
+                                               yaxis_title="Method 2", height=380)
+                        st.plotly_chart(fig_dem, use_container_width=True, key="deming_chart")
+
+
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # CRM PRODUCTION TAB
+    # ═══════════════════════════════════════════════════════════════════════════════
     else:
-        st.caption(_t['comparison_description'])
-        comp_c1, comp_c2 = st.columns(2)
-        with comp_c1:
-            _comp_m1_txt = st.text_area(_t['comparison_method1_label'], key="comp_m1", height=150)
-        with comp_c2:
-            _comp_m2_txt = st.text_area(_t['comparison_method2_label'], key="comp_m2", height=150)
-        _comp_variance_ratio = st.number_input(_t['comparison_variance_ratio_label'], min_value=0.01, max_value=100.0,
-                                                value=1.0, step=0.1, key="comp_var_ratio")
-
-        if st.button(_t['comparison_calc_btn'], key="comp_calc_btn"):
-            _m1_arr = parse_input_data(_comp_m1_txt)
-            _m2_arr = parse_input_data(_comp_m2_txt)
-            _ba_result = compute_bland_altman(_m1_arr, _m2_arr)
-            _deming_result = compute_deming_regression(_m1_arr, _m2_arr, _comp_variance_ratio)
-            _pb_result = compute_passing_bablok(_m1_arr, _m2_arr)
-
-            if _ba_result is None:
-                st.error("Need at least 2 paired values.")
-            else:
-                bc1, bc2, bc3 = st.columns(3)
-                bc1.metric(_t['comparison_bias_label'], f"{_ba_result['mean_diff']:.4f}")
-                bc2.metric(_t['comparison_loa_label'], f"{_ba_result['loa_low']:.3f} to {_ba_result['loa_high']:.3f}")
-                if _deming_result:
-                    bc3.metric(_t['comparison_deming_label'], f"y={_deming_result['slope']:.3f}x+{_deming_result['intercept']:.3f}")
-
-                # ── Assumption checks (normality, proportional bias) ──────────────
-                if not np.isnan(_ba_result["shapiro_p"]):
-                    if _ba_result["shapiro_p"] >= 0.05:
-                        st.success(_t['comparison_normality_ok'].format(p=_ba_result["shapiro_p"]))
-                    else:
-                        st.warning(_t['comparison_normality_warn'].format(p=_ba_result["shapiro_p"]))
-                if not np.isnan(_ba_result["proportional_bias_p"]):
-                    if _ba_result["proportional_bias_p"] >= 0.05:
-                        st.success(_t['comparison_prop_bias_ok'].format(p=_ba_result["proportional_bias_p"]))
-                    else:
-                        st.warning(_t['comparison_prop_bias_warn'].format(
-                            slope=_ba_result["proportional_bias_slope"], p=_ba_result["proportional_bias_p"]))
-
-                # ── Regression method comparison table (Deming vs Passing-Bablok) ──
-                if _deming_result or _pb_result:
-                    st.markdown(f"**{_t['comparison_deming_label']} vs {_t['comparison_pb_label']}**")
-                    _reg_rows = []
-                    if _deming_result:
-                        _slope_ci = (f"{_deming_result['slope_ci_low']:.4f}–{_deming_result['slope_ci_high']:.4f}"
-                                      if not np.isnan(_deming_result['slope_ci_low']) else "—")
-                        _int_ci = (f"{_deming_result['intercept_ci_low']:.4f}–{_deming_result['intercept_ci_high']:.4f}"
-                                   if not np.isnan(_deming_result['intercept_ci_low']) else "—")
-                        _reg_rows.append({
-                            "Method": _t['comparison_deming_label'],
-                            "Slope": round(_deming_result["slope"], 4),
-                            f"Slope {_t['comparison_deming_ci_label']}": _slope_ci,
-                            "Intercept": round(_deming_result["intercept"], 4),
-                            "Intercept 95% CI": _int_ci,
-                        })
-                    if _pb_result:
-                        _reg_rows.append({
-                            "Method": _t['comparison_pb_label'],
-                            "Slope": round(_pb_result["slope"], 4),
-                            f"Slope {_t['comparison_deming_ci_label']}": "—",
-                            "Intercept": round(_pb_result["intercept"], 4),
-                            "Intercept 95% CI": "—",
-                        })
-                    st.dataframe(pd.DataFrame(_reg_rows), use_container_width=True)
-                    st.caption(_t['comparison_pb_note'])
-
-                fig_ba = go.Figure()
-                fig_ba.add_trace(go.Scatter(x=_ba_result["means"], y=_ba_result["diffs"], mode="markers",
-                                             marker=dict(color="#00796b")))
-                fig_ba.add_hline(y=_ba_result["mean_diff"], line_color="black", line_dash="solid")
-                fig_ba.add_hline(y=_ba_result["loa_low"], line_color="red", line_dash="dash")
-                fig_ba.add_hline(y=_ba_result["loa_high"], line_color="red", line_dash="dash")
-                fig_ba.update_layout(title=_t['comparison_ba_chart_title'], xaxis_title="Mean of methods",
-                                      yaxis_title="Difference (M2-M1)", height=380)
-                st.plotly_chart(fig_ba, use_container_width=True, key="ba_chart")
-
-                if _deming_result or _pb_result:
-                    fig_dem = go.Figure()
-                    fig_dem.add_trace(go.Scatter(x=_m1_arr, y=_m2_arr, mode="markers", marker=dict(color="#00796b"), name="Data"))
-                    _x_line = np.array([min(_m1_arr), max(_m1_arr)])
-                    if _deming_result:
-                        _y_line = _deming_result["slope"] * _x_line + _deming_result["intercept"]
-                        fig_dem.add_trace(go.Scatter(x=_x_line, y=_y_line, mode="lines", line=dict(color="red"),
-                                                      name=_t['comparison_deming_label']))
-                    if _pb_result:
-                        _y_line_pb = _pb_result["slope"] * _x_line + _pb_result["intercept"]
-                        fig_dem.add_trace(go.Scatter(x=_x_line, y=_y_line_pb, mode="lines", line=dict(color="blue", dash="dot"),
-                                                      name=_t['comparison_pb_label']))
-                    fig_dem.update_layout(title=_t['comparison_deming_chart_title'], xaxis_title="Method 1",
-                                           yaxis_title="Method 2", height=380)
-                    st.plotly_chart(fig_dem, use_container_width=True, key="deming_chart")
+        st.info(f"{_t['advanced_gate_title']}\n\n{_t['advanced_gate_message']}")
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# CRM PRODUCTION TAB
-# ═══════════════════════════════════════════════════════════════════════════════
 with tab_crm:
     st.markdown(f"### {_t['crm_title']}")
     st.caption(_t['crm_description'])
     st.markdown("---")
 
-    crm_mode = st.radio(
-        _t['crm_mode_label'],
-        options=[_t['crm_mode_homogeneity'], _t['crm_mode_stability'],
-                 _t['crm_mode_uncertainty'], _t['crm_mode_equivalence'], _t['crm_mode_coa']],
-        key="crm_mode", horizontal=True
-    )
-    st.markdown("---")
+    if advanced_mode:
 
-    # ── Homogeneity Testing ───────────────────────────────────────────────────
-    if crm_mode == _t['crm_mode_homogeneity']:
-        st.caption(_t['homog_description'])
-        _homog_n_units = st.number_input(_t['homog_n_units'], min_value=2, max_value=30, value=10, step=1, key="homog_n_units")
-        _homog_unit_arrays = []
-        _homog_cols = st.columns(min(int(_homog_n_units), 5))
-        for _u in range(int(_homog_n_units)):
-            with _homog_cols[_u % len(_homog_cols)]:
-                _txt = st.text_area(_t['homog_unit_label'].format(i=_u + 1), key=f"homog_unit_{_u}", height=100)
-                _homog_unit_arrays.append(parse_input_data(_txt))
+        crm_mode = st.radio(
+            _t['crm_mode_label'],
+            options=[_t['crm_mode_homogeneity'], _t['crm_mode_stability'],
+                     _t['crm_mode_uncertainty'], _t['crm_mode_equivalence'], _t['crm_mode_coa']],
+            key="crm_mode", horizontal=True
+        )
+        st.markdown("---")
 
-        if st.button(_t['homog_calc_btn'], key="homog_calc_btn"):
-            _homog_result = compute_homogeneity(_homog_unit_arrays)
-            if _homog_result is None:
-                st.error("Insufficient data — need at least 2 units with ≥2 replicates each.")
-            else:
-                st.session_state["_homog_result_cache"] = _homog_result
-                if _homog_result["is_homogeneous"]:
-                    st.success(_t['homog_result_homogeneous'].format(
-                        F=_homog_result["F"], fcrit=_homog_result["F_crit"], p=_homog_result["p_value"]))
+        # ── Homogeneity Testing ───────────────────────────────────────────────────
+        if crm_mode == _t['crm_mode_homogeneity']:
+            st.caption(_t['homog_description'])
+            _homog_n_units = st.number_input(_t['homog_n_units'], min_value=2, max_value=30, value=10, step=1, key="homog_n_units")
+            _homog_unit_arrays = []
+            _homog_cols = st.columns(min(int(_homog_n_units), 5))
+            for _u in range(int(_homog_n_units)):
+                with _homog_cols[_u % len(_homog_cols)]:
+                    _txt = st.text_area(_t['homog_unit_label'].format(i=_u + 1), key=f"homog_unit_{_u}", height=100)
+                    _homog_unit_arrays.append(parse_input_data(_txt))
+
+            if st.button(_t['homog_calc_btn'], key="homog_calc_btn"):
+                _homog_result = compute_homogeneity(_homog_unit_arrays)
+                if _homog_result is None:
+                    st.error("Insufficient data — need at least 2 units with ≥2 replicates each.")
                 else:
-                    st.error(_t['homog_result_inhomogeneous'].format(
-                        F=_homog_result["F"], fcrit=_homog_result["F_crit"], p=_homog_result["p_value"]))
-                if not _homog_result["is_balanced"]:
-                    st.info(_t['unbalanced_design_note'].format(n_list=_homog_result["n_per_unit"]))
+                    st.session_state["_homog_result_cache"] = _homog_result
+                    if _homog_result["is_homogeneous"]:
+                        st.success(_t['homog_result_homogeneous'].format(
+                            F=_homog_result["F"], fcrit=_homog_result["F_crit"], p=_homog_result["p_value"]))
+                    else:
+                        st.error(_t['homog_result_inhomogeneous'].format(
+                            F=_homog_result["F"], fcrit=_homog_result["F_crit"], p=_homog_result["p_value"]))
+                    if not _homog_result["is_balanced"]:
+                        st.info(_t['unbalanced_design_note'].format(n_list=_homog_result["n_per_unit"]))
 
-                hc1, hc2, hc3 = st.columns(3)
-                hc1.metric(_t['homog_grand_mean_label'], f"{_homog_result['grand_mean']:.5f}")
-                hc2.metric(_t['homog_ubb_label'], f"{_homog_result['u_bb']:.5f}")
-                hc3.metric("F / F_crit", f"{_homog_result['F']:.3f} / {_homog_result['F_crit']:.3f}")
+                    hc1, hc2, hc3 = st.columns(3)
+                    hc1.metric(_t['homog_grand_mean_label'], f"{_homog_result['grand_mean']:.5f}")
+                    hc2.metric(_t['homog_ubb_label'], f"{_homog_result['u_bb']:.5f}")
+                    hc3.metric("F / F_crit", f"{_homog_result['F']:.3f} / {_homog_result['F_crit']:.3f}")
 
-                fig_homog = go.Figure()
-                for _u, arr in enumerate(_homog_unit_arrays):
-                    if len(arr) > 0:
-                        fig_homog.add_trace(go.Box(y=arr, name=f"Unit {_u+1}", boxpoints="all"))
-                fig_homog.add_hline(y=_homog_result["grand_mean"], line_dash="dash", line_color="black")
-                fig_homog.update_layout(title="Homogeneity — Per-Unit Distribution", height=400)
-                st.plotly_chart(fig_homog, use_container_width=True, key="homog_chart")
+                    fig_homog = go.Figure()
+                    for _u, arr in enumerate(_homog_unit_arrays):
+                        if len(arr) > 0:
+                            fig_homog.add_trace(go.Box(y=arr, name=f"Unit {_u+1}", boxpoints="all"))
+                    fig_homog.add_hline(y=_homog_result["grand_mean"], line_dash="dash", line_color="black")
+                    fig_homog.update_layout(title="Homogeneity — Per-Unit Distribution", height=400)
+                    st.plotly_chart(fig_homog, use_container_width=True, key="homog_chart")
 
-    # ── Stability Testing ─────────────────────────────────────────────────────
-    elif crm_mode == _t['crm_mode_stability']:
-        st.caption(_t['stab_description'])
-        stab_c1, stab_c2 = st.columns(2)
-        with stab_c1:
-            _stab_time_txt = st.text_area(_t['stab_time_label'], key="stab_time", height=150)
-        with stab_c2:
-            _stab_value_txt = st.text_area(_t['stab_value_label'], key="stab_value", height=150)
-        _stab_duration = st.number_input(_t['stab_duration_label'], min_value=0.1, value=365.0, step=1.0, key="stab_duration")
+        # ── Stability Testing ─────────────────────────────────────────────────────
+        elif crm_mode == _t['crm_mode_stability']:
+            st.caption(_t['stab_description'])
+            stab_c1, stab_c2 = st.columns(2)
+            with stab_c1:
+                _stab_time_txt = st.text_area(_t['stab_time_label'], key="stab_time", height=150)
+            with stab_c2:
+                _stab_value_txt = st.text_area(_t['stab_value_label'], key="stab_value", height=150)
+            _stab_duration = st.number_input(_t['stab_duration_label'], min_value=0.1, value=365.0, step=1.0, key="stab_duration")
 
-        if st.button(_t['stab_calc_btn'], key="stab_calc_btn"):
-            _stab_time_arr = parse_input_data(_stab_time_txt)
-            _stab_value_arr = parse_input_data(_stab_value_txt)
-            _stab_result = compute_stability(_stab_time_arr, _stab_value_arr, _stab_duration)
-            if _stab_result is None:
-                st.error("Need at least 3 paired time/value points.")
-            else:
-                st.session_state["_stab_result_cache"] = _stab_result
-                if _stab_result["is_stable"]:
-                    st.success(_t['stab_result_stable'].format(p=_stab_result["p_value"]))
+            if st.button(_t['stab_calc_btn'], key="stab_calc_btn"):
+                _stab_time_arr = parse_input_data(_stab_time_txt)
+                _stab_value_arr = parse_input_data(_stab_value_txt)
+                _stab_result = compute_stability(_stab_time_arr, _stab_value_arr, _stab_duration)
+                if _stab_result is None:
+                    st.error("Need at least 3 paired time/value points.")
                 else:
-                    st.warning(_t['stab_result_unstable'].format(p=_stab_result["p_value"]))
+                    st.session_state["_stab_result_cache"] = _stab_result
+                    if _stab_result["is_stable"]:
+                        st.success(_t['stab_result_stable'].format(p=_stab_result["p_value"]))
+                    else:
+                        st.warning(_t['stab_result_unstable'].format(p=_stab_result["p_value"]))
 
-                sc1, sc2, sc3 = st.columns(3)
-                sc1.metric(_t['stab_slope_label'], f"{_stab_result['slope']:.6f}")
-                sc2.metric(_t['stab_ustab_label'], f"{_stab_result['u_stab']:.6f}")
-                sc3.metric("R²", f"{_stab_result['r_value']**2:.4f}")
+                    sc1, sc2, sc3 = st.columns(3)
+                    sc1.metric(_t['stab_slope_label'], f"{_stab_result['slope']:.6f}")
+                    sc2.metric(_t['stab_ustab_label'], f"{_stab_result['u_stab']:.6f}")
+                    sc3.metric("R²", f"{_stab_result['r_value']**2:.4f}")
 
-                fig_stab = go.Figure()
-                fig_stab.add_trace(go.Scatter(x=_stab_time_arr, y=_stab_value_arr, mode="markers",
-                                               marker=dict(color="#00796b", size=9), name="Data"))
-                _x_line = np.array([min(_stab_time_arr), max(_stab_time_arr)])
-                _y_line = _stab_result["slope"] * _x_line + _stab_result["intercept"]
-                fig_stab.add_trace(go.Scatter(x=_x_line, y=_y_line, mode="lines", line=dict(color="red"), name="Trend"))
-                fig_stab.update_layout(title=_t['stab_chart_title'], xaxis_title="Time", yaxis_title="Value", height=400)
-                st.plotly_chart(fig_stab, use_container_width=True, key="stab_chart")
+                    fig_stab = go.Figure()
+                    fig_stab.add_trace(go.Scatter(x=_stab_time_arr, y=_stab_value_arr, mode="markers",
+                                                   marker=dict(color="#00796b", size=9), name="Data"))
+                    _x_line = np.array([min(_stab_time_arr), max(_stab_time_arr)])
+                    _y_line = _stab_result["slope"] * _x_line + _stab_result["intercept"]
+                    fig_stab.add_trace(go.Scatter(x=_x_line, y=_y_line, mode="lines", line=dict(color="red"), name="Trend"))
+                    fig_stab.update_layout(title=_t['stab_chart_title'], xaxis_title="Time", yaxis_title="Value", height=400)
+                    st.plotly_chart(fig_stab, use_container_width=True, key="stab_chart")
 
-    # ── Assigned Value & Uncertainty Budget ───────────────────────────────────
-    elif crm_mode == _t['crm_mode_uncertainty']:
-        st.caption(_t['unc_description'])
+        # ── Assigned Value & Uncertainty Budget ───────────────────────────────────
+        elif crm_mode == _t['crm_mode_uncertainty']:
+            st.caption(_t['unc_description'])
 
-        _cached_homog = st.session_state.get("_homog_result_cache")
-        _cached_stab = st.session_state.get("_stab_result_cache")
-        _use_cached = st.checkbox(_t['unc_use_cached'], value=True, key="unc_use_cached")
-        if _use_cached and not (_cached_homog or _cached_stab):
-            st.info(_t['unc_no_cache'])
+            _cached_homog = st.session_state.get("_homog_result_cache")
+            _cached_stab = st.session_state.get("_stab_result_cache")
+            _use_cached = st.checkbox(_t['unc_use_cached'], value=True, key="unc_use_cached")
+            if _use_cached and not (_cached_homog or _cached_stab):
+                st.info(_t['unc_no_cache'])
 
-        unc_c1, unc_c2 = st.columns(2)
-        with unc_c1:
-            _unc_assigned_value = st.number_input(_t['unc_assigned_value_label'], value=100.0, step=0.1, key="unc_assigned_value")
-            _unc_u_char = st.number_input(_t['unc_u_char_label'], min_value=0.0, value=1.0, step=0.1,
-                                           key="unc_u_char", help=_t['unc_u_char_help'])
-        with unc_c2:
-            _default_u_bb = _cached_homog["u_bb"] if (_use_cached and _cached_homog) else 0.0
-            _unc_u_bb = st.number_input(_t['unc_u_bb_label'], min_value=0.0, value=float(_default_u_bb), step=0.01, key="unc_u_bb")
-            _default_u_stab = _cached_stab["u_stab"] if (_use_cached and _cached_stab) else 0.0
-            _unc_u_stab = st.number_input(_t['unc_u_stab_label'], min_value=0.0, value=float(_default_u_stab), step=0.01, key="unc_u_stab")
+            unc_c1, unc_c2 = st.columns(2)
+            with unc_c1:
+                _unc_assigned_value = st.number_input(_t['unc_assigned_value_label'], value=100.0, step=0.1, key="unc_assigned_value")
+                _unc_u_char = st.number_input(_t['unc_u_char_label'], min_value=0.0, value=1.0, step=0.1,
+                                               key="unc_u_char", help=_t['unc_u_char_help'])
+            with unc_c2:
+                _default_u_bb = _cached_homog["u_bb"] if (_use_cached and _cached_homog) else 0.0
+                _unc_u_bb = st.number_input(_t['unc_u_bb_label'], min_value=0.0, value=float(_default_u_bb), step=0.01, key="unc_u_bb")
+                _default_u_stab = _cached_stab["u_stab"] if (_use_cached and _cached_stab) else 0.0
+                _unc_u_stab = st.number_input(_t['unc_u_stab_label'], min_value=0.0, value=float(_default_u_stab), step=0.01, key="unc_u_stab")
 
-        _unc_k = st.number_input(_t['unc_k_label'], min_value=1.0, max_value=3.0, value=2.0, step=0.5, key="unc_k")
+            _unc_k = st.number_input(_t['unc_k_label'], min_value=1.0, max_value=3.0, value=2.0, step=0.5, key="unc_k")
 
-        if st.button(_t['unc_calc_btn'], key="unc_calc_btn"):
-            _unc_result = compute_assigned_value_uncertainty(_unc_assigned_value, _unc_u_char, _unc_u_bb, _unc_u_stab, k=_unc_k)
-            st.session_state["_unc_result_cache"] = _unc_result
-            st.success(_t['unc_result_title'].format(
-                value=_unc_result["assigned_value"], U=_unc_result["U"], k=_unc_k, urel=_unc_result["U_rel_pct"]))
+            if st.button(_t['unc_calc_btn'], key="unc_calc_btn"):
+                _unc_result = compute_assigned_value_uncertainty(_unc_assigned_value, _unc_u_char, _unc_u_bb, _unc_u_stab, k=_unc_k)
+                st.session_state["_unc_result_cache"] = _unc_result
+                st.success(_t['unc_result_title'].format(
+                    value=_unc_result["assigned_value"], U=_unc_result["U"], k=_unc_k, urel=_unc_result["U_rel_pct"]))
 
-            _unc_table_rows = [{_t['mu_col_source']: k, _t['mu_col_contribution']: f"{v:.5f}"}
-                                for k, v in _unc_result["components"].items()]
-            _unc_table_rows.append({_t['mu_col_source']: _t['mu_col_combined'], _t['mu_col_contribution']: f"{_unc_result['u_c']:.5f}"})
-            _unc_table_rows.append({_t['mu_col_source']: f"{_t['mu_col_expanded']} (k={_unc_k})", _t['mu_col_contribution']: f"{_unc_result['U']:.5f}"})
-            st.dataframe(pd.DataFrame(_unc_table_rows), use_container_width=True)
+                _unc_table_rows = [{_t['mu_col_source']: k, _t['mu_col_contribution']: f"{v:.5f}"}
+                                    for k, v in _unc_result["components"].items()]
+                _unc_table_rows.append({_t['mu_col_source']: _t['mu_col_combined'], _t['mu_col_contribution']: f"{_unc_result['u_c']:.5f}"})
+                _unc_table_rows.append({_t['mu_col_source']: f"{_t['mu_col_expanded']} (k={_unc_k})", _t['mu_col_contribution']: f"{_unc_result['U']:.5f}"})
+                st.dataframe(pd.DataFrame(_unc_table_rows), use_container_width=True)
 
-            fig_unc = go.Figure(go.Bar(
-                x=list(_unc_result["components"].keys()), y=list(_unc_result["components"].values()),
-                marker_color="#00695c"
-            ))
-            fig_unc.update_layout(title="Uncertainty Component Contributions (absolute units)", height=350)
-            st.plotly_chart(fig_unc, use_container_width=True, key="unc_chart")
+                fig_unc = go.Figure(go.Bar(
+                    x=list(_unc_result["components"].keys()), y=list(_unc_result["components"].values()),
+                    marker_color="#00695c"
+                ))
+                fig_unc.update_layout(title="Uncertainty Component Contributions (absolute units)", height=350)
+                st.plotly_chart(fig_unc, use_container_width=True, key="unc_chart")
 
-    # ── Batch-to-Batch (Lot) Equivalence ──────────────────────────────────────
-    elif crm_mode == _t['crm_mode_equivalence']:
-        st.caption(_t['equiv_description'])
-        eq_c1, eq_c2 = st.columns(2)
-        with eq_c1:
-            _eq_lot1_txt = st.text_area(_t['equiv_lot1_label'], key="eq_lot1", height=150)
-        with eq_c2:
-            _eq_lot2_txt = st.text_area(_t['equiv_lot2_label'], key="eq_lot2", height=150)
-        _eq_margin = st.number_input(_t['equiv_margin_label'], min_value=0.1, max_value=100.0,
-                                      value=10.0, step=0.5, key="eq_margin")
+        # ── Batch-to-Batch (Lot) Equivalence ──────────────────────────────────────
+        elif crm_mode == _t['crm_mode_equivalence']:
+            st.caption(_t['equiv_description'])
+            eq_c1, eq_c2 = st.columns(2)
+            with eq_c1:
+                _eq_lot1_txt = st.text_area(_t['equiv_lot1_label'], key="eq_lot1", height=150)
+            with eq_c2:
+                _eq_lot2_txt = st.text_area(_t['equiv_lot2_label'], key="eq_lot2", height=150)
+            _eq_margin = st.number_input(_t['equiv_margin_label'], min_value=0.1, max_value=100.0,
+                                          value=10.0, step=0.5, key="eq_margin")
 
-        if st.button(_t['equiv_calc_btn'], key="eq_calc_btn"):
-            _eq_lot1_arr = parse_input_data(_eq_lot1_txt)
-            _eq_lot2_arr = parse_input_data(_eq_lot2_txt)
-            _eq_result = compute_lot_equivalence(_eq_lot1_arr, _eq_lot2_arr, _eq_margin)
-            if _eq_result is None:
-                st.error("Need at least 2 values per lot.")
-            else:
-                if _eq_result["is_equivalent"]:
-                    st.success(_t['equiv_result_equivalent'].format(
-                        diff=_eq_result["percent_diff"], lo=_eq_result["ci_low_pct"],
-                        hi=_eq_result["ci_high_pct"], margin=_eq_margin))
+            if st.button(_t['equiv_calc_btn'], key="eq_calc_btn"):
+                _eq_lot1_arr = parse_input_data(_eq_lot1_txt)
+                _eq_lot2_arr = parse_input_data(_eq_lot2_txt)
+                _eq_result = compute_lot_equivalence(_eq_lot1_arr, _eq_lot2_arr, _eq_margin)
+                if _eq_result is None:
+                    st.error("Need at least 2 values per lot.")
                 else:
-                    st.error(_t['equiv_result_not_equivalent'].format(
-                        diff=_eq_result["percent_diff"], lo=_eq_result["ci_low_pct"],
-                        hi=_eq_result["ci_high_pct"], margin=_eq_margin))
+                    if _eq_result["is_equivalent"]:
+                        st.success(_t['equiv_result_equivalent'].format(
+                            diff=_eq_result["percent_diff"], lo=_eq_result["ci_low_pct"],
+                            hi=_eq_result["ci_high_pct"], margin=_eq_margin))
+                    else:
+                        st.error(_t['equiv_result_not_equivalent'].format(
+                            diff=_eq_result["percent_diff"], lo=_eq_result["ci_low_pct"],
+                            hi=_eq_result["ci_high_pct"], margin=_eq_margin))
 
-                eqc1, eqc2, eqc3 = st.columns(3)
-                eqc1.metric(_t['equiv_mean1_label'], f"{_eq_result['mean1']:.4f}")
-                eqc2.metric(_t['equiv_mean2_label'], f"{_eq_result['mean2']:.4f}")
-                eqc3.metric("% Difference", f"{_eq_result['percent_diff']:+.2f}%")
+                    eqc1, eqc2, eqc3 = st.columns(3)
+                    eqc1.metric(_t['equiv_mean1_label'], f"{_eq_result['mean1']:.4f}")
+                    eqc2.metric(_t['equiv_mean2_label'], f"{_eq_result['mean2']:.4f}")
+                    eqc3.metric("% Difference", f"{_eq_result['percent_diff']:+.2f}%")
 
-                fig_eq = go.Figure()
-                fig_eq.add_trace(go.Bar(x=["% Difference"], y=[_eq_result["percent_diff"]],
-                                         marker_color="#00796b",
-                                         error_y=dict(type="data", symmetric=False,
-                                                       array=[_eq_result["ci_high_pct"] - _eq_result["percent_diff"]],
-                                                       arrayminus=[_eq_result["percent_diff"] - _eq_result["ci_low_pct"]])))
-                fig_eq.add_hline(y=_eq_margin, line_dash="dash", line_color="red")
-                fig_eq.add_hline(y=-_eq_margin, line_dash="dash", line_color="red")
-                fig_eq.update_layout(title=_t['equiv_chart_title'], yaxis_title="% Difference (90% CI)", height=400)
-                st.plotly_chart(fig_eq, use_container_width=True, key="eq_chart")
+                    fig_eq = go.Figure()
+                    fig_eq.add_trace(go.Bar(x=["% Difference"], y=[_eq_result["percent_diff"]],
+                                             marker_color="#00796b",
+                                             error_y=dict(type="data", symmetric=False,
+                                                           array=[_eq_result["ci_high_pct"] - _eq_result["percent_diff"]],
+                                                           arrayminus=[_eq_result["percent_diff"] - _eq_result["ci_low_pct"]])))
+                    fig_eq.add_hline(y=_eq_margin, line_dash="dash", line_color="red")
+                    fig_eq.add_hline(y=-_eq_margin, line_dash="dash", line_color="red")
+                    fig_eq.update_layout(title=_t['equiv_chart_title'], yaxis_title="% Difference (90% CI)", height=400)
+                    st.plotly_chart(fig_eq, use_container_width=True, key="eq_chart")
 
-    # ── CoA Generator ──────────────────────────────────────────────────────────
-    else:
-        st.caption(_t['coa_description'])
-        _cached_unc = st.session_state.get("_unc_result_cache")
+        # ── CoA Generator ──────────────────────────────────────────────────────────
+        else:
+            st.caption(_t['coa_description'])
+            _cached_unc = st.session_state.get("_unc_result_cache")
 
-        coa_c1, coa_c2 = st.columns(2)
-        with coa_c1:
-            _coa_material = st.text_input(_t['coa_material_name'], value="", key="coa_material")
-            _coa_lot = st.text_input(_t['coa_lot_number'], value="", key="coa_lot")
-            _coa_producer = st.text_input(_t['coa_producer'], value="", key="coa_producer")
-        with coa_c2:
-            _default_val = _cached_unc["assigned_value"] if _cached_unc else 100.0
-            _default_U = _cached_unc["U"] if _cached_unc else 2.0
-            _default_k = _cached_unc["k"] if _cached_unc else 2.0
-            _coa_value = st.number_input(_t['coa_assigned_value_label'], value=float(_default_val), step=0.01, key="coa_value")
-            _coa_unit = st.text_input(_t['coa_unit_label'], value="copies/µL", key="coa_unit")
-            _coa_U = st.number_input(_t['coa_expanded_unc_label'], value=float(_default_U), step=0.01, key="coa_U")
-            _coa_k = st.number_input(_t['coa_k_label'], value=float(_default_k), step=0.5, key="coa_k")
+            coa_c1, coa_c2 = st.columns(2)
+            with coa_c1:
+                _coa_material = st.text_input(_t['coa_material_name'], value="", key="coa_material")
+                _coa_lot = st.text_input(_t['coa_lot_number'], value="", key="coa_lot")
+                _coa_producer = st.text_input(_t['coa_producer'], value="", key="coa_producer")
+            with coa_c2:
+                _default_val = _cached_unc["assigned_value"] if _cached_unc else 100.0
+                _default_U = _cached_unc["U"] if _cached_unc else 2.0
+                _default_k = _cached_unc["k"] if _cached_unc else 2.0
+                _coa_value = st.number_input(_t['coa_assigned_value_label'], value=float(_default_val), step=0.01, key="coa_value")
+                _coa_unit = st.text_input(_t['coa_unit_label'], value="copies/µL", key="coa_unit")
+                _coa_U = st.number_input(_t['coa_expanded_unc_label'], value=float(_default_U), step=0.01, key="coa_U")
+                _coa_k = st.number_input(_t['coa_k_label'], value=float(_default_k), step=0.5, key="coa_k")
 
-        _coa_traceability = st.text_area(_t['coa_traceability_label'], value=_t['coa_traceability_default'], key="coa_traceability")
-        _coa_validity = st.text_input(_t['coa_validity_label'], value="", key="coa_validity")
+            _coa_traceability = st.text_area(_t['coa_traceability_label'], value=_t['coa_traceability_default'], key="coa_traceability")
+            _coa_validity = st.text_input(_t['coa_validity_label'], value="", key="coa_validity")
 
-        if st.button(_t['coa_generate_btn'], key="coa_generate_btn"):
-            _coa_summary_rows = [
-                ["Parameter", "Value"],
-                ["Material", _coa_material or "—"],
-                ["Batch/Lot", _coa_lot or "—"],
-                ["Producer/Laboratory", _coa_producer or "—"],
-                ["Assigned Value", f"{_coa_value} {_coa_unit}"],
-                ["Expanded Uncertainty (U)", f"± {_coa_U} {_coa_unit} (k={_coa_k})"],
-                ["Validity / Shelf Life", _coa_validity or "—"],
-            ]
-            coa_pdf_buffer = create_simple_pdf(
-                report_title="Certificate of Analysis",
-                subtitle=_coa_material or "AbsoluteGene CRM Certificate",
-                description=_coa_traceability,
-                summary_rows=_coa_summary_rows,
-                table_header=None, table_rows=None, chart_png_bytes=None, chart_caption=None,
-                footer_note=(f"This certificate was generated by AbsoluteGene v{APP_VERSION} for research and internal "
-                              "documentation purposes. It does not constitute a formally accredited "
-                              "Certificate of Analysis under ISO 17034 unless issued by an accredited "
-                              "reference material producer following full validation."),
-                references=[
-                    "ISO Guide 35:2017. Reference materials — Guidance for characterization and assessment of homogeneity and stability.",
-                    "ISO 17034:2016. General requirements for the competence of reference material producers.",
-                    "Linsinger TP et al. (2001). Homogeneity and stability of reference materials. Accred Qual Assur, 6, 20-25.",
+            if st.button(_t['coa_generate_btn'], key="coa_generate_btn"):
+                _coa_summary_rows = [
+                    ["Parameter", "Value"],
+                    ["Material", _coa_material or "—"],
+                    ["Batch/Lot", _coa_lot or "—"],
+                    ["Producer/Laboratory", _coa_producer or "—"],
+                    ["Assigned Value", f"{_coa_value} {_coa_unit}"],
+                    ["Expanded Uncertainty (U)", f"± {_coa_U} {_coa_unit} (k={_coa_k})"],
+                    ["Validity / Shelf Life", _coa_validity or "—"],
                 ]
-            )
-            st.download_button(
-                _t['coa_download_btn'], data=coa_pdf_buffer,
-                file_name="certificate_of_analysis.pdf", mime="application/pdf", key="coa_pdf_dl"
-            )
+                coa_pdf_buffer = create_simple_pdf(
+                    report_title="Certificate of Analysis",
+                    subtitle=_coa_material or "AbsoluteGene CRM Certificate",
+                    description=_coa_traceability,
+                    summary_rows=_coa_summary_rows,
+                    table_header=None, table_rows=None, chart_png_bytes=None, chart_caption=None,
+                    footer_note=(f"This certificate was generated by AbsoluteGene v{APP_VERSION} for research and internal "
+                                  "documentation purposes. It does not constitute a formally accredited "
+                                  "Certificate of Analysis under ISO 17034 unless issued by an accredited "
+                                  "reference material producer following full validation."),
+                    references=[
+                        "ISO Guide 35:2017. Reference materials — Guidance for characterization and assessment of homogeneity and stability.",
+                        "ISO 17034:2016. General requirements for the competence of reference material producers.",
+                        "Linsinger TP et al. (2001). Homogeneity and stability of reference materials. Accred Qual Assur, 6, 20-25.",
+                    ]
+                )
+                st.download_button(
+                    _t['coa_download_btn'], data=coa_pdf_buffer,
+                    file_name="certificate_of_analysis.pdf", mime="application/pdf", key="coa_pdf_dl"
+                )
+
+
+    else:
+        st.info(f"{_t['advanced_gate_title']}\n\n{_t['advanced_gate_message']}")
 
 
 with tab_report:
@@ -4975,6 +5323,18 @@ with tab_report:
             st.download_button(
                 label=f"⬇️ {_t['pdf_report']}", data=pdf_buffer,
                 file_name="absolutegene_report.pdf", mime="application/pdf", key="pdf_dl"
+            )
+
+        st.markdown("---")
+        st.markdown(f"#### {_t['excel_export_title']}")
+        st.caption(_t['excel_export_description'])
+        if st.button(_t['excel_export_btn'], key="excel_export_btn"):
+            excel_buffer = create_excel_report(data, stats_data, input_values_table, language_code)
+            st.download_button(
+                label=f"⬇️ {_t['excel_export_btn']}", data=excel_buffer,
+                file_name="absolutegene_report.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                key="excel_dl"
             )
 
         st.markdown("---")

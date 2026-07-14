@@ -1285,6 +1285,7 @@ def pool_and_compute_vaf(std_df, mutant_assay, wt_assay, partition_vol_nl_local)
 _PROJECT_SCALAR_KEYS = [
     "gene_count", "patient_count", "num_ref_genes", "ploidy", "partition_vol",
     "qc_min", "outlier_enabled", "outlier_method", "grubbs_alpha", "iqr_mult",
+    "advanced_mode",
 ]
 _PROJECT_TEXT_PREFIXES = (
     "ctrl_tgt_pos_", "ctrl_tgt_tot_", "ctrl_ref_pos_", "ctrl_ref_tot_",
@@ -1307,12 +1308,28 @@ def export_project_state():
     return project
 
 def import_project_state(project_dict):
-    """Restores session_state from a previously exported project dict. Returns count of keys restored."""
+    """
+    Restores session_state from a previously exported project dict. Returns
+    count of keys restored.
+
+    Special case: "advanced_mode" controls a widget (the sidebar toggle)
+    that is instantiated EARLIER in the script than this import logic runs.
+    Streamlit does not allow writing to st.session_state for a key whose
+    widget has already been instantiated in the current run (it raises an
+    exception), so we can't set it directly here. Instead we stash it in a
+    "_pending_advanced_mode" key, which is picked up and applied at the top
+    of the script (before the toggle widget is instantiated) on the next
+    rerun.
+    """
     if not isinstance(project_dict, dict):
         return 0
     count = 0
     for k, v in project_dict.items():
         if k == "_absolutegene_project_version":
+            continue
+        if k == "advanced_mode":
+            st.session_state["_pending_advanced_mode"] = v
+            count += 1
             continue
         if k in _PROJECT_SCALAR_KEYS or (isinstance(k, str) and k.startswith(_PROJECT_TEXT_PREFIXES)):
             st.session_state[k] = v
@@ -2017,6 +2034,12 @@ _COLUMN_ALIASES = {
               "total accepted droplets", "valid partitions", "partitions (valid)",
               "total", "total partitions", "total reactions", "total conf. droplets",
               "droplet count", "well droplet count"],
+    "dilution_factor": ["dilution factor", "dilution", "df", "dilutionfactor"],
+    "reaction_volume": ["reaction volume", "rxn volume", "reaction vol", "rxn vol",
+                         "total reaction volume", "reaction volume (ul)", "reaction volume (µl)"],
+    "template_volume": ["template volume", "sample volume", "dna volume", "rna volume",
+                         "dna/rna volume", "input volume", "template vol",
+                         "template volume (ul)", "template volume (µl)"],
 }
 
 def _norm_col(col):
@@ -2478,9 +2501,12 @@ st.markdown(
 # ═══════════════════════════════════════════════════════════════════════════════
 # SIDEBAR — Simple / Advanced Mode toggle
 # ═══════════════════════════════════════════════════════════════════════════════
+if "_pending_advanced_mode" in st.session_state:
+    st.session_state["advanced_mode"] = st.session_state.pop("_pending_advanced_mode")
+
 advanced_mode = st.sidebar.toggle(
-    _t['advanced_mode_label'], value=False, key="advanced_mode",
-    help=_t['advanced_mode_help']
+    _t['advanced_mode_label'], key="advanced_mode", help=_t['advanced_mode_help'],
+    **({} if "advanced_mode" in st.session_state else {"value": False})
 )
 if not advanced_mode:
     st.sidebar.caption(_t['simple_mode_caption'])
@@ -3854,8 +3880,9 @@ def create_excel_report(data, stats_data, input_values_table, lang):
             cell.fill = header_fill
             cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
             cell.border = thin_border
-        for r, row in enumerate(rows, start=2):
-            fill = row_fill_fn(row) if row_fill_fn else None
+        for i, row in enumerate(rows):
+            r = i + 2
+            fill = row_fill_fn(row, i) if row_fill_fn else None
             for c, h in enumerate(headers, start=1):
                 val = row.get(h, "")
                 if isinstance(val, float) and np.isnan(val):
@@ -3894,7 +3921,7 @@ def create_excel_report(data, stats_data, input_values_table, lang):
                    "__conc__": "Concentration (copies/uL)", "Outlier Excluded": "Status"}
         clean_rows = [{rename[h]: row.get(h, "") for h in headers} for row in input_values_table]
 
-        def _input_fill(row):
+        def _input_fill(row, idx):
             status = str(row.get("Status", ""))
             return excluded_fill if status.startswith(("Yes", "Evet")) else None
 
@@ -3919,7 +3946,7 @@ def create_excel_report(data, stats_data, input_values_table, lang):
                 "Regulation": r["__regulation__"],
             })
 
-        def _res_fill(row):
+        def _res_fill(row, idx):
             reg = str(row.get("Regulation", "")).lower()
             if "up" in reg or "yukarı" in reg or "kazan" in reg or "gain" in reg:
                 return up_fill
@@ -3934,6 +3961,7 @@ def create_excel_report(data, stats_data, input_values_table, lang):
         ws_stat = wb.create_sheet("Statistics")
         headers = ["Gene", "Comparison", "Test Type", "Test Method", "p-value", "Significance"]
         clean_rows = []
+        sig_flags = []
         for r in stats_data:
             pval = r.get("__pvalue__", float("nan"))
             clean_rows.append({
@@ -3942,10 +3970,14 @@ def create_excel_report(data, stats_data, input_values_table, lang):
                 "p-value": round(pval, 4) if not np.isnan(pval) else "",
                 "Significance": r["__significance__"],
             })
+            # Determined directly from the numeric p-value (language-independent),
+            # rather than string-matching the localized "Significant"/"Anlamlı"
+            # label, which would silently fail to highlight anything in non-English
+            # reports.
+            sig_flags.append(bool(not np.isnan(pval) and pval < 0.05))
 
-        def _stat_fill(row):
-            return sig_fill if "significant" in str(row.get("Significance", "")).lower() and \
-                "insignificant" not in str(row.get("Significance", "")).lower() else None
+        def _stat_fill(row, idx):
+            return sig_fill if sig_flags[idx] else None
 
         _write_sheet(ws_stat, headers, clean_rows, row_fill_fn=_stat_fill)
 

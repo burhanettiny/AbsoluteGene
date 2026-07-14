@@ -50,6 +50,22 @@ section[data-testid="stSidebar"] hr { margin: 4px 0 !important; }
 if 'language' not in st.session_state:
     st.session_state.language = "English"
 
+# ── Sidebar logo (absolutegene.png, same repo folder as this script) ──────────
+try:
+    import base64 as _b64
+    _logo_path = "absolutegene.png"
+    if os.path.exists(_logo_path):
+        with open(_logo_path, "rb") as _f:
+            _logo_b64 = _b64.b64encode(_f.read()).decode()
+        st.sidebar.markdown(
+            f"<div style='text-align:center;padding:4px 0 6px 0;'>"
+            f"<img src='data:image/png;base64,{_logo_b64}' width='130' style='border-radius:8px;'/>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+except Exception:
+    pass
+
 flags = {"Türkçe": "🇹🇷", "English": "🇬🇧"}
 default_index = list(flags.keys()).index(st.session_state.language) if st.session_state.language in flags else 1
 

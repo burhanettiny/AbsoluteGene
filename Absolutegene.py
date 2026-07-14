@@ -59,7 +59,7 @@ try:
             _logo_b64 = _b64.b64encode(_f.read()).decode()
         st.sidebar.markdown(
             f"<div style='text-align:center;padding:4px 0 6px 0;'>"
-            f"<img src='data:image/png;base64,{_logo_b64}' width='130' style='border-radius:8px;'/>"
+            f"<img src='data:image/png;base64,{_logo_b64}' width='180' style='border-radius:8px;'/>"
             f"</div>",
             unsafe_allow_html=True
         )

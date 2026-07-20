@@ -19,7 +19,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.formatting.rule import CellIsRule
 
-APP_VERSION = "1.3.0"  # bump on any change to calculation logic or statistical methods
+APP_VERSION = "1.4.0"  # bump on any change to calculation logic or statistical methods
 
 try:
     plt.rcParams['font.family'] = 'DejaVu Sans'
@@ -234,6 +234,9 @@ translations = {
         "above_loq_flag": "✅ LOQ üstü",
         "lod_qc_col": "LOD/LOQ Durumu",
         "loq_heuristic_note": "Not: LOQ, yaygın kullanılan bir kural olarak LOD'un 3 katı şeklinde hesaplanmıştır. Daha kesin bir LOQ için tekrarlanabilirlik (CV%) temelli deneysel doğrulama önerilir.",
+        "empirical_loq_label": "Ampirik LOQ Çapraz Kontrolü (CV%-tabanlı)",
+        "empirical_loq_pass": "✅ Tekrarlanabilirlik kabul edilebilir",
+        "empirical_loq_fail": "⚠️ Düşük tekrarlanabilirlik (CV>%25)",
         "csv_import_expander": "📂 Cihaz CSV Dosyası İçe Aktar (QuantaSoft / QX Manager / QIAcuity)",
         "csv_import_description": "Bio-Rad QuantaSoft/QX Manager veya QIAGEN QIAcuity yazılımından dışa aktardığınız CSV dosyasını yükleyin. Sütunlar otomatik tanınmaya çalışılır; gerekirse manuel eşleştirme yapabilirsiniz.",
         "csv_uploader": "CSV dosyası seçin",
@@ -712,6 +715,9 @@ translations = {
         "above_loq_flag": "✅ Above LOQ",
         "lod_qc_col": "LOD/LOQ Status",
         "loq_heuristic_note": "Note: LOQ is calculated as 3× LOD, a commonly used heuristic. For a more rigorous LOQ, empirical validation based on reproducibility (CV%) is recommended.",
+        "empirical_loq_label": "Empirical LOQ Cross-Check (CV%-based)",
+        "empirical_loq_pass": "✅ Reproducibility acceptable",
+        "empirical_loq_fail": "⚠️ Low reproducibility (CV>25%)",
         "csv_import_expander": "📂 Import Instrument CSV (QuantaSoft / QX Manager / QIAcuity)",
         "csv_import_description": "Upload a CSV export from Bio-Rad QuantaSoft/QX Manager or QIAGEN QIAcuity software. Columns are auto-detected where possible; you can manually map any that aren't recognized.",
         "csv_uploader": "Choose CSV file",
@@ -1644,7 +1650,7 @@ def compute_deming_regression(method1_vals, method2_vals, variance_ratio=1.0, n_
         "intercept_ci_low": intercept_ci_low, "intercept_ci_high": intercept_ci_high,
     }
 
-def compute_passing_bablok(method1_vals, method2_vals):
+def compute_passing_bablok(method1_vals, method2_vals, n_boot=1000, seed=42):
     """
     Passing-Bablok regression: a non-parametric method-comparison
     regression that, unlike Deming regression, does not require an
@@ -1657,7 +1663,16 @@ def compute_passing_bablok(method1_vals, method2_vals):
     the error-variance ratio is unknown, making it a useful complement (or
     alternative) to Deming regression in this app.
 
-    Returns dict with slope, intercept, n_pairs.
+    95% confidence intervals for slope and intercept are obtained via
+    non-parametric bootstrap resampling (percentile method), matching the
+    approach used for the Deming regression CI elsewhere in this app —
+    the original Passing-Bablok paper describes an analytical CI based on
+    the sorted pairwise-slope distribution, but the bootstrap approach is
+    simpler to implement correctly and gives comparable coverage in
+    practice for the sample sizes typical of method-comparison studies.
+
+    Returns dict with slope, intercept, n_pairs, slope_ci_low/high,
+    intercept_ci_low/high.
     """
     x = np.asarray(method1_vals, dtype=float)
     y = np.asarray(method2_vals, dtype=float)
@@ -1666,30 +1681,55 @@ def compute_passing_bablok(method1_vals, method2_vals):
     if n < 3:
         return None
 
-    slopes = []
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            dx = x[j] - x[i]
-            if dx != 0:
-                s = (y[j] - y[i]) / dx
-                if s != -1:
-                    slopes.append(s)
-    if not slopes:
+    def _fit_pb(xx, yy):
+        nn = len(xx)
+        slopes = []
+        for i in range(nn - 1):
+            for j in range(i + 1, nn):
+                dx = xx[j] - xx[i]
+                if dx != 0:
+                    s = (yy[j] - yy[i]) / dx
+                    if s != -1:
+                        slopes.append(s)
+        if not slopes:
+            return np.nan, np.nan, 0
+        slopes_sorted = np.sort(np.array(slopes))
+        N = len(slopes_sorted)
+        K = int(np.sum(slopes_sorted < -1))
+        if N % 2 == 0:
+            idx1 = min(max(N // 2 + K, 1), N)
+            idx2 = min(max(idx1 + 1, 1), N)
+            s_est = 0.5 * (slopes_sorted[idx1 - 1] + slopes_sorted[idx2 - 1])
+        else:
+            idx = min(max((N + 1) // 2 + K, 1), N)
+            s_est = slopes_sorted[idx - 1]
+        i_est = float(np.median(yy - s_est * xx))
+        return float(s_est), i_est, N
+
+    slope, intercept, n_pairs = _fit_pb(x, y)
+    if np.isnan(slope):
         return None
-    slopes_sorted = np.sort(np.array(slopes))
-    N = len(slopes_sorted)
-    K = int(np.sum(slopes_sorted < -1))
 
-    if N % 2 == 0:
-        idx1 = min(max(N // 2 + K, 1), N)
-        idx2 = min(max(idx1 + 1, 1), N)
-        slope = 0.5 * (slopes_sorted[idx1 - 1] + slopes_sorted[idx2 - 1])
+    rng = np.random.default_rng(seed)
+    boot_slopes, boot_intercepts = [], []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        s_b, i_b, _ = _fit_pb(x[idx], y[idx])
+        if not np.isnan(s_b):
+            boot_slopes.append(s_b)
+            boot_intercepts.append(i_b)
+
+    if len(boot_slopes) >= 20:
+        slope_ci_low, slope_ci_high = np.percentile(boot_slopes, [2.5, 97.5])
+        intercept_ci_low, intercept_ci_high = np.percentile(boot_intercepts, [2.5, 97.5])
     else:
-        idx = min(max((N + 1) // 2 + K, 1), N)
-        slope = slopes_sorted[idx - 1]
+        slope_ci_low = slope_ci_high = intercept_ci_low = intercept_ci_high = np.nan
 
-    intercept = float(np.median(y - slope * x))
-    return {"slope": float(slope), "intercept": intercept, "n_pairs": N}
+    return {
+        "slope": slope, "intercept": intercept, "n_pairs": n_pairs,
+        "slope_ci_low": slope_ci_low, "slope_ci_high": slope_ci_high,
+        "intercept_ci_low": intercept_ci_low, "intercept_ci_high": intercept_ci_high,
+    }
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CRM PRODUCTION — Homogeneity, Stability, Assigned Value/Uncertainty Budget (per
@@ -3369,6 +3409,18 @@ with tab_data:
                 else:
                     lod_loq_flag = _t['above_loq_flag']
 
+            # ── Empirical LOQ cross-check (replicate-reproducibility-based) ──────
+            # The LOD/LOQ above rests on the 3x-LOD heuristic, which is a common
+            # analytical-chemistry convention but not independently validated for
+            # Poisson-based dPCR. As a cross-check, flag results whose *observed*
+            # replicate-to-replicate CV% exceeds a reproducibility threshold
+            # (commonly ~20-25% in bioanalytical method validation guidance,
+            # e.g. FDA/EMA), independent of the LOD/LOQ calculation entirely.
+            empirical_loq_flag = "—"
+            if not np.isnan(conc_smp_cv):
+                empirical_loq_flag = (_t['empirical_loq_fail'] if conc_smp_cv > 25
+                                       else _t['empirical_loq_pass'])
+
             if fold_change >= 1.5:
                 regulation = _t['upregulated']
             elif fold_change <= 0.67:
@@ -3390,6 +3442,8 @@ with tab_data:
                            f"×{smp_dilution_factor:.0f} {_t['dilution_factor_field_label']})")
             if lod_loq_result is not None:
                 st.caption(f"{_t['lod_qc_col']}: {lod_loq_flag}")
+            if not np.isnan(conc_smp_cv):
+                st.caption(f"{_t['empirical_loq_label']}: {empirical_loq_flag} (CV={conc_smp_cv:.1f}%)")
             st.caption(f"{_t['dynamic_range_warning_label']}: {dynamic_range_flag}")
 
             # ── Statistics (Control vs this patient group), directly on Ratio ──
@@ -3501,6 +3555,7 @@ with tab_data:
                 "__stock_conc_smp__": stock_conc_smp_mean, "__stock_conc_smp_lo__": stock_conc_smp_lo,
                 "__stock_conc_smp_hi__": stock_conc_smp_hi, "__dynamic_range_flag__": dynamic_range_flag,
                 "__lambda_smp_mean__": _mean_lam_smp, "__poisson_rel_se_pct__": _poisson_rel_se_pct,
+                "__empirical_loq_flag__": empirical_loq_flag,
             })
 
 
@@ -4293,8 +4348,10 @@ def create_pdf(results, stat_rows, input_df, lang, multigroup_results=None):
             ib.seek(0)
             elements.append(RLImage(ib, width=460, height=230))
             elements.append(Paragraph(safe_str("Figure 1. Fold change by gene/group. Dashed line y=1 = no change vs control."), caption_style))
-        except Exception:
-            pass
+        except Exception as _chart_err:
+            elements.append(Paragraph(safe_str(
+                f"[Chart could not be generated: {_chart_err}]"
+            ), small_style))
     elements.append(PageBreak())
 
     # ── SECTION 4: STATISTICS ─────────────────────────────────────────────────
@@ -4375,8 +4432,10 @@ def create_pdf(results, stat_rows, input_df, lang, multigroup_results=None):
             elements.append(RLImage(ib3, width=420, height=210))
             elements.append(Paragraph(safe_str(f"Figure. Ratio distribution for {gene_label}."), caption_style))
             elements.append(Spacer(1, 10))
-        except Exception:
-            pass
+        except Exception as _chart_err:
+            elements.append(Paragraph(safe_str(
+                f"[Chart for {gene_label} could not be generated: {_chart_err}]"
+            ), small_style))
     elements.append(PageBreak())
 
     # ── SECTION 6: INTERPRETATION ─────────────────────────────────────────────
@@ -4666,8 +4725,10 @@ with tab_batch:
                 plt.savefig(_img_buf, format='png', dpi=150, bbox_inches='tight')
                 plt.close()
                 _chart_bytes = _img_buf.getvalue()
-            except Exception:
+            except Exception as _chart_err:
                 _chart_bytes = None
+                st.warning(f"⚠️ Chart could not be generated for the PDF ({_chart_err}). "
+                           f"The report will still be created without this figure.")
 
             _batch_summary_rows = [
                 ["Parameter", "Value"],
@@ -4834,8 +4895,10 @@ with tab_vaf:
                 plt.savefig(_img_buf, format='png', dpi=150, bbox_inches='tight')
                 plt.close()
                 _vaf_chart_bytes = _img_buf.getvalue()
-            except Exception:
+            except Exception as _chart_err:
                 _vaf_chart_bytes = None
+                st.warning(f"⚠️ Chart could not be generated for the PDF ({_chart_err}). "
+                           f"The report will still be created without this figure.")
 
             _vaf_mutant_cache = st.session_state.get("_vaf_mutant_assay_cache", "—")
             _vaf_wt_cache = st.session_state.get("_vaf_wt_assay_cache", "—")
@@ -5080,12 +5143,16 @@ with tab_clinical:
                                 "Intercept 95% CI": _int_ci,
                             })
                         if _pb_result:
+                            _pb_slope_ci = (f"{_pb_result['slope_ci_low']:.4f}–{_pb_result['slope_ci_high']:.4f}"
+                                             if not np.isnan(_pb_result['slope_ci_low']) else "—")
+                            _pb_int_ci = (f"{_pb_result['intercept_ci_low']:.4f}–{_pb_result['intercept_ci_high']:.4f}"
+                                          if not np.isnan(_pb_result['intercept_ci_low']) else "—")
                             _reg_rows.append({
                                 "Method": _t['comparison_pb_label'],
                                 "Slope": round(_pb_result["slope"], 4),
-                                f"Slope {_t['comparison_deming_ci_label']}": "—",
+                                f"Slope {_t['comparison_deming_ci_label']}": _pb_slope_ci,
                                 "Intercept": round(_pb_result["intercept"], 4),
-                                "Intercept 95% CI": "—",
+                                "Intercept 95% CI": _pb_int_ci,
                             })
                         st.dataframe(pd.DataFrame(_reg_rows), use_container_width=True)
                         st.caption(_t['comparison_pb_note'])

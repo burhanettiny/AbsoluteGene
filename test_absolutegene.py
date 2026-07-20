@@ -28,6 +28,17 @@ def _fresh_app():
     return at
 
 
+def _fresh_app_advanced():
+    """Same as _fresh_app but with Advanced Mode enabled (needed for Clinical
+    Tools, CRM Production, and the Multiplex Converter, which are gated
+    behind Advanced Mode by default in Simple Mode)."""
+    at = AppTest.from_file(APP_PATH)
+    at.run(timeout=30)
+    at.toggle(key="advanced_mode").set_value(True)
+    at.run(timeout=30)
+    return at
+
+
 def _load_scenario(at, name):
     at.selectbox(key="scenario_selector").set_value(name)
     at.run(timeout=30)
@@ -186,6 +197,24 @@ def test_batch_screening_classification():
     assert not at.exception
 
 
+def test_batch_screening_multi_gene_heatmap():
+    rows = [["Sample", "Target", "Positives", "AcceptedDroplets"]]
+    for s in range(1, 5):
+        rows.append([f"S{s}", "MYCN", "1900", "20000"])
+        rows.append([f"S{s}", "ERBB2", "1900", "20000"])
+        rows.append([f"S{s}", "RPP30", "1900", "20000"])
+    at = _fresh_app()
+    at.file_uploader(key="batch_uploader").upload("m.csv", _build_csv(rows), "text/csv")
+    at.run(timeout=30)
+    at.multiselect(key="batch_target_assays").set_value(["MYCN", "ERBB2"])
+    at.run(timeout=30)
+    at.multiselect(key="batch_ref_assays").set_value(["RPP30"])
+    at.run(timeout=30)
+    at.button(key="batch_run_btn").click()
+    at.run(timeout=30)
+    assert not at.exception
+
+
 def test_vaf_calculator_detects_and_not_detects():
     rows = [
         ["Sample", "Target", "Positives", "AcceptedDroplets"],
@@ -203,7 +232,7 @@ def test_vaf_calculator_detects_and_not_detects():
 # ─── Clinical Tools ─────────────────────────────────────────────────────────
 
 def test_mu_budget_manual_mode():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="clinical_mode").set_value("📐 Measurement Uncertainty (MU) Budget")
     at.run(timeout=30)
     at.radio(key="mu_source_mode").set_value("Enter manually")
@@ -221,7 +250,7 @@ def test_mu_budget_manual_mode():
 
 
 def test_mu_budget_double_count_warning_fires():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="clinical_mode").set_value("📐 Measurement Uncertainty (MU) Budget")
     at.run(timeout=30)
     _load_scenario(at, "S1 — Basic CNV gain (1 gene, n=5)")
@@ -235,7 +264,7 @@ def test_mu_budget_double_count_warning_fires():
 
 
 def test_rcv_significant_and_not_significant():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="clinical_mode").set_value("📈 Reference Change Value (RCV)")
     at.run(timeout=30)
     at.number_input(key="rcv_result1").set_value(10.0)
@@ -250,7 +279,7 @@ def test_rcv_significant_and_not_significant():
 
 
 def test_precision_study_unbalanced_design():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="clinical_mode").set_value("🔁 Precision Study")
     at.run(timeout=30)
     at.number_input(key="prec_n_days").set_value(3)
@@ -266,7 +295,7 @@ def test_precision_study_unbalanced_design():
 
 
 def test_method_comparison_passing_bablok_and_deming():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="clinical_mode").set_value("⚖️ Method Comparison")
     at.run(timeout=30)
     at.text_area(key="comp_m1").set_value("10\n20\n30\n40\n50\n60\n70\n80\n90\n100")
@@ -279,7 +308,7 @@ def test_method_comparison_passing_bablok_and_deming():
 
 
 def test_method_comparison_proportional_bias_detected():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="clinical_mode").set_value("⚖️ Method Comparison")
     at.run(timeout=30)
     at.text_area(key="comp_m1").set_value("10\n20\n30\n40\n50\n60\n70\n80\n90\n100")
@@ -293,7 +322,7 @@ def test_method_comparison_proportional_bias_detected():
 # ─── CRM Production ─────────────────────────────────────────────────────────
 
 def test_homogeneity_detects_inhomogeneous_batch():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="crm_mode").set_value("🧪 Homogeneity Testing")
     at.run(timeout=30)
     at.number_input(key="homog_n_units").set_value(5)
@@ -308,7 +337,7 @@ def test_homogeneity_detects_inhomogeneous_batch():
 
 
 def test_homogeneity_unbalanced_design_uses_all_data():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="crm_mode").set_value("🧪 Homogeneity Testing")
     at.run(timeout=30)
     at.number_input(key="homog_n_units").set_value(3)
@@ -325,7 +354,7 @@ def test_homogeneity_unbalanced_design_uses_all_data():
 
 
 def test_stability_detects_degradation_trend():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="crm_mode").set_value("⏳ Stability Testing")
     at.run(timeout=30)
     at.text_area(key="stab_time").set_value("0\n30\n60\n90\n120\n180\n365")
@@ -338,7 +367,7 @@ def test_stability_detects_degradation_trend():
 
 
 def test_lot_equivalence_and_non_equivalence():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="crm_mode").set_value("⚖️ Batch-to-Batch Comparison (Lot Equivalence)")
     at.run(timeout=30)
     at.text_area(key="eq_lot1").set_value("100\n102\n98\n101\n99\n103")
@@ -352,7 +381,7 @@ def test_lot_equivalence_and_non_equivalence():
 
 
 def test_coa_pdf_generation():
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.radio(key="crm_mode").set_value("📜 Certificate (CoA) Generator")
     at.run(timeout=30)
     at.text_input(key="coa_material").set_value("Test Material")
@@ -368,7 +397,7 @@ def test_multiplex_covariance_narrower_than_independence():
     """The covariance-aware CI should generally be narrower/more accurate
     than the naive independence-assumption CI for positively-correlated
     shared-partition data — regression guard for the multiplex feature."""
-    at = _fresh_app()
+    at = _fresh_app_advanced()
     at.number_input(key="mx_n11").set_value(1500)
     at.number_input(key="mx_n10").set_value(400)
     at.number_input(key="mx_n01").set_value(300)
@@ -399,6 +428,112 @@ def test_volume_based_dilution_back_calculation():
     stock_caption = next((c.value for c in at.caption if "Stock Concentration" in c.value), None)
     assert stock_caption is not None
     assert "3534" in stock_caption  # 176.7 * 20 ≈ 3534
+
+
+# ─── Simple / Advanced Mode ─────────────────────────────────────────────────
+
+def test_simple_mode_gates_advanced_tabs():
+    """By default (Advanced Mode off), Clinical Tools and CRM Production
+    should show a gate message instead of their actual tool content."""
+    at = _fresh_app()
+    assert not at.toggle(key="advanced_mode").value
+    gate_shown = any("Advanced Mode" in i.value or "Gelişmiş Mod" in i.value for i in at.info)
+    assert gate_shown
+
+
+def test_advanced_mode_unlocks_clinical_tools():
+    at = _fresh_app_advanced()
+    assert at.toggle(key="advanced_mode").value
+    assert any(r.key == "clinical_mode" for r in at.radio)
+
+
+# ─── Excel export ───────────────────────────────────────────────────────────
+
+def test_excel_export_generates_without_exception():
+    at = _fresh_app()
+    _load_scenario(at, "S2 — Multi-gene + dual reference (2 genes, 2 groups, n=5)")
+    at.button(key="excel_export_btn").click()
+    at.run(timeout=30)
+    assert not at.exception
+
+
+# ─── Session History Panel ──────────────────────────────────────────────────
+
+def test_history_save_and_restore_roundtrip():
+    at = _fresh_app()
+    _load_scenario(at, "S1 — Basic CNV gain (1 gene, n=5)")
+    at.text_input(key="history_name_input").set_value("Test Snapshot")
+    at.run(timeout=30)
+    at.button(key="history_save_btn").click()
+    at.run(timeout=30)
+    assert any("Test Snapshot" in s.value for s in at.success)
+
+    # overwrite data with a different scenario, then restore
+    _load_scenario(at, "S5 — QC & saturation demo (n=5)")
+    at.button(key="history_restore_btn").click()
+    at.run(timeout=30)
+    assert not at.exception
+    assert at.session_state["ctrl_tgt_pos_0"] == "1890\n1920\n1875\n1905\n1898"  # S1's original value
+
+
+# ─── Regression: advanced_mode round-trips through project import ──────────
+
+def test_advanced_mode_restored_via_project_import():
+    """Regression guard: advanced_mode is a widget-backed session_state key
+    instantiated earlier in the script than the import logic. Setting it
+    directly during import raises a StreamlitAPIException (silently
+    swallowed by the import's try/except) unless deferred via the
+    "_pending_advanced_mode" mechanism — this test ensures that deferral
+    actually works end-to-end."""
+    import json
+    project = {"_absolutegene_project_version": 1, "advanced_mode": True, "gene_count": 1}
+    at = _fresh_app()
+    assert not at.toggle(key="advanced_mode").value
+    at.file_uploader(key="project_import_uploader").upload(
+        "p.json", json.dumps(project).encode("utf-8"), "application/json"
+    )
+    at.run(timeout=30)
+    at.run(timeout=30)  # the pending flag is applied on the following rerun
+    assert at.toggle(key="advanced_mode").value
+    assert any(r.key == "clinical_mode" for r in at.radio)
+
+
+# ─── Regression: Excel significance highlighting is language-independent ───
+
+def test_excel_stat_highlighting_works_in_turkish():
+    """Regression guard: the Statistics sheet's green highlighting for
+    significant results must be derived from the numeric p-value, not from
+    string-matching the localized "Significant"/"Anlamlı" label (which
+    would silently never match in non-English reports)."""
+    from openpyxl import load_workbook
+
+    src = open("absolutegene.py", encoding="utf-8").read()
+    fn_src = src.split("def create_excel_report(data, stats_data, input_values_table, lang):")[1]
+    fn_src = fn_src.split("def create_simple_pdf")[0]
+    namespace = {
+        "np": np, "pd": __import__("pandas"), "BytesIO": __import__("io").BytesIO,
+        "APP_VERSION": "test",
+    }
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    namespace.update({"Workbook": Workbook, "Font": Font, "PatternFill": PatternFill,
+                       "Alignment": Alignment, "Border": Border, "Side": Side,
+                       "get_column_letter": get_column_letter})
+    exec("def create_excel_report(data, stats_data, input_values_table, lang):" + fn_src, namespace)
+    create_excel_report = namespace["create_excel_report"]
+
+    stats_data = [
+        {"__gene__": "Gene 1", "Comparison": "C vs G1", "__test_type__": "Parametrik",
+         "__test_method__": "t-test", "__pvalue__": 0.001, "__significance__": "Anlamlı"},
+        {"__gene__": "Gene 1", "Comparison": "C vs G2", "__test_type__": "Parametrik",
+         "__test_method__": "t-test", "__pvalue__": 0.6, "__significance__": "Anlamsız"},
+    ]
+    buf = create_excel_report([], stats_data, [], "tr")
+    wb = load_workbook(buf)
+    ws = wb["Statistics"]
+    assert ws.cell(row=2, column=1).fill.start_color.rgb == "00C8E6C9"  # significant -> green
+    assert ws.cell(row=3, column=1).fill.start_color.rgb in ("00000000", None)  # not significant -> no fill
 
 
 if __name__ == "__main__":
